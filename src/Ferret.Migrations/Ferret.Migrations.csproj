@@ -4,17 +4,17 @@
     <AssemblyName>Ferret.Migrations</AssemblyName>
     <IsPackable>true</IsPackable>
     <PackageId>Ferret.Migrations</PackageId>
-    <Description>EF Core migrations bridge for Ferret — auto-generates pg_trgm GiST indexes from [Searchable] annotations.</Description>
-    <PackageTags>ferret;ef-core;migrations;pg_trgm;postgresql;gist;search</PackageTags>
+    <Description>EF Core migrations bridge for Ferret — auto-generates trigram (pg_trgm GiST), full-text (tsvector/GIN), and pgvector (HNSW) schema from [Searchable] annotations.</Description>
+    <PackageTags>ferret;ef-core;migrations;postgresql;pg_trgm;tsvector;pgvector;search</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
+    <PackageReference Include="EntityFrameworkCore.ExtensibleMigrations" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Ferret.Core/Ferret.Core.csproj" />
-    <ProjectReference Include="../../../extensible-migrations/src/EntityFrameworkCore.ExtensibleMigrations/EntityFrameworkCore.ExtensibleMigrations.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="../../README.md" Pack="true" PackagePath="\" />
