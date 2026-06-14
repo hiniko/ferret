@@ -8,9 +8,6 @@ Schema generation ships in **`Ferret.Migrations`**, an EF Core migrations bridge
 [`EntityFrameworkCore.ExtensibleMigrations`](https://github.com/hiniko/ExtensibleMigrations)
 ([NuGet](https://www.nuget.org/packages/EntityFrameworkCore.ExtensibleMigrations)).
 
-> A standalone `Ferret.Schema` library + `dotnet ferret-schema` CLI for emitting DDL **without**
-> EF Core is planned, for Dapper/BYO users who don't keep a `DbContext`.
-
 ## Install
 
 ```bash
