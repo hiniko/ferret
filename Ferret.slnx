@@ -31,5 +31,4 @@
     <Project Path="tests/Ferret.Migrations.Tests/Ferret.Migrations.Tests.csproj" />
     <Project Path="tests/Ferret.Tools.Cli.Tests/Ferret.Tools.Cli.Tests.csproj" />
   </Folder>
-  <Project Path="../extensible-migrations/src/EntityFrameworkCore.ExtensibleMigrations/EntityFrameworkCore.ExtensibleMigrations.csproj" />
 </Solution>
