@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Ferret.Abstractions</RootNamespace>
+    <AssemblyName>Ferret.Abstractions</AssemblyName>
+    <IsPackable>true</IsPackable>
+    <PackageId>Ferret.Abstractions</PackageId>
+    <Description>Interfaces, attributes and models for Ferret — Postgres-first paging, filtering, sorting, search.</Description>
+    <PackageTags>ferret;search;pagination;postgresql;abstractions</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="PublicAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI.Unshipped.txt" />
+  </ItemGroup>
+</Project>

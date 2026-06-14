@@ -1,0 +1,89 @@
+#nullable enable
+Ferret.AspNetCore.Binding.ClauseParsing
+Ferret.AspNetCore.Binding.FilterClauseListBinder
+Ferret.AspNetCore.Binding.FilterClauseListBinder.BindModelAsync(Microsoft.AspNetCore.Mvc.ModelBinding.ModelBindingContext! bindingContext) -> System.Threading.Tasks.Task!
+Ferret.AspNetCore.Binding.FilterClauseListBinder.FilterClauseListBinder() -> void
+Ferret.AspNetCore.Binding.SortClauseListBinder
+Ferret.AspNetCore.Binding.SortClauseListBinder.BindModelAsync(Microsoft.AspNetCore.Mvc.ModelBinding.ModelBindingContext! bindingContext) -> System.Threading.Tasks.Task!
+Ferret.AspNetCore.Binding.SortClauseListBinder.SortClauseListBinder() -> void
+Ferret.AspNetCore.CursorApiQuery
+Ferret.AspNetCore.CursorApiQuery.After.get -> string?
+Ferret.AspNetCore.CursorApiQuery.After.init -> void
+Ferret.AspNetCore.CursorApiQuery.Before.get -> string?
+Ferret.AspNetCore.CursorApiQuery.Before.init -> void
+Ferret.AspNetCore.CursorApiQuery.CursorApiQuery() -> void
+Ferret.AspNetCore.CursorApiQuery.Equals(Ferret.AspNetCore.CursorApiQuery? other) -> bool
+Ferret.AspNetCore.CursorApiQuery.ToPagedQuery<T, TKey>(Ferret.Abstractions.Configuration.PaginationDefaults defaults) -> Ferret.Abstractions.Models.PagedQuery<T!, TKey>!
+Ferret.AspNetCore.DependencyInjection.FerretAspNetCoreExtensions
+Ferret.AspNetCore.FerretEndpointOptions
+Ferret.AspNetCore.FerretEndpointOptions.DefaultLimit.get -> int?
+Ferret.AspNetCore.FerretEndpointRouteBuilderExtensions
+static Ferret.AspNetCore.FerretEndpointRouteBuilderExtensions.MapFerret<T, TKey>(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder! endpoints, string! pattern) -> Microsoft.AspNetCore.Builder.RouteHandlerBuilder!
+static Ferret.AspNetCore.FerretEndpointRouteBuilderExtensions.MapFerret<T, TKey>(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder! endpoints, string! pattern, System.Action<Ferret.AspNetCore.FerretEndpointOptions!>? configure) -> Microsoft.AspNetCore.Builder.RouteHandlerBuilder!
+Ferret.AspNetCore.FerretEndpointOptions.DefaultLimit.set -> void
+Ferret.AspNetCore.FerretEndpointOptions.FerretEndpointOptions() -> void
+Ferret.AspNetCore.FerretEndpointOptions.Name.get -> string?
+Ferret.AspNetCore.FerretEndpointOptions.Name.set -> void
+Ferret.AspNetCore.FerretEndpointOptions.MaxLimit.get -> int?
+Ferret.AspNetCore.FerretEndpointOptions.MaxLimit.set -> void
+Ferret.AspNetCore.FerretEndpointOptions.Pagination.get -> Ferret.AspNetCore.FerretEndpointPaginationMode
+Ferret.AspNetCore.FerretEndpointOptions.Pagination.set -> void
+Ferret.AspNetCore.FerretEndpointOptions.Summary.get -> string?
+Ferret.AspNetCore.FerretEndpointOptions.Summary.set -> void
+Ferret.AspNetCore.FerretEndpointOptions.Tag.get -> string?
+Ferret.AspNetCore.FerretEndpointOptions.Tag.set -> void
+Ferret.AspNetCore.FerretEndpointPaginationMode
+Ferret.AspNetCore.FerretEndpointPaginationMode.Cursor = 1 -> Ferret.AspNetCore.FerretEndpointPaginationMode
+Ferret.AspNetCore.FerretEndpointPaginationMode.Offset = 0 -> Ferret.AspNetCore.FerretEndpointPaginationMode
+Ferret.AspNetCore.OffsetApiQuery
+Ferret.AspNetCore.OffsetApiQuery.Count.get -> bool
+Ferret.AspNetCore.OffsetApiQuery.Count.init -> void
+Ferret.AspNetCore.OffsetApiQuery.Equals(Ferret.AspNetCore.OffsetApiQuery? other) -> bool
+Ferret.AspNetCore.OffsetApiQuery.OffsetApiQuery() -> void
+Ferret.AspNetCore.OffsetApiQuery.Page.get -> int?
+Ferret.AspNetCore.OffsetApiQuery.Page.init -> void
+Ferret.AspNetCore.OffsetApiQuery.ToPagedQuery<T, TKey>(Ferret.Abstractions.Configuration.PaginationDefaults defaults) -> Ferret.Abstractions.Models.PagedQuery<T!, TKey>!
+Ferret.AspNetCore.PaginationDefaultsResolver
+Ferret.AspNetCore.PaginationDefaultsResolver.PaginationDefaultsResolver(Microsoft.Extensions.Options.IOptions<Ferret.Abstractions.Configuration.PaginationOptions!>! options) -> void
+Ferret.AspNetCore.PaginationDefaultsResolver.Resolve(Microsoft.AspNetCore.Http.HttpContext? httpContext) -> Ferret.Abstractions.Configuration.PaginationDefaults
+Ferret.AspNetCore.PaginationParameters
+Ferret.AspNetCore.PaginationParameters.Fields.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Ferret.AspNetCore.PaginationParameters.Fields.init -> void
+Ferret.AspNetCore.PaginationParameters.Filter.get -> System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Models.FilterClause!>!
+Ferret.AspNetCore.PaginationParameters.Filter.init -> void
+Ferret.AspNetCore.PaginationParameters.Limit.get -> int?
+Ferret.AspNetCore.PaginationParameters.Limit.init -> void
+Ferret.AspNetCore.PaginationParameters.MatchInfo.get -> bool
+Ferret.AspNetCore.PaginationParameters.MatchInfo.init -> void
+Ferret.AspNetCore.PaginationParameters.PaginationParameters() -> void
+Ferret.AspNetCore.PaginationParameters.PaginationParameters(Ferret.AspNetCore.PaginationParameters! original) -> void
+Ferret.AspNetCore.PaginationParameters.Q.get -> string?
+Ferret.AspNetCore.PaginationParameters.Q.init -> void
+Ferret.AspNetCore.PaginationParameters.Sort.get -> System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Models.SortClause!>!
+Ferret.AspNetCore.PaginationParameters.Sort.init -> void
+abstract Ferret.AspNetCore.PaginationParameters.<Clone>$() -> Ferret.AspNetCore.PaginationParameters!
+override Ferret.AspNetCore.CursorApiQuery.<Clone>$() -> Ferret.AspNetCore.CursorApiQuery!
+override Ferret.AspNetCore.CursorApiQuery.Equals(object? obj) -> bool
+override Ferret.AspNetCore.CursorApiQuery.GetHashCode() -> int
+override Ferret.AspNetCore.CursorApiQuery.ToString() -> string!
+override Ferret.AspNetCore.OffsetApiQuery.<Clone>$() -> Ferret.AspNetCore.OffsetApiQuery!
+override Ferret.AspNetCore.OffsetApiQuery.Equals(object? obj) -> bool
+override Ferret.AspNetCore.OffsetApiQuery.GetHashCode() -> int
+override Ferret.AspNetCore.OffsetApiQuery.ToString() -> string!
+override Ferret.AspNetCore.PaginationParameters.Equals(object? obj) -> bool
+override Ferret.AspNetCore.PaginationParameters.GetHashCode() -> int
+override Ferret.AspNetCore.PaginationParameters.ToString() -> string!
+override sealed Ferret.AspNetCore.CursorApiQuery.Equals(Ferret.AspNetCore.PaginationParameters? other) -> bool
+override sealed Ferret.AspNetCore.OffsetApiQuery.Equals(Ferret.AspNetCore.PaginationParameters? other) -> bool
+static Ferret.AspNetCore.Binding.ClauseParsing.ParseFilters(System.Collections.Generic.IEnumerable<string?>! values) -> System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Models.FilterClause!>!
+static Ferret.AspNetCore.Binding.ClauseParsing.ParseSorts(System.Collections.Generic.IEnumerable<string?>! values) -> System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Models.SortClause!>!
+static Ferret.AspNetCore.CursorApiQuery.operator !=(Ferret.AspNetCore.CursorApiQuery? left, Ferret.AspNetCore.CursorApiQuery? right) -> bool
+static Ferret.AspNetCore.CursorApiQuery.operator ==(Ferret.AspNetCore.CursorApiQuery? left, Ferret.AspNetCore.CursorApiQuery? right) -> bool
+static Ferret.AspNetCore.DependencyInjection.FerretAspNetCoreExtensions.AddFerretAspNetCore(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static Ferret.AspNetCore.OffsetApiQuery.operator !=(Ferret.AspNetCore.OffsetApiQuery? left, Ferret.AspNetCore.OffsetApiQuery? right) -> bool
+static Ferret.AspNetCore.OffsetApiQuery.operator ==(Ferret.AspNetCore.OffsetApiQuery? left, Ferret.AspNetCore.OffsetApiQuery? right) -> bool
+static Ferret.AspNetCore.PaginationParameters.operator !=(Ferret.AspNetCore.PaginationParameters? left, Ferret.AspNetCore.PaginationParameters? right) -> bool
+static Ferret.AspNetCore.PaginationParameters.operator ==(Ferret.AspNetCore.PaginationParameters? left, Ferret.AspNetCore.PaginationParameters? right) -> bool
+virtual Ferret.AspNetCore.PaginationParameters.EqualityContract.get -> System.Type!
+virtual Ferret.AspNetCore.PaginationParameters.Equals(Ferret.AspNetCore.PaginationParameters? other) -> bool
+virtual Ferret.AspNetCore.PaginationParameters.PrintMembers(System.Text.StringBuilder! builder) -> bool

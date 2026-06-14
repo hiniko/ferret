@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Ferret.Compat.LegacyApi</RootNamespace>
+    <AssemblyName>Ferret.Compat.LegacyApi</AssemblyName>
+    <IsPackable>true</IsPackable>
+    <PackageId>Ferret.Compat.LegacyApi</PackageId>
+    <Description>Backend wire-compatibility for legacy paged-query HTTP clients. Mirrors the original ApiPagedQueryParams + PagedQueryViewModel JSON shape on top of Ferret v1.</Description>
+    <PackageTags>ferret;paged-query;compat;aspnetcore</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Ferret.Abstractions/Ferret.Abstractions.csproj" />
+    <ProjectReference Include="../Ferret.AspNetCore/Ferret.AspNetCore.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="PublicAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI.Unshipped.txt" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,6 @@
+#nullable enable
+Ferret.Tools.Cli.EntityAssemblyResolver
+static Ferret.Tools.Cli.EntityAssemblyResolver.Resolve(System.Collections.Generic.IReadOnlyList<string!>! assemblyPaths, string! workingDirectory, System.IO.TextWriter? diagnostics = null) -> System.Collections.Generic.IReadOnlyList<System.Reflection.Assembly!>!
+Ferret.Tools.Cli.FerretCli
+static Ferret.Tools.Cli.FerretCli.BuildRootCommand(System.Collections.Generic.IReadOnlyList<System.Reflection.Assembly!>! entityAssemblies) -> System.CommandLine.RootCommand!
+static Ferret.Tools.Cli.FerretCli.InvokeAsync(string![]! args, System.Collections.Generic.IReadOnlyList<System.Reflection.Assembly!>! entityAssemblies, System.IO.TextWriter? output = null, System.IO.TextWriter? error = null, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<int>!

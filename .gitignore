@@ -1,0 +1,12 @@
+bin/
+obj/
+*.user
+.vs/
+.idea/
+.vscode/
+TestResults/
+*.nupkg
+*.snupkg
+artifacts/
+
+.worktrees/

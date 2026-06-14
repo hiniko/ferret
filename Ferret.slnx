@@ -1,0 +1,35 @@
+<Solution>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks/Ferret.Benchmarks/Ferret.Benchmarks.csproj" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples\Ferret.Samples.Basic\Ferret.Samples.Basic.csproj" />
+    <Project Path="samples\Ferret.Samples.Cursor\Ferret.Samples.Cursor.csproj" />
+    <Project Path="samples\Ferret.Samples.LegacyApi\Ferret.Samples.LegacyApi.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Ferret.Abstractions/Ferret.Abstractions.csproj" />
+    <Project Path="src/Ferret.AspNetCore/Ferret.AspNetCore.csproj" />
+    <Project Path="src/Ferret.Compat.LegacyApi/Ferret.Compat.LegacyApi.csproj" />
+    <Project Path="src/Ferret.Core/Ferret.Core.csproj" />
+    <Project Path="src/Ferret.EntityFrameworkCore/Ferret.EntityFrameworkCore.csproj" />
+    <Project Path="src/Ferret.Hosting/Ferret.Hosting.csproj" />
+    <Project Path="src/Ferret.Hydration.Dapper/Ferret.Hydration.Dapper.csproj" />
+    <Project Path="src/Ferret.Migrations/Ferret.Migrations.csproj" />
+    <Project Path="src/Ferret.Tools.Cli/Ferret.Tools.Cli.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Ferret.Abstractions.Tests/Ferret.Abstractions.Tests.csproj" />
+    <Project Path="tests/Ferret.AspNetCore.Tests/Ferret.AspNetCore.Tests.csproj" />
+    <Project Path="tests/Ferret.Compat.LegacyApi.Tests/Ferret.Compat.LegacyApi.Tests.csproj" />
+    <Project Path="tests/Ferret.Core.IntegrationTests/Ferret.Core.IntegrationTests.csproj" />
+    <Project Path="tests/Ferret.Core.Tests/Ferret.Core.Tests.csproj" />
+    <Project Path="tests/Ferret.EntityFrameworkCore.Tests/Ferret.EntityFrameworkCore.Tests.csproj" />
+    <Project Path="tests/Ferret.Hosting.Tests/Ferret.Hosting.Tests.csproj" />
+    <Project Path="tests/Ferret.Hydration.Dapper.Tests/Ferret.Hydration.Dapper.Tests.csproj" />
+    <Project Path="tests/Ferret.Migrations.IntegrationTests/Ferret.Migrations.IntegrationTests.csproj" />
+    <Project Path="tests/Ferret.Migrations.Tests/Ferret.Migrations.Tests.csproj" />
+    <Project Path="tests/Ferret.Tools.Cli.Tests/Ferret.Tools.Cli.Tests.csproj" />
+  </Folder>
+  <Project Path="../extensible-migrations/src/EntityFrameworkCore.ExtensibleMigrations/EntityFrameworkCore.ExtensibleMigrations.csproj" />
+</Solution>

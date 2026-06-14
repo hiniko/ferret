@@ -1,0 +1,12 @@
+global using Ferret.Abstractions.Attributes;
+global using Ferret.Abstractions.Configuration;
+global using Ferret.Abstractions.Hydration;
+global using Ferret.Abstractions.Models;
+global using Ferret.Abstractions.Naming;
+global using Ferret.Abstractions.Search;
+global using Ferret.Abstractions.Session;
+global using Ferret.Abstractions.Sql;
+global using Ferret.Core.Engine;
+global using Ferret.Migrations.Annotations;
+global using Ferret.Migrations.Handlers;
+global using Ferret.Migrations.Operations;
