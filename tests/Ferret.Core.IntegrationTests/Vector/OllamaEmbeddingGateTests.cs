@@ -21,9 +21,10 @@ public class OllamaEmbeddingGateTests
         return dot / (Math.Sqrt(na) * Math.Sqrt(nb));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Embeds_real_768d_vectors_with_semantic_signal()
     {
+        BenchGate.SkipUnlessEnabled();
         var provider = Provider();
 
         var cat = await provider.EmbedAsync("a small domestic cat", default);

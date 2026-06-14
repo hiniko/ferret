@@ -23,15 +23,24 @@ public sealed class OllamaFixture : IAsyncLifetime
         return http;
     }
 
+    private bool _started;
+
     public async Task InitializeAsync()
     {
+        // The Ollama container only spins under FERRET_BENCH=1. Every test using this fixture is
+        // bench-gated, so the default (fast) CI/test run never pulls the ~hundreds-of-MB image.
+        if (Environment.GetEnvironmentVariable("FERRET_BENCH") != "1") return;
         await _container.StartAsync();
+        _started = true;
         var exec = await _container.ExecAsync(new[] { "ollama", "pull", Model });
         if (exec.ExitCode != 0)
             throw new InvalidOperationException($"ollama pull {Model} failed: {exec.Stderr}");
     }
 
-    public async Task DisposeAsync() => await _container.DisposeAsync();
+    public async Task DisposeAsync()
+    {
+        if (_started) await _container.DisposeAsync();
+    }
 }
 
 [CollectionDefinition("ollama")]
