@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <UserSecretsId>ferret-samples-efcore</UserSecretsId>
+    <PackageId>Ferret.Samples.Basic</PackageId>
+    <RootNamespace>Ferret.Example.Basic</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/Ferret.Core/Ferret.Core.csproj" />
+    <ProjectReference Include="../../src/Ferret.AspNetCore/Ferret.AspNetCore.csproj" />
+    <ProjectReference Include="../../src/Ferret.EntityFrameworkCore/Ferret.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="../../src/Ferret.Migrations/Ferret.Migrations.csproj" />
+  </ItemGroup>
+</Project>

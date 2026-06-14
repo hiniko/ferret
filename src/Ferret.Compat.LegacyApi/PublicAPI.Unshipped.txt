@@ -1,0 +1,48 @@
+#nullable enable
+Ferret.Compat.LegacyApi.LegacyApiQuery
+Ferret.Compat.LegacyApi.LegacyApiQuery.<Clone>$() -> Ferret.Compat.LegacyApi.LegacyApiQuery!
+Ferret.Compat.LegacyApi.LegacyApiQuery.Equals(Ferret.Compat.LegacyApi.LegacyApiQuery? other) -> bool
+Ferret.Compat.LegacyApi.LegacyApiQuery.Filter.get -> System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Models.FilterClause!>!
+Ferret.Compat.LegacyApi.LegacyApiQuery.Filter.init -> void
+Ferret.Compat.LegacyApi.LegacyApiQuery.IncludeHidden.get -> bool
+Ferret.Compat.LegacyApi.LegacyApiQuery.IncludeHidden.init -> void
+Ferret.Compat.LegacyApi.LegacyApiQuery.IncludeMatchInfo.get -> bool
+Ferret.Compat.LegacyApi.LegacyApiQuery.IncludeMatchInfo.init -> void
+Ferret.Compat.LegacyApi.LegacyApiQuery.LegacyApiQuery() -> void
+Ferret.Compat.LegacyApi.LegacyApiQuery.Page.get -> int?
+Ferret.Compat.LegacyApi.LegacyApiQuery.Page.init -> void
+Ferret.Compat.LegacyApi.LegacyApiQuery.PageSize.get -> int?
+Ferret.Compat.LegacyApi.LegacyApiQuery.PageSize.init -> void
+Ferret.Compat.LegacyApi.LegacyApiQuery.Search.get -> string?
+Ferret.Compat.LegacyApi.LegacyApiQuery.Search.init -> void
+Ferret.Compat.LegacyApi.LegacyApiQuery.SearchFields.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Ferret.Compat.LegacyApi.LegacyApiQuery.SearchFields.init -> void
+Ferret.Compat.LegacyApi.LegacyApiQuery.Sort.get -> System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Models.SortClause!>!
+Ferret.Compat.LegacyApi.LegacyApiQuery.Sort.init -> void
+Ferret.Compat.LegacyApi.LegacyApiQuery.ToPagedQuery<T, TKey>(Ferret.Abstractions.Configuration.PaginationDefaults defaults) -> Ferret.Abstractions.Models.PagedQuery<T!, TKey>!
+Ferret.Compat.LegacyApi.LegacyPagedResponse<T>
+Ferret.Compat.LegacyApi.LegacyPagedResponse<T>.<Clone>$() -> Ferret.Compat.LegacyApi.LegacyPagedResponse<T>!
+Ferret.Compat.LegacyApi.LegacyPagedResponse<T>.Count.get -> int
+Ferret.Compat.LegacyApi.LegacyPagedResponse<T>.Count.init -> void
+Ferret.Compat.LegacyApi.LegacyPagedResponse<T>.Equals(Ferret.Compat.LegacyApi.LegacyPagedResponse<T>? other) -> bool
+Ferret.Compat.LegacyApi.LegacyPagedResponse<T>.Items.get -> System.Collections.Generic.IReadOnlyList<T>!
+Ferret.Compat.LegacyApi.LegacyPagedResponse<T>.Items.init -> void
+Ferret.Compat.LegacyApi.LegacyPagedResponse<T>.LegacyPagedResponse() -> void
+Ferret.Compat.LegacyApi.LegacyPagedResponse<T>.MatchInfo.get -> System.Collections.Generic.Dictionary<System.Guid, System.Collections.Generic.List<Ferret.Abstractions.Models.SearchMatchInfo!>!>?
+Ferret.Compat.LegacyApi.LegacyPagedResponse<T>.MatchInfo.init -> void
+Ferret.Compat.LegacyApi.LegacyPagedResponse<T>.Page.get -> int
+Ferret.Compat.LegacyApi.LegacyPagedResponse<T>.Page.init -> void
+Ferret.Compat.LegacyApi.LegacyPagedResponse<T>.Total.get -> int
+Ferret.Compat.LegacyApi.LegacyPagedResponse<T>.Total.init -> void
+Ferret.Compat.LegacyApi.LegacyResponseExtensions
+override Ferret.Compat.LegacyApi.LegacyApiQuery.Equals(object? obj) -> bool
+override Ferret.Compat.LegacyApi.LegacyApiQuery.GetHashCode() -> int
+override Ferret.Compat.LegacyApi.LegacyApiQuery.ToString() -> string!
+override Ferret.Compat.LegacyApi.LegacyPagedResponse<T>.Equals(object? obj) -> bool
+override Ferret.Compat.LegacyApi.LegacyPagedResponse<T>.GetHashCode() -> int
+override Ferret.Compat.LegacyApi.LegacyPagedResponse<T>.ToString() -> string!
+static Ferret.Compat.LegacyApi.LegacyApiQuery.operator !=(Ferret.Compat.LegacyApi.LegacyApiQuery? left, Ferret.Compat.LegacyApi.LegacyApiQuery? right) -> bool
+static Ferret.Compat.LegacyApi.LegacyApiQuery.operator ==(Ferret.Compat.LegacyApi.LegacyApiQuery? left, Ferret.Compat.LegacyApi.LegacyApiQuery? right) -> bool
+static Ferret.Compat.LegacyApi.LegacyPagedResponse<T>.operator !=(Ferret.Compat.LegacyApi.LegacyPagedResponse<T>? left, Ferret.Compat.LegacyApi.LegacyPagedResponse<T>? right) -> bool
+static Ferret.Compat.LegacyApi.LegacyPagedResponse<T>.operator ==(Ferret.Compat.LegacyApi.LegacyPagedResponse<T>? left, Ferret.Compat.LegacyApi.LegacyPagedResponse<T>? right) -> bool
+static Ferret.Compat.LegacyApi.LegacyResponseExtensions.ToLegacyResponse<T, TKey>(this Ferret.Abstractions.Models.OffsetResult<T>! result, System.Func<T, TKey>! keySelector) -> Ferret.Compat.LegacyApi.LegacyPagedResponse<T>!

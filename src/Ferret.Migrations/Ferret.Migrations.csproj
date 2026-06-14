@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Ferret.Migrations</RootNamespace>
+    <AssemblyName>Ferret.Migrations</AssemblyName>
+    <IsPackable>true</IsPackable>
+    <PackageId>Ferret.Migrations</PackageId>
+    <Description>EF Core migrations bridge for Ferret — auto-generates pg_trgm GiST indexes from [Searchable] annotations.</Description>
+    <PackageTags>ferret;ef-core;migrations;pg_trgm;postgresql;gist;search</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Ferret.Core/Ferret.Core.csproj" />
+    <ProjectReference Include="../../../extensible-migrations/src/EntityFrameworkCore.ExtensibleMigrations/EntityFrameworkCore.ExtensibleMigrations.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="PublicAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI.Unshipped.txt" />
+  </ItemGroup>
+</Project>

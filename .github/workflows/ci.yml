@@ -1,0 +1,42 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        postgres: ["15-alpine", "16-alpine", "17-alpine"]
+    env:
+      FERRET_POSTGRES_IMAGE: postgres:${{ matrix.postgres }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Check out sister repo (extensible-migrations)
+        uses: actions/checkout@v4
+        with:
+          repository: hiniko/extensible-migrations
+          path: _extensible_migrations
+          ref: main
+
+      - name: Move sister repo to ../extensible-migrations
+        run: |
+          mv _extensible_migrations ../extensible-migrations
+
+      - run: dotnet restore Ferret.slnx
+      - run: dotnet build Ferret.slnx -c Release --no-restore
+      - run: dotnet test Ferret.slnx -c Release --no-build --logger "trx;LogFileName=test-results.trx"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-pg${{ matrix.postgres }}
+          path: '**/test-results.trx'

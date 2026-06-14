@@ -1,0 +1,249 @@
+#nullable enable
+Ferret.Migrations.Annotations.FerretMigrationsModelBuilderExtensions
+Ferret.Migrations.Annotations.SearchableAnnotationKeys
+Ferret.Migrations.DependencyInjection.FerretMigrationsServiceCollectionExtensions
+Ferret.Migrations.Handlers.SearchableCSharpHandler
+Ferret.Migrations.Handlers.SearchableCSharpHandler.CanHandle(Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation! operation) -> bool
+Ferret.Migrations.Handlers.SearchableCSharpHandler.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation! operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder! builder) -> void
+Ferret.Migrations.Handlers.SearchableCSharpHandler.Phase(Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation! operation) -> EntityFrameworkCore.ExtensibleMigrations.OperationPhase
+Ferret.Migrations.Handlers.SearchableCSharpHandler.SearchableCSharpHandler() -> void
+Ferret.Migrations.Handlers.SearchableMigrationOperationHandler
+Ferret.Migrations.Handlers.SearchableMigrationOperationHandler.GetOperations(Microsoft.EntityFrameworkCore.Metadata.IRelationalModel? source, Microsoft.EntityFrameworkCore.Metadata.IRelationalModel? target, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation!>! existingOperations) -> System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation!>!
+Ferret.Migrations.Handlers.SearchableMigrationOperationHandler.HasDifferences(Microsoft.EntityFrameworkCore.Metadata.IRelationalModel? source, Microsoft.EntityFrameworkCore.Metadata.IRelationalModel? target, bool defaultHasDifferences) -> bool
+Ferret.Migrations.Handlers.SearchableMigrationOperationHandler.SearchableMigrationOperationHandler() -> void
+Ferret.Migrations.Handlers.SearchableSnapshotHandler
+Ferret.Migrations.Handlers.SearchableSnapshotHandler.GenerateSnapshot(Microsoft.EntityFrameworkCore.Metadata.IModel! model, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder! builder) -> void
+Ferret.Migrations.Handlers.SearchableSnapshotHandler.SearchableSnapshotHandler() -> void
+Ferret.Migrations.Operations.CreateSearchableIndexOperation
+Ferret.Migrations.Operations.CreateSearchableIndexOperation.ColumnName.get -> string!
+Ferret.Migrations.Operations.CreateSearchableIndexOperation.ColumnName.init -> void
+Ferret.Migrations.Operations.CreateSearchableIndexOperation.CreateSearchableIndexOperation() -> void
+Ferret.Migrations.Operations.CreateSearchableIndexOperation.IndexName.get -> string!
+Ferret.Migrations.Operations.CreateSearchableIndexOperation.IndexName.init -> void
+Ferret.Migrations.Operations.CreateSearchableIndexOperation.IndexSql.get -> string!
+Ferret.Migrations.Operations.CreateSearchableIndexOperation.IndexSql.init -> void
+Ferret.Migrations.Operations.CreateSearchableIndexOperation.TableName.get -> string!
+Ferret.Migrations.Operations.CreateSearchableIndexOperation.TableName.init -> void
+Ferret.Migrations.Operations.DropSearchableIndexOperation
+Ferret.Migrations.Operations.DropSearchableIndexOperation.DropSearchableIndexOperation() -> void
+Ferret.Migrations.Operations.DropSearchableIndexOperation.IndexName.get -> string!
+Ferret.Migrations.Operations.DropSearchableIndexOperation.IndexName.init -> void
+Ferret.Migrations.Operations.EnsurePgTrgmExtensionOperation
+Ferret.Migrations.Operations.EnsurePgTrgmExtensionOperation.EnsurePgTrgmExtensionOperation() -> void
+Ferret.Migrations.Operations.EnsurePgTrgmExtensionOperation.ExtensionName.get -> string!
+Ferret.Migrations.Operations.EnsurePgTrgmExtensionOperation.ExtensionName.init -> void
+const Ferret.Migrations.Annotations.SearchableAnnotationKeys.FullTextGroupsV1 = "Ferret:FullText:Groups:v1" -> string!
+const Ferret.Migrations.Annotations.SearchableAnnotationKeys.VectorGroupsV1 = "Ferret:Vector:Groups:v1" -> string!
+const Ferret.Migrations.Annotations.SearchableAnnotationKeys.RequiredExtensionsV1 = "Ferret:RequiredExtensions:v1" -> string!
+const Ferret.Migrations.Annotations.SearchableAnnotationKeys.SearchableIndexV1 = "Ferret:SearchableIndex:v1" -> string!
+static Ferret.Migrations.Annotations.FerretMigrationsModelBuilderExtensions.UseFerretSearchableAnnotations(this Microsoft.EntityFrameworkCore.ModelBuilder! modelBuilder, Ferret.Core.Engine.EntityRegistry! registry) -> Microsoft.EntityFrameworkCore.ModelBuilder!
+static Ferret.Migrations.Annotations.FerretMigrationsModelBuilderExtensions.UseFerretSearchableAnnotations(this Microsoft.EntityFrameworkCore.ModelBuilder! modelBuilder, Ferret.Core.Engine.EntityRegistry! registry, System.Collections.Generic.IEnumerable<Ferret.Abstractions.Search.ISearchBackend!>! backends) -> Microsoft.EntityFrameworkCore.ModelBuilder!
+static Ferret.Migrations.Annotations.FerretMigrationsModelBuilderExtensions.UseFerretSearchableAnnotations(this Microsoft.EntityFrameworkCore.ModelBuilder! modelBuilder, Ferret.Core.Engine.EntityRegistry! registry, System.Collections.Generic.IEnumerable<Ferret.Abstractions.Search.ISearchBackend!>! backends, Ferret.Core.Backends.FullText.FullTextOptions! fullTextOptions) -> Microsoft.EntityFrameworkCore.ModelBuilder!
+static Ferret.Migrations.Annotations.FerretMigrationsModelBuilderExtensions.UseFerretSearchableAnnotations(this Microsoft.EntityFrameworkCore.ModelBuilder! modelBuilder, System.Reflection.Assembly! entityAssembly, Ferret.Abstractions.Naming.INamingStrategy? naming = null) -> Microsoft.EntityFrameworkCore.ModelBuilder!
+static Ferret.Migrations.DependencyInjection.FerretMigrationsServiceCollectionExtensions.AddFerretMigrations(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+Ferret.Migrations.Operations.AlterFullTextGroupOperation
+Ferret.Migrations.Operations.AlterFullTextGroupOperation.AllGroupsAfter.get -> System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Search.FullTextGroup!>!
+Ferret.Migrations.Operations.AlterFullTextGroupOperation.AllGroupsAfter.init -> void
+Ferret.Migrations.Operations.AlterFullTextGroupOperation.AlterFullTextGroupOperation() -> void
+Ferret.Migrations.Operations.AlterFullTextGroupOperation.ColumnSuffix.get -> string!
+Ferret.Migrations.Operations.AlterFullTextGroupOperation.ColumnSuffix.init -> void
+Ferret.Migrations.Operations.AlterFullTextGroupOperation.ConcurrentBatchSize.get -> int
+Ferret.Migrations.Operations.AlterFullTextGroupOperation.ConcurrentBatchSize.init -> void
+Ferret.Migrations.Operations.AlterFullTextGroupOperation.Entity.get -> string!
+Ferret.Migrations.Operations.AlterFullTextGroupOperation.Entity.init -> void
+Ferret.Migrations.Operations.AlterFullTextGroupOperation.Group.get -> Ferret.Abstractions.Search.FullTextGroup!
+Ferret.Migrations.Operations.AlterFullTextGroupOperation.Group.init -> void
+Ferret.Migrations.Operations.AlterFullTextGroupOperation.IdColumn.get -> string!
+Ferret.Migrations.Operations.AlterFullTextGroupOperation.IdColumn.init -> void
+Ferret.Migrations.Operations.AlterFullTextGroupOperation.KeyColumns.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Ferret.Migrations.Operations.AlterFullTextGroupOperation.KeyColumns.init -> void
+Ferret.Migrations.Operations.AlterFullTextGroupOperation.ReindexMode.get -> Ferret.Abstractions.Attributes.ReindexMode
+Ferret.Migrations.Operations.AlterFullTextGroupOperation.ReindexMode.init -> void
+Ferret.Migrations.Operations.AlterFullTextGroupOperation.SidecarSchema.get -> string?
+Ferret.Migrations.Operations.AlterFullTextGroupOperation.SidecarSchema.init -> void
+Ferret.Migrations.Operations.AlterFullTextGroupOperation.SidecarTable.get -> string!
+Ferret.Migrations.Operations.AlterFullTextGroupOperation.SidecarTable.init -> void
+Ferret.Migrations.Operations.AlterFullTextGroupOperation.SourceSchema.get -> string?
+Ferret.Migrations.Operations.AlterFullTextGroupOperation.SourceSchema.init -> void
+Ferret.Migrations.Operations.AlterFullTextGroupOperation.SourceTable.get -> string!
+Ferret.Migrations.Operations.AlterFullTextGroupOperation.SourceTable.init -> void
+Ferret.Migrations.Operations.CreateFullTextGroupOperation
+Ferret.Migrations.Operations.CreateFullTextGroupOperation.AllGroupsAfter.get -> System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Search.FullTextGroup!>!
+Ferret.Migrations.Operations.CreateFullTextGroupOperation.AllGroupsAfter.init -> void
+Ferret.Migrations.Operations.CreateFullTextGroupOperation.ColumnSuffix.get -> string!
+Ferret.Migrations.Operations.CreateFullTextGroupOperation.ColumnSuffix.init -> void
+Ferret.Migrations.Operations.CreateFullTextGroupOperation.ConcurrentBatchSize.get -> int
+Ferret.Migrations.Operations.CreateFullTextGroupOperation.ConcurrentBatchSize.init -> void
+Ferret.Migrations.Operations.CreateFullTextGroupOperation.CreateFullTextGroupOperation() -> void
+Ferret.Migrations.Operations.CreateFullTextGroupOperation.Entity.get -> string!
+Ferret.Migrations.Operations.CreateFullTextGroupOperation.Entity.init -> void
+Ferret.Migrations.Operations.CreateFullTextGroupOperation.Group.get -> Ferret.Abstractions.Search.FullTextGroup!
+Ferret.Migrations.Operations.CreateFullTextGroupOperation.Group.init -> void
+Ferret.Migrations.Operations.CreateFullTextGroupOperation.IdColumn.get -> string!
+Ferret.Migrations.Operations.CreateFullTextGroupOperation.IdColumn.init -> void
+Ferret.Migrations.Operations.CreateFullTextGroupOperation.KeyColumns.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Ferret.Migrations.Operations.CreateFullTextGroupOperation.KeyColumns.init -> void
+Ferret.Migrations.Operations.CreateFullTextGroupOperation.ReindexMode.get -> Ferret.Abstractions.Attributes.ReindexMode
+Ferret.Migrations.Operations.CreateFullTextGroupOperation.ReindexMode.init -> void
+Ferret.Migrations.Operations.CreateFullTextGroupOperation.SidecarSchema.get -> string?
+Ferret.Migrations.Operations.CreateFullTextGroupOperation.SidecarSchema.init -> void
+Ferret.Migrations.Operations.CreateFullTextGroupOperation.SidecarTable.get -> string!
+Ferret.Migrations.Operations.CreateFullTextGroupOperation.SidecarTable.init -> void
+Ferret.Migrations.Operations.CreateFullTextGroupOperation.SourceSchema.get -> string?
+Ferret.Migrations.Operations.CreateFullTextGroupOperation.SourceSchema.init -> void
+Ferret.Migrations.Operations.CreateFullTextGroupOperation.SourceTable.get -> string!
+Ferret.Migrations.Operations.CreateFullTextGroupOperation.SourceTable.init -> void
+Ferret.Migrations.Operations.DropFullTextGroupOperation
+Ferret.Migrations.Operations.DropFullTextGroupOperation.AllGroupsAfter.get -> System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Search.FullTextGroup!>!
+Ferret.Migrations.Operations.DropFullTextGroupOperation.AllGroupsAfter.init -> void
+Ferret.Migrations.Operations.DropFullTextGroupOperation.ColumnSuffix.get -> string!
+Ferret.Migrations.Operations.DropFullTextGroupOperation.ColumnSuffix.init -> void
+Ferret.Migrations.Operations.DropFullTextGroupOperation.DropFullTextGroupOperation() -> void
+Ferret.Migrations.Operations.DropFullTextGroupOperation.GroupName.get -> string!
+Ferret.Migrations.Operations.DropFullTextGroupOperation.GroupName.init -> void
+Ferret.Migrations.Operations.DropFullTextGroupOperation.IdColumn.get -> string!
+Ferret.Migrations.Operations.DropFullTextGroupOperation.IdColumn.init -> void
+Ferret.Migrations.Operations.DropFullTextGroupOperation.KeyColumns.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Ferret.Migrations.Operations.DropFullTextGroupOperation.KeyColumns.init -> void
+Ferret.Migrations.Operations.DropFullTextGroupOperation.SidecarSchema.get -> string?
+Ferret.Migrations.Operations.DropFullTextGroupOperation.SidecarSchema.init -> void
+Ferret.Migrations.Operations.DropFullTextGroupOperation.SidecarTable.get -> string!
+Ferret.Migrations.Operations.DropFullTextGroupOperation.SidecarTable.init -> void
+Ferret.Migrations.Operations.DropFullTextGroupOperation.SourceSchema.get -> string?
+Ferret.Migrations.Operations.DropFullTextGroupOperation.SourceSchema.init -> void
+Ferret.Migrations.Operations.DropFullTextGroupOperation.SourceTable.get -> string!
+Ferret.Migrations.Operations.DropFullTextGroupOperation.SourceTable.init -> void
+Ferret.Migrations.Operations.EnsureReindexJobsTableOperation
+Ferret.Migrations.Operations.EnsureReindexJobsTableOperation.EnsureReindexJobsTableOperation() -> void
+Ferret.Migrations.Operations.EnsureSidecarTableOperation
+Ferret.Migrations.Operations.EnsureSidecarTableOperation.EnsureSidecarTableOperation() -> void
+Ferret.Migrations.Operations.EnsureSidecarTableOperation.KeyPart
+Ferret.Migrations.Operations.EnsureSidecarTableOperation.KeyPart.ColumnName.get -> string!
+Ferret.Migrations.Operations.EnsureSidecarTableOperation.KeyPart.ColumnName.init -> void
+Ferret.Migrations.Operations.EnsureSidecarTableOperation.KeyPart.ColumnType.get -> string!
+Ferret.Migrations.Operations.EnsureSidecarTableOperation.KeyPart.ColumnType.init -> void
+Ferret.Migrations.Operations.EnsureSidecarTableOperation.KeyPart.KeyPart() -> void
+Ferret.Migrations.Operations.EnsureSidecarTableOperation.KeyParts.get -> System.Collections.Generic.IReadOnlyList<Ferret.Migrations.Operations.EnsureSidecarTableOperation.KeyPart!>!
+Ferret.Migrations.Operations.EnsureSidecarTableOperation.KeyParts.init -> void
+Ferret.Migrations.Operations.EnsureSidecarTableOperation.IdColumn.get -> string!
+Ferret.Migrations.Operations.EnsureSidecarTableOperation.IdColumn.init -> void
+Ferret.Migrations.Operations.EnsureSidecarTableOperation.IdColumnType.get -> string!
+Ferret.Migrations.Operations.EnsureSidecarTableOperation.IdColumnType.init -> void
+Ferret.Migrations.Operations.EnsureSidecarTableOperation.SidecarSchema.get -> string?
+Ferret.Migrations.Operations.EnsureSidecarTableOperation.SidecarSchema.init -> void
+Ferret.Migrations.Operations.EnsureSidecarTableOperation.SidecarTable.get -> string!
+Ferret.Migrations.Operations.EnsureSidecarTableOperation.SidecarTable.init -> void
+Ferret.Migrations.Operations.EnsureSidecarTableOperation.SourceSchema.get -> string?
+Ferret.Migrations.Operations.EnsureSidecarTableOperation.SourceSchema.init -> void
+Ferret.Migrations.Operations.EnsureSidecarTableOperation.SourceTable.get -> string!
+Ferret.Migrations.Operations.EnsureSidecarTableOperation.SourceTable.init -> void
+Ferret.Migrations.Operations.CreateJoinedTableTriggerOperation
+Ferret.Migrations.Operations.CreateJoinedTableTriggerOperation.CreateJoinedTableTriggerOperation() -> void
+Ferret.Migrations.Operations.CreateJoinedTableTriggerOperation.Entity.get -> string!
+Ferret.Migrations.Operations.CreateJoinedTableTriggerOperation.Entity.init -> void
+Ferret.Migrations.Operations.CreateJoinedTableTriggerOperation.IdColumn.get -> string!
+Ferret.Migrations.Operations.CreateJoinedTableTriggerOperation.IdColumn.init -> void
+Ferret.Migrations.Operations.CreateJoinedTableTriggerOperation.JoinedSchema.get -> string?
+Ferret.Migrations.Operations.CreateJoinedTableTriggerOperation.JoinedSchema.init -> void
+Ferret.Migrations.Operations.CreateJoinedTableTriggerOperation.JoinedTable.get -> string!
+Ferret.Migrations.Operations.CreateJoinedTableTriggerOperation.JoinedTable.init -> void
+Ferret.Migrations.Operations.CreateJoinedTableTriggerOperation.GroupName.get -> string!
+Ferret.Migrations.Operations.CreateJoinedTableTriggerOperation.GroupName.init -> void
+Ferret.Migrations.Operations.CreateJoinedTableTriggerOperation.JoinPath.get -> Ferret.Abstractions.Search.JoinPath!
+Ferret.Migrations.Operations.CreateJoinedTableTriggerOperation.JoinPath.init -> void
+Ferret.Migrations.Operations.CreateJoinedTableTriggerOperation.SidecarSchema.get -> string?
+Ferret.Migrations.Operations.CreateJoinedTableTriggerOperation.SidecarSchema.init -> void
+Ferret.Migrations.Operations.CreateJoinedTableTriggerOperation.SidecarTable.get -> string!
+Ferret.Migrations.Operations.CreateJoinedTableTriggerOperation.SidecarTable.init -> void
+Ferret.Migrations.Operations.CreateJoinedTableTriggerOperation.SourceSchema.get -> string?
+Ferret.Migrations.Operations.CreateJoinedTableTriggerOperation.SourceSchema.init -> void
+Ferret.Migrations.Operations.CreateJoinedTableTriggerOperation.SourceTable.get -> string!
+Ferret.Migrations.Operations.CreateJoinedTableTriggerOperation.SourceTable.init -> void
+Ferret.Migrations.Operations.DropJoinedTableTriggerOperation
+Ferret.Migrations.Operations.DropJoinedTableTriggerOperation.DropJoinedTableTriggerOperation() -> void
+Ferret.Migrations.Operations.DropJoinedTableTriggerOperation.Entity.get -> string!
+Ferret.Migrations.Operations.DropJoinedTableTriggerOperation.Entity.init -> void
+Ferret.Migrations.Operations.DropJoinedTableTriggerOperation.IdColumn.get -> string!
+Ferret.Migrations.Operations.DropJoinedTableTriggerOperation.IdColumn.init -> void
+Ferret.Migrations.Operations.DropJoinedTableTriggerOperation.JoinedSchema.get -> string?
+Ferret.Migrations.Operations.DropJoinedTableTriggerOperation.JoinedSchema.init -> void
+Ferret.Migrations.Operations.DropJoinedTableTriggerOperation.JoinedTable.get -> string!
+Ferret.Migrations.Operations.DropJoinedTableTriggerOperation.JoinedTable.init -> void
+Ferret.Migrations.Operations.DropJoinedTableTriggerOperation.SidecarSchema.get -> string?
+Ferret.Migrations.Operations.DropJoinedTableTriggerOperation.SidecarSchema.init -> void
+Ferret.Migrations.Operations.DropJoinedTableTriggerOperation.SidecarTable.get -> string!
+Ferret.Migrations.Operations.DropJoinedTableTriggerOperation.SidecarTable.init -> void
+Ferret.Migrations.Operations.DropJoinedTableTriggerOperation.SourceSchema.get -> string?
+Ferret.Migrations.Operations.DropJoinedTableTriggerOperation.SourceSchema.init -> void
+Ferret.Migrations.Operations.DropJoinedTableTriggerOperation.SourceTable.get -> string!
+Ferret.Migrations.Operations.DropJoinedTableTriggerOperation.SourceTable.init -> void
+static Ferret.Migrations.Annotations.FerretMigrationsModelBuilderExtensions.UseFerretSearchableAnnotations(this Microsoft.EntityFrameworkCore.ModelBuilder! modelBuilder, Ferret.Core.Engine.EntityRegistry! registry, System.Collections.Generic.IEnumerable<Ferret.Abstractions.Search.ISearchBackend!>! backends, Ferret.Core.Backends.FullText.FullTextOptions! fullTextOptions, Ferret.Core.Backends.Vector.VectorOptions! vectorOptions) -> Microsoft.EntityFrameworkCore.ModelBuilder!
+Ferret.Migrations.Operations.EnsurePgvectorExtensionOperation
+Ferret.Migrations.Operations.EnsurePgvectorExtensionOperation.EnsurePgvectorExtensionOperation() -> void
+Ferret.Migrations.Operations.EnsurePgvectorExtensionOperation.ExtensionName.get -> string!
+Ferret.Migrations.Operations.EnsurePgvectorExtensionOperation.ExtensionName.init -> void
+Ferret.Migrations.Operations.EnsureVectorSidecarTableOperation
+Ferret.Migrations.Operations.EnsureVectorSidecarTableOperation.EnsureVectorSidecarTableOperation() -> void
+Ferret.Migrations.Operations.EnsureVectorSidecarTableOperation.SidecarTable.get -> string!
+Ferret.Migrations.Operations.EnsureVectorSidecarTableOperation.SidecarTable.init -> void
+Ferret.Migrations.Operations.EnsureVectorSidecarTableOperation.SidecarSchema.get -> string?
+Ferret.Migrations.Operations.EnsureVectorSidecarTableOperation.SidecarSchema.init -> void
+Ferret.Migrations.Operations.EnsureVectorSidecarTableOperation.SourceTable.get -> string!
+Ferret.Migrations.Operations.EnsureVectorSidecarTableOperation.SourceTable.init -> void
+Ferret.Migrations.Operations.EnsureVectorSidecarTableOperation.SourceSchema.get -> string?
+Ferret.Migrations.Operations.EnsureVectorSidecarTableOperation.SourceSchema.init -> void
+Ferret.Migrations.Operations.EnsureVectorSidecarTableOperation.IdColumn.get -> string!
+Ferret.Migrations.Operations.EnsureVectorSidecarTableOperation.IdColumn.init -> void
+Ferret.Migrations.Operations.EnsureVectorSidecarTableOperation.IdColumnType.get -> string!
+Ferret.Migrations.Operations.EnsureVectorSidecarTableOperation.IdColumnType.init -> void
+Ferret.Migrations.Operations.CreateVectorIndexOperation
+Ferret.Migrations.Operations.CreateVectorIndexOperation.CreateVectorIndexOperation() -> void
+Ferret.Migrations.Operations.CreateVectorIndexOperation.Entity.get -> string!
+Ferret.Migrations.Operations.CreateVectorIndexOperation.Entity.init -> void
+Ferret.Migrations.Operations.CreateVectorIndexOperation.SidecarTable.get -> string!
+Ferret.Migrations.Operations.CreateVectorIndexOperation.SidecarTable.init -> void
+Ferret.Migrations.Operations.CreateVectorIndexOperation.SidecarSchema.get -> string?
+Ferret.Migrations.Operations.CreateVectorIndexOperation.SidecarSchema.init -> void
+Ferret.Migrations.Operations.CreateVectorIndexOperation.SourceTable.get -> string!
+Ferret.Migrations.Operations.CreateVectorIndexOperation.SourceTable.init -> void
+Ferret.Migrations.Operations.CreateVectorIndexOperation.SourceSchema.get -> string?
+Ferret.Migrations.Operations.CreateVectorIndexOperation.SourceSchema.init -> void
+Ferret.Migrations.Operations.CreateVectorIndexOperation.IdColumn.get -> string!
+Ferret.Migrations.Operations.CreateVectorIndexOperation.IdColumn.init -> void
+Ferret.Migrations.Operations.CreateVectorIndexOperation.ColumnSuffix.get -> string!
+Ferret.Migrations.Operations.CreateVectorIndexOperation.ColumnSuffix.init -> void
+Ferret.Migrations.Operations.CreateVectorIndexOperation.Group.get -> Ferret.Abstractions.Search.VectorGroup!
+Ferret.Migrations.Operations.CreateVectorIndexOperation.Group.init -> void
+Ferret.Migrations.Operations.CreateVectorIndexOperation.HnswM.get -> int
+Ferret.Migrations.Operations.CreateVectorIndexOperation.HnswM.init -> void
+Ferret.Migrations.Operations.CreateVectorIndexOperation.HnswEfConstruction.get -> int
+Ferret.Migrations.Operations.CreateVectorIndexOperation.HnswEfConstruction.init -> void
+Ferret.Migrations.Operations.CreateVectorIndexOperation.ReindexMode.get -> Ferret.Abstractions.Attributes.ReindexMode
+Ferret.Migrations.Operations.CreateVectorIndexOperation.ReindexMode.init -> void
+Ferret.Migrations.Operations.CreateVectorIndexOperation.ConcurrentBatchSize.get -> int
+Ferret.Migrations.Operations.CreateVectorIndexOperation.ConcurrentBatchSize.init -> void
+Ferret.Migrations.Operations.DropVectorIndexOperation
+Ferret.Migrations.Operations.DropVectorIndexOperation.DropVectorIndexOperation() -> void
+Ferret.Migrations.Operations.DropVectorIndexOperation.Entity.get -> string!
+Ferret.Migrations.Operations.DropVectorIndexOperation.Entity.init -> void
+Ferret.Migrations.Operations.DropVectorIndexOperation.SidecarTable.get -> string!
+Ferret.Migrations.Operations.DropVectorIndexOperation.SidecarTable.init -> void
+Ferret.Migrations.Operations.DropVectorIndexOperation.SidecarSchema.get -> string?
+Ferret.Migrations.Operations.DropVectorIndexOperation.SidecarSchema.init -> void
+Ferret.Migrations.Operations.DropVectorIndexOperation.ColumnSuffix.get -> string!
+Ferret.Migrations.Operations.DropVectorIndexOperation.ColumnSuffix.init -> void
+Ferret.Migrations.Operations.DropVectorIndexOperation.Group.get -> Ferret.Abstractions.Search.VectorGroup!
+Ferret.Migrations.Handlers.VectorMigrationOperationHandler
+Ferret.Migrations.Handlers.VectorMigrationOperationHandler.VectorMigrationOperationHandler() -> void
+Ferret.Migrations.Handlers.VectorMigrationOperationHandler.GetOperations(Microsoft.EntityFrameworkCore.Metadata.IRelationalModel? source, Microsoft.EntityFrameworkCore.Metadata.IRelationalModel? target, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation!>! existingOperations) -> System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation!>!
+Ferret.Migrations.Handlers.VectorMigrationOperationHandler.HasDifferences(Microsoft.EntityFrameworkCore.Metadata.IRelationalModel? source, Microsoft.EntityFrameworkCore.Metadata.IRelationalModel? target, bool defaultHasDifferences) -> bool
+Ferret.Migrations.Operations.DropVectorIndexOperation.Group.init -> void
+Ferret.Migrations.Handlers.VectorCSharpHandler
+Ferret.Migrations.Handlers.VectorCSharpHandler.VectorCSharpHandler() -> void
+Ferret.Migrations.Handlers.VectorCSharpHandler.CanHandle(Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation! operation) -> bool
+Ferret.Migrations.Handlers.VectorCSharpHandler.Phase(Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation! operation) -> EntityFrameworkCore.ExtensibleMigrations.OperationPhase
+Ferret.Migrations.Handlers.VectorCSharpHandler.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation! operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder! builder) -> void
+Ferret.Migrations.Operations.EnsureVectorVersionRegistryOperation
+Ferret.Migrations.Operations.EnsureVectorVersionRegistryOperation.EnsureVectorVersionRegistryOperation() -> void
+Ferret.Migrations.Operations.EnsureVectorVersionRegistryOperation.Schema.get -> string?
+Ferret.Migrations.Operations.EnsureVectorVersionRegistryOperation.Schema.init -> void
