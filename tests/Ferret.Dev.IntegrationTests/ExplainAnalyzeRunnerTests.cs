@@ -12,7 +12,6 @@ public class ExplainAnalyzeRunnerTests
     [SkippableFact]
     public async Task Returns_plan_metrics_and_detects_seq_vs_index()
     {
-        BenchGate.SkipUnlessEnabled();
         await using var harness = new ExplainSchemaHarness();
         try
         {

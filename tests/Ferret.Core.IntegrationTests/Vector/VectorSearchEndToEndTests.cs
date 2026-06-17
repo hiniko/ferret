@@ -32,8 +32,6 @@ public class VectorSearchEndToEndTests
     [SkippableFact]
     public async Task Search_returns_nearest_neighbour_first()
     {
-        BenchGate.SkipUnlessEnabled();
-
         var provider = new FakeEmbeddingProvider(8);
 
         var sentences = new[]
@@ -69,8 +67,6 @@ public class VectorSearchEndToEndTests
     [SkippableFact]
     public async Task Recall_changes_with_ef_search()
     {
-        BenchGate.SkipUnlessEnabled();
-
         // This test is the BLOCKER #2 GATE: it proves EfSearch reaches the
         // SET LOCAL hnsw.ef_search = N inside the transaction. pgvector's HNSW
         // scan returns at most ef_search candidates; when ef_search < LIMIT it

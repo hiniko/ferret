@@ -11,7 +11,6 @@ public class BenchPostgresHarnessTests
     [SkippableFact]
     public async Task Harness_creates_chain_tables_and_trgm_indexes()
     {
-        BenchGate.SkipUnlessEnabled();
         await using var harness = new BenchPostgresHarness();
         try
         {

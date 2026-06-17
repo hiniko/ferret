@@ -27,9 +27,8 @@ public sealed class OllamaFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        // The Ollama container only spins under FERRET_BENCH=1. Every test using this fixture is
-        // bench-gated, so the default (fast) CI/test run never pulls the ~hundreds-of-MB image.
-        if (Environment.GetEnvironmentVariable("FERRET_BENCH") != "1") return;
+        // Only consumed by Ferret.Dev.IntegrationTests (excluded from the solution / CI). Running that
+        // project is the opt-in: it pulls the ~hundreds-of-MB image and starts the container.
         await _container.StartAsync();
         _started = true;
         var exec = await _container.ExecAsync(new[] { "ollama", "pull", Model });

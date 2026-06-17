@@ -69,8 +69,6 @@ public class HybridSearchEndToEndTests
     [SkippableFact]
     public async Task Rrf_consensus_ranks_doc_matched_by_both_backends_first()
     {
-        BenchGate.SkipUnlessEnabled();
-
         var provider = new FakeEmbeddingProvider(8);
         const string term = "reindexing";
 
@@ -95,8 +93,6 @@ public class HybridSearchEndToEndTests
     [SkippableFact]
     public async Task Ef_search_caps_vector_arm_in_the_fused_query()
     {
-        BenchGate.SkipUnlessEnabled();
-
         // GATE 2 (non-negotiable): proves the vector CTE inside the FUSED query still uses the
         // HNSW index + SET LOCAL hnsw.ef_search. pgvector's HNSW scan returns at most ef_search
         // candidates, so with ef_search=1 the vector arm contributes ~1 row and the fused union
@@ -135,8 +131,6 @@ public class HybridSearchEndToEndTests
     [SkippableFact]
     public async Task Strict_confidence_threshold_drops_weak_vector_match()
     {
-        BenchGate.SkipUnlessEnabled();
-
         var provider = new FakeEmbeddingProvider(8);
         const string term = "reindexing";
 
@@ -163,8 +157,6 @@ public class HybridSearchEndToEndTests
     [SkippableFact]
     public async Task Vector_weight_lifts_a_vector_favoured_doc()
     {
-        BenchGate.SkipUnlessEnabled();
-
         var provider = new FakeEmbeddingProvider(8);
         const string term = "reindexing";
 

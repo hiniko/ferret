@@ -31,8 +31,6 @@ public class VectorReindexTests
     [SkippableFact]
     public async Task ReindexAsync_backfills_vector_sidecar()
     {
-        BenchGate.SkipUnlessEnabled();
-
         await using var conn = new NpgsqlConnection(_fx.ConnectionString);
         await conn.OpenAsync();
         await ResetAndSeed(conn, rows: 50);
