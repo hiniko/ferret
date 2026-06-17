@@ -99,11 +99,9 @@ public class OllamaReindexSearchGateTests
         }
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Reindex_fills_versioned_column_and_stamps_active_registry_row()
     {
-        BenchGate.SkipUnlessEnabled();
-
         await using var conn = new NpgsqlConnection(_pg.ConnectionString);
         await conn.OpenAsync();
 
@@ -158,11 +156,9 @@ public class OllamaReindexSearchGateTests
         regStatus.Should().Be("active");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Search_returns_semantically_nearest_document()
     {
-        BenchGate.SkipUnlessEnabled();
-
         await using var conn = new NpgsqlConnection(_pg.ConnectionString);
         await conn.OpenAsync();
 
@@ -189,11 +185,9 @@ public class OllamaReindexSearchGateTests
         result.Items[0].Body.Should().Be("domestic cats and kittens as household pets");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Search_fails_loud_when_configured_model_differs_from_active_row()
     {
-        BenchGate.SkipUnlessEnabled();
-
         await using var conn = new NpgsqlConnection(_pg.ConnectionString);
         await conn.OpenAsync();
 

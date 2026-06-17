@@ -12,7 +12,6 @@ public class VectorLiveProviderTests
     [SkippableFact]
     public async Task Live_provider_embeds_text()
     {
-        BenchGate.SkipUnlessEnabled();
         var key = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
         Skip.If(string.IsNullOrEmpty(key), "OPENAI_API_KEY not set");
 

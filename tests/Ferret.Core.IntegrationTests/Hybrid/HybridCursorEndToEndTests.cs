@@ -36,8 +36,6 @@ public class HybridCursorEndToEndTests
     [SkippableFact]
     public async Task Cursor_pages_advance_disjointly_over_the_fused_query()
     {
-        BenchGate.SkipUnlessEnabled();
-
         var provider = new FakeEmbeddingProvider(8);
         const string term = "reindexing";
 

@@ -18,23 +18,22 @@ public class DocsShapeTests
     }
 
     [Fact]
-    public void Bench_findings_doc_has_required_sections()
+    public void Sample_document_fixture_has_expected_sections()
     {
-        var root = RepoRoot();
         var docPath = Path.Combine(
-            root, "docs", "superpowers", "specs", "2026-05-31-searchjoin-bench-findings.md");
+            AppContext.BaseDirectory, "Fixtures", "sample-document.md");
 
-        File.Exists(docPath).Should().BeTrue("the SearchJoin benchmark findings doc must exist");
+        File.Exists(docPath).Should().BeTrue("the sample document fixture must exist");
 
         var doc = File.ReadAllText(docPath);
 
-        doc.Should().Contain("## Results");
-        doc.Should().Contain("## EXPLAIN ANALYZE");
-        doc.Should().Contain("## Cold vs Warm");
-        doc.Should().Contain("## HopBudget Recommendation");
+        doc.Should().Contain("## Down the Rabbit-Hole");
+        doc.Should().Contain("## The Pool of Tears");
+        doc.Should().Contain("## A Caucus-Race");
+        doc.Should().Contain("## Advice from a Caterpillar");
 
-        doc.Should().Contain("benchmarks/Ferret.Benchmarks");
-        doc.Should().Contain("SearchJoinDepthBenchmark");
+        doc.Should().Contain("Alice");
+        doc.Should().Contain("Caterpillar");
     }
 
     [Fact]

@@ -11,7 +11,6 @@ public class CacheStateTests
     [SkippableFact]
     public async Task Warmup_then_measured_runs_are_faster_or_equal()
     {
-        BenchGate.SkipUnlessEnabled();
         await using var harness = new BenchPostgresHarness();
         try
         {

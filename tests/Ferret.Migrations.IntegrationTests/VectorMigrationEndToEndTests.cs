@@ -50,13 +50,9 @@ public class VectorMigrationEndToEndTests
 
     public VectorMigrationEndToEndTests(PgVectorFixture fx) => _fx = fx;
 
-    [SkippableFact]
+    [Fact]
     public async Task Diff_emits_vector_ddl_then_apply_creates_extension_column_and_hnsw_index()
     {
-        Skip.IfNot(
-            Environment.GetEnvironmentVariable("FERRET_BENCH") == "1",
-            "Benchmark-infrastructure test (spins a dedicated container + seeds large datasets). Set FERRET_BENCH=1 to run.");
-
         await using var conn = new NpgsqlConnection(_fx.ConnectionString);
         await conn.OpenAsync();
 

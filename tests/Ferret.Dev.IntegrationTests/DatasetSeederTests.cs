@@ -11,7 +11,6 @@ public class DatasetSeederTests
     [SkippableFact]
     public async Task Seed_produces_expected_row_counts_and_known_match()
     {
-        BenchGate.SkipUnlessEnabled();
         await using var harness = new BenchPostgresHarness();
         try
         {
@@ -79,7 +78,6 @@ public class DatasetSeederTests
     [SkippableFact]
     public async Task Seed_is_deterministic_for_fixed_seed()
     {
-        BenchGate.SkipUnlessEnabled();
         await using var harness = new BenchPostgresHarness();
         try
         {
