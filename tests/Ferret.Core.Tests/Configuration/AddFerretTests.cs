@@ -21,8 +21,7 @@ public class AddFerretTests
         var sc = new ServiceCollection();
         sc.AddLogging();
         sc.AddFerret(opts => opts
-            .ScanAssembly(typeof(Product).Assembly)
-            .UsePostgres());
+            .ScanAssembly(typeof(Product).Assembly));
         var sp = sc.BuildServiceProvider();
 
         sp.GetRequiredService<IFerretEngine>().Should().NotBeNull();

@@ -185,7 +185,7 @@ public class HybridSearchEndToEndTests
     {
         var sc = new ServiceCollection();
         sc.AddLogging();
-        sc.AddFerret(o => o.ScanAssembly(typeof(T).Assembly).UsePostgres()
+        sc.AddFerret(o => o.ScanAssembly(typeof(T).Assembly)
             .UseFullTextSearch(ft => ft.DefaultConfig = "english")
             .UseVectorSearch(v => { v.UseEmbeddingProvider(_ => provider); v.EfSearch = efSearch; })
             .UseHybridSearch(_ => { })

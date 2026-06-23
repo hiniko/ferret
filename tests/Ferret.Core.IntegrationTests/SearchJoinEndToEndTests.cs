@@ -175,7 +175,6 @@ public class SearchJoinEndToEndTests : IAsyncLifetime
         sc.AddLogging();
         sc.AddFerret(opts => opts
             .ScanAssembly(typeof(Order).Assembly)
-            .UsePostgres()
             .UseTrigramSearch()
             .UseDapperHydration());
         return sc.BuildServiceProvider().GetRequiredService<IFerretEngine>();

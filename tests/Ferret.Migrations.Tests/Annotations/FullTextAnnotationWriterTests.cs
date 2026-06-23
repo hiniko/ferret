@@ -45,7 +45,7 @@ public class FullTextAnnotationWriterTests
     private static IModel BuildModel()
     {
         var opts = new DbContextOptionsBuilder<ProductContext>()
-            .UseSqlite("DataSource=:memory:")
+            .UseNpgsql("Host=localhost;Database=ferret_test")
             .Options;
         using var ctx = new ProductContext(opts);
         return ctx.Model;
@@ -54,7 +54,7 @@ public class FullTextAnnotationWriterTests
     private static IModel BuildModelViaScan()
     {
         var opts = new DbContextOptionsBuilder<DbContext>()
-            .UseSqlite("DataSource=:memory:")
+            .UseNpgsql("Host=localhost;Database=ferret_test")
             .Options;
         var mb = new ModelBuilder();
         mb.Entity<Product>().ToTable("products");
@@ -106,7 +106,7 @@ public class FullTextAnnotationWriterTests
     private static IModel BuildArticleModel()
     {
         var opts = new DbContextOptionsBuilder<ArticleContext>()
-            .UseSqlite("DataSource=:memory:")
+            .UseNpgsql("Host=localhost;Database=ferret_test")
             .Options;
         using var ctx = new ArticleContext(opts);
         return ctx.Model;
@@ -174,7 +174,7 @@ public class FullTextAnnotationWriterTests
     private static IModel BuildTenantDocModel()
     {
         var opts = new DbContextOptionsBuilder<TenantDocContext>()
-            .UseSqlite("DataSource=:memory:")
+            .UseNpgsql("Host=localhost;Database=ferret_test")
             .Options;
         using var ctx = new TenantDocContext(opts);
         return ctx.Model;

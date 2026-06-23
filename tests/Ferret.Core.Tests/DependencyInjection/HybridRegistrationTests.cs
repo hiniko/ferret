@@ -12,7 +12,7 @@ public class HybridRegistrationTests
     public void UseHybridSearch_registers_options_singleton()
     {
         var sc = new ServiceCollection();
-        sc.AddFerret(o => o.ScanAssembly(typeof(HybridRegistrationTests).Assembly).UsePostgres()
+        sc.AddFerret(o => o.ScanAssembly(typeof(HybridRegistrationTests).Assembly)
             .UseHybridSearch(h => h.RrfK = 42));
         using var sp = sc.BuildServiceProvider();
         sp.GetRequiredService<HybridOptions>().RrfK.Should().Be(42);

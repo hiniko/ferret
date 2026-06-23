@@ -241,7 +241,6 @@ public class CrossEntitySearchEndToEndTests
         sc.AddLogging();
         sc.AddFerret(opts => opts
             .ScanAssembly(typeof(Order).Assembly)
-            .UsePostgres()
             .UseFullTextSearch(ft => ft.DefaultConfig = "simple")
             .UseDapperHydration());
         return sc.BuildServiceProvider();

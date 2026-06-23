@@ -6,15 +6,20 @@ using Ferret.EntityFrameworkCore;
 using Ferret.EntityFrameworkCore.DependencyInjection;
 using Ferret.EntityFrameworkCore.Querying;
 using FluentAssertions;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 using Xunit;
 
 namespace Ferret.EntityFrameworkCore.Tests.Querying;
 
+[Collection("postgres")]
 public sealed class EntityFrameworkQueryServiceTests
 {
+    private readonly PostgresFixture _fixture;
+
+    public EntityFrameworkQueryServiceTests(PostgresFixture fixture) => _fixture = fixture;
+
     public sealed class Product
     {
         public int Id { get; init; }
@@ -73,10 +78,10 @@ public sealed class EntityFrameworkQueryServiceTests
             => Task.CompletedTask;
     }
 
-    private static ServiceProvider BuildProvider(SqliteConnection conn, FakeEngine engine)
+    private static ServiceProvider BuildProvider(NpgsqlConnection conn, FakeEngine engine)
     {
         var services = new ServiceCollection();
-        services.AddDbContext<TestContext>(o => o.UseSqlite(conn));
+        services.AddDbContext<TestContext>(o => o.UseNpgsql(conn));
         services.AddSingleton<ISqlDialect>(new PostgresDialect());
         services.AddSingleton<IFerretEngine>(engine);
         services.AddFerretEntityFrameworkQueryService<TestContext>();
@@ -86,7 +91,7 @@ public sealed class EntityFrameworkQueryServiceTests
     [Fact]
     public async Task SearchOffsetAsync_opens_session_from_context_and_forwards_to_engine()
     {
-        var conn = new SqliteConnection("DataSource=:memory:");
+        var conn = new NpgsqlConnection(_fixture.ConnectionString);
         await conn.OpenAsync();
 
         var expected = new OffsetResult<Product> { Items = [] };
@@ -110,7 +115,7 @@ public sealed class EntityFrameworkQueryServiceTests
     [Fact]
     public async Task SearchCursorAsync_opens_session_from_context_and_forwards_to_engine()
     {
-        var conn = new SqliteConnection("DataSource=:memory:");
+        var conn = new NpgsqlConnection(_fixture.ConnectionString);
         await conn.OpenAsync();
 
         var expected = new CursorResult<Product> { Items = [] };
@@ -134,9 +139,9 @@ public sealed class EntityFrameworkQueryServiceTests
     [Fact]
     public void Registers_scoped_IFerretQueryService()
     {
-        var conn = new SqliteConnection("DataSource=:memory:");
+        var conn = new NpgsqlConnection(_fixture.ConnectionString);
         var services = new ServiceCollection();
-        services.AddDbContext<TestContext>(o => o.UseSqlite(conn));
+        services.AddDbContext<TestContext>(o => o.UseNpgsql(conn));
         services.AddSingleton<ISqlDialect>(new PostgresDialect());
         services.AddSingleton<IFerretEngine>(new FakeEngine());
         services.AddFerretEntityFrameworkQueryService<TestContext>();

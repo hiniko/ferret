@@ -71,7 +71,6 @@ public sealed class ReindexHostedServiceTests : IAsyncLifetime
         sc.AddLogging();
         sc.AddFerret(opts => opts
             .ScanAssembly(typeof(ReindexDoc).Assembly)
-            .UsePostgres()
             .UseFullTextSearch(ft => ft.DefaultConfig = "english")
             .UseDapperHydration());
 

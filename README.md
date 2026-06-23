@@ -70,7 +70,6 @@ Wire up DI:
 services.AddDbContext<AppDbContext>(o => o.UseNpgsql(connectionString));
 services.AddFerret(opts => opts
     .ScanAssembly(typeof(Product).Assembly)
-    .UsePostgres()
     .UseTrigramSearch());
 ```
 
@@ -96,7 +95,6 @@ Cursor mode is available via `dbContext.SearchCursorAsync<...>` returning `Curso
 ```csharp
 services.AddFerret(opts => opts
     .ScanAssembly(typeof(Product).Assembly)
-    .UsePostgres()
     .UseTrigramSearch()
     .UseDapperHydration());
 

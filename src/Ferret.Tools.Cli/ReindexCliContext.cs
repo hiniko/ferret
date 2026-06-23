@@ -54,7 +54,6 @@ internal sealed class ReindexCliContext
         {
             foreach (var asm in _entityAssemblies)
                 opts.ScanAssembly(asm);
-            opts.UsePostgres();
             opts.UseFullTextSearch();
         });
         return services.BuildServiceProvider();

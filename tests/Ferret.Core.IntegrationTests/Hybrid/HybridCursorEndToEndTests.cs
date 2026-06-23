@@ -115,7 +115,7 @@ public class HybridCursorEndToEndTests
     {
         var sc = new ServiceCollection();
         sc.AddLogging();
-        sc.AddFerret(o => o.ScanAssembly(typeof(HDoc).Assembly).UsePostgres()
+        sc.AddFerret(o => o.ScanAssembly(typeof(HDoc).Assembly)
             .UseFullTextSearch(ft => ft.DefaultConfig = "english")
             .UseVectorSearch(v => { v.UseEmbeddingProvider(_ => provider); v.EfSearch = 40; })
             .UseHybridSearch(_ => { })

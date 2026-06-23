@@ -29,7 +29,7 @@ internal static class ModelFixtures
     private static IRelationalModel BuildRelationalModel(Action<ModelBuilder> configure)
     {
         var opts = new DbContextOptionsBuilder<TestContext>()
-            .UseSqlite("DataSource=:memory:")
+            .UseNpgsql("Host=localhost;Database=ferret_test")
             .EnableServiceProviderCaching(false)
             .Options;
         using var ctx = new TestContext(configure, opts);

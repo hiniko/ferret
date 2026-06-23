@@ -188,7 +188,6 @@ public class FullTextEndToEndTests
         sc.AddLogging();
         sc.AddFerret(opts => opts
             .ScanAssembly(typeof(Doc).Assembly)
-            .UsePostgres()
             .UseFullTextSearch(ft => ft.DefaultConfig = "english")
             .UseDapperHydration());
         return sc.BuildServiceProvider();

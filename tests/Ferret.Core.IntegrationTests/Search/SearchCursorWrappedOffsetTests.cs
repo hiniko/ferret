@@ -208,7 +208,6 @@ public class SearchCursorWrappedOffsetTests
         sc.AddFerret(opts =>
         {
             opts.ScanAssembly(typeof(RDoc).Assembly)
-                .UsePostgres()
                 .UseFullTextSearch(ft => ft.DefaultConfig = "english")
                 .UseDapperHydration();
             if (maxSearchCursorOffset is { } cap)

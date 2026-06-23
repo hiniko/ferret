@@ -68,7 +68,7 @@ app.MapFerret<Product, Guid>("/api/products");
 
 ```csharp
 builder.Services.AddFerret(opts => opts
-    .ScanAssembly(typeof(Product).Assembly).UsePostgres().UseTrigramSearch());
+    .ScanAssembly(typeof(Product).Assembly).UseTrigramSearch());
 builder.Services.AddDbContext<AppDbContext>(o => o.UseNpgsql(connectionString));
 builder.Services.AddFerretEntityFrameworkQueryService<AppDbContext>(); // IFerretQueryService
 builder.Services.AddFerretAspNetCore();                                // PaginationDefaultsResolver

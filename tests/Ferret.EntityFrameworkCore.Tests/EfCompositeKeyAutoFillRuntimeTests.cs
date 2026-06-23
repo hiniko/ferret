@@ -3,7 +3,6 @@ using Ferret.Core.DependencyInjection;
 using Ferret.Core.Engine;
 using Ferret.EntityFrameworkCore.DependencyInjection;
 using FluentAssertions;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -37,13 +36,11 @@ public sealed class EfCompositeKeyAutoFillRuntimeTests
     [Fact]
     public void Composite_ef_key_without_attribute_auto_fills_into_runtime_registry()
     {
-        var conn = new SqliteConnection("DataSource=:memory:");
         var services = new ServiceCollection();
         services.AddLogging();
-        services.AddDbContext<TestContext>(o => o.UseSqlite(conn));
+        services.AddDbContext<TestContext>(o => o.UseNpgsql("Host=localhost;Database=ferret_test"));
         services.AddFerret(opts => opts
-            .ScanAssembly(typeof(EfTenantDoc).Assembly)
-            .UsePostgres());
+            .ScanAssembly(typeof(EfTenantDoc).Assembly));
         services.AddFerretEntityFrameworkCore<TestContext>();
 
         using var sp = services.BuildServiceProvider();
@@ -60,13 +57,11 @@ public sealed class EfCompositeKeyAutoFillRuntimeTests
     [Fact]
     public void Composite_ef_key_auto_fills_through_documented_query_service_registration()
     {
-        var conn = new SqliteConnection("DataSource=:memory:");
         var services = new ServiceCollection();
         services.AddLogging();
-        services.AddDbContext<TestContext>(o => o.UseSqlite(conn));
+        services.AddDbContext<TestContext>(o => o.UseNpgsql("Host=localhost;Database=ferret_test"));
         services.AddFerret(opts => opts
-            .ScanAssembly(typeof(EfTenantDoc).Assembly)
-            .UsePostgres());
+            .ScanAssembly(typeof(EfTenantDoc).Assembly));
         services.AddFerretEntityFrameworkQueryService<TestContext>();
 
         using var sp = services.BuildServiceProvider();
@@ -82,13 +77,11 @@ public sealed class EfCompositeKeyAutoFillRuntimeTests
     [Fact]
     public void Both_registrations_register_single_override_source()
     {
-        var conn = new SqliteConnection("DataSource=:memory:");
         var services = new ServiceCollection();
         services.AddLogging();
-        services.AddDbContext<TestContext>(o => o.UseSqlite(conn));
+        services.AddDbContext<TestContext>(o => o.UseNpgsql("Host=localhost;Database=ferret_test"));
         services.AddFerret(opts => opts
-            .ScanAssembly(typeof(EfTenantDoc).Assembly)
-            .UsePostgres());
+            .ScanAssembly(typeof(EfTenantDoc).Assembly));
         services.AddFerretEntityFrameworkQueryService<TestContext>();
         services.AddFerretEntityFrameworkCore<TestContext>();
 

@@ -46,7 +46,7 @@ public class SearchableSnapshotHandlerTests
     public void Emits_HasAnnotation_calls_for_root_and_property_annotations()
     {
         var opts = new DbContextOptionsBuilder<TestContext>()
-            .UseSqlite("DataSource=:memory:")
+            .UseNpgsql("Host=localhost;Database=ferret_test")
             .EnableServiceProviderCaching(false)
             .Options;
         using var ctx = new TestContext(opts);

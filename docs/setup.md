@@ -22,7 +22,6 @@ Ferret manages hydration, schema, and reindexing.
 services.AddDbContext<AppDbContext>(o => o.UseNpgsql(connectionString));
 services.AddFerret(opts => opts
     .ScanAssembly(typeof(Product).Assembly)
-    .UsePostgres()
     .UseTrigramSearch());          // + UseFullTextSearch / UseVectorSearch / UseHybridSearch
 ```
 
@@ -41,7 +40,6 @@ hydrates with Dapper.
 ```csharp
 services.AddFerret(opts => opts
     .ScanAssembly(typeof(Product).Assembly)
-    .UsePostgres()
     .UseTrigramSearch()
     .UseDapperHydration());
 

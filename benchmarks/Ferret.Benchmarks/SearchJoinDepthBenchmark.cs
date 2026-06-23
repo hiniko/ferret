@@ -54,7 +54,6 @@ public class SearchJoinDepthBenchmark
         sc.AddLogging();
         sc.AddFerret(opts => opts
             .ScanAssembly(typeof(HopGraph).Assembly)
-            .UsePostgres()
             .UseTrigramSearch()
             .UseDapperHydration());
         _engine = sc.BuildServiceProvider().GetRequiredService<IFerretEngine>();

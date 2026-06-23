@@ -37,7 +37,7 @@ public class EfAutoFillKeyTests
     private static IModel BuildModel()
     {
         var opts = new DbContextOptionsBuilder<TestContext>()
-            .UseSqlite("DataSource=:memory:")
+            .UseNpgsql("Host=localhost;Database=ferret_test")
             .Options;
         using var ctx = new TestContext(opts);
         return ctx.Model;
