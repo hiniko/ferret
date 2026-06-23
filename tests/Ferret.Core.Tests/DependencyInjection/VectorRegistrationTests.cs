@@ -17,7 +17,6 @@ public class VectorRegistrationTests
         sc.AddSingleton(new DepThing());
         sc.AddFerret(o => o
             .ScanAssembly(typeof(VectorRegistrationTests).Assembly)
-            .UsePostgres()
             .UseVectorSearch(v =>
                 v.UseEmbeddingProvider(sp => new ProviderWithDeps(sp.GetRequiredService<DepThing>(), dimensions: 8))));
 

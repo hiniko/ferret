@@ -37,7 +37,7 @@ public class UseFerretSearchableAnnotationsTests
     private static IModel BuildModel()
     {
         var opts = new DbContextOptionsBuilder<WidgetContext>()
-            .UseSqlite("DataSource=:memory:")
+            .UseNpgsql("Host=localhost;Database=ferret_test")
             .Options;
         using var ctx = new WidgetContext(opts);
         return ctx.Model;
@@ -101,7 +101,7 @@ public class UseFerretSearchableAnnotationsTests
     private static IModel BuildModelDefaultOverload()
     {
         var opts = new DbContextOptionsBuilder<WidgetContextDefaultOverload>()
-            .UseSqlite("DataSource=:memory:")
+            .UseNpgsql("Host=localhost;Database=ferret_test")
             .Options;
         using var ctx = new WidgetContextDefaultOverload(opts);
         return ctx.Model;
@@ -134,7 +134,7 @@ public class UseFerretSearchableAnnotationsTests
     private static IModel BuildModelAssemblyOverload()
     {
         var opts = new DbContextOptionsBuilder<WidgetContextAssemblyOverload>()
-            .UseSqlite("DataSource=:memory:")
+            .UseNpgsql("Host=localhost;Database=ferret_test")
             .Options;
         using var ctx = new WidgetContextAssemblyOverload(opts);
         return ctx.Model;

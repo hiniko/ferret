@@ -25,7 +25,6 @@ public sealed class Article : ISearchableEntity<Guid>
 ```csharp
 services.AddFerret(o => o
     .ScanAssembly(typeof(Article).Assembly)
-    .UsePostgres()
     .UseFullTextSearch(ft => ft.DefaultConfig = "english"));
 ```
 

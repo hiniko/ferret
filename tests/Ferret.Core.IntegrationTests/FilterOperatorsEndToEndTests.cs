@@ -76,7 +76,6 @@ public class FilterOperatorsEndToEndTests
         sc.AddLogging();
         sc.AddFerret(opts => opts
             .ScanAssembly(typeof(Widget).Assembly)
-            .UsePostgres()
             .UseTrigramSearch()
             .UseDapperHydration());
         var sp = sc.BuildServiceProvider();

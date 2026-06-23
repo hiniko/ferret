@@ -74,7 +74,6 @@ public sealed class MapFerretEndToEndTests
                         services.AddDbContext<ProductContext>(o => o.UseNpgsql(ConnectionString));
                         services.AddFerret(opts => opts
                             .ScanAssembly(typeof(Product).Assembly)
-                            .UsePostgres()
                             .UseTrigramSearch());
                         services.AddFerretEntityFrameworkQueryService<ProductContext>();
                     })

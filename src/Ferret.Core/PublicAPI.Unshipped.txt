@@ -124,7 +124,6 @@ Ferret.Core.Configuration.FerretOptions
 Ferret.Core.Configuration.FerretOptions.FerretOptions() -> void
 Ferret.Core.Configuration.FerretOptions.ScanAssembly(System.Reflection.Assembly! asm) -> Ferret.Core.Configuration.FerretOptions!
 Ferret.Core.Configuration.FerretOptions.UseNamingStrategy<T>() -> Ferret.Core.Configuration.FerretOptions!
-Ferret.Core.Configuration.FerretOptions.UsePostgres() -> Ferret.Core.Configuration.FerretOptions!
 Ferret.Core.Configuration.FerretOptions.UseFullTextSearch(System.Action<Ferret.Core.Backends.FullText.FullTextOptions!>? configure = null) -> Ferret.Core.Configuration.FerretOptions!
 Ferret.Core.Configuration.FerretOptions.UseVectorSearch(System.Action<Ferret.Core.Backends.Vector.VectorOptions!>? configure = null) -> Ferret.Core.Configuration.FerretOptions!
 Ferret.Core.Configuration.FerretOptions.UseTrigramSearch(System.Action<Ferret.Core.Backends.Trigram.TrigramOptions!>? configure = null) -> Ferret.Core.Configuration.FerretOptions!

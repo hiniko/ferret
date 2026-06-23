@@ -17,7 +17,7 @@ public class ResolveHybridTests
     {
         var sc = new ServiceCollection();
         sc.AddLogging();
-        sc.AddFerret(o => o.ScanAssembly(typeof(HybridFixtureEntity).Assembly).UsePostgres()
+        sc.AddFerret(o => o.ScanAssembly(typeof(HybridFixtureEntity).Assembly)
             .UseFullTextSearch().UseVectorSearch(v => v.UseEmbeddingProvider(_ => new FakeEmbeddingProvider(8)))
             .UseHybridSearch());
         using var sp = sc.BuildServiceProvider();

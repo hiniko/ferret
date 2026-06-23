@@ -36,7 +36,7 @@ public class UseFerretSearchableAnnotationsVectorTests
     private static IModel BuildModel()
     {
         var opts = new DbContextOptionsBuilder<VProductContext>()
-            .UseSqlite("DataSource=:memory:")
+            .UseNpgsql("Host=localhost;Database=ferret_test")
             .Options;
         using var ctx = new VProductContext(opts);
         return ctx.Model;

@@ -41,7 +41,6 @@ public class OllamaReindexSearchGateTests
         sc.AddLogging();
         sc.AddFerret(o => o
             .ScanAssembly(typeof(OvDoc).Assembly)
-            .UsePostgres()
             .UseVectorSearch(configure)
             .UseDapperHydration());
         return sc.BuildServiceProvider();

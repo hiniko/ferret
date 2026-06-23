@@ -64,12 +64,6 @@ public sealed class FerretOptions
         return this;
     }
 
-    public FerretOptions UsePostgres()
-    {
-        // Connection wiring is per-session (Dapper or EF). Method exists so call-sites read clearly.
-        return this;
-    }
-
     public FerretOptions UseTrigramSearch(Action<TrigramOptions>? configure = null)
     {
         TrigramEnabled = true;

@@ -174,7 +174,6 @@ public class DiagnosticsEndToEndTests
         sc.AddFerret(o =>
         {
             o.ScanAssembly(typeof(Widget).Assembly)
-                .UsePostgres()
                 .UseTrigramSearch()
                 .UseDapperHydration();
             opts?.Invoke(o);

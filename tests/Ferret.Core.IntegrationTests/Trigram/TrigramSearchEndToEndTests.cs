@@ -106,7 +106,6 @@ public class TrigramSearchEndToEndTests
         sc.AddLogging();
         sc.AddFerret(opts => opts
             .ScanAssembly(typeof(Widget).Assembly)
-            .UsePostgres()
             .UseTrigramSearch()
             .UseDapperHydration());
         return sc.BuildServiceProvider();

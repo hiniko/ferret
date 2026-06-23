@@ -1,12 +1,16 @@
 using FluentAssertions;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace Ferret.EntityFrameworkCore.Tests;
 
+[Collection("postgres")]
 public class SessionSmokeTests
 {
+    private readonly PostgresFixture _fixture;
+
+    public SessionSmokeTests(PostgresFixture fixture) => _fixture = fixture;
+
     public sealed class Widget
     {
         public Guid Id { get; init; }
@@ -22,9 +26,9 @@ public class SessionSmokeTests
     [Fact]
     public async Task OpenConnectionAsync_returns_open_connection()
     {
-        var conn = new SqliteConnection("DataSource=:memory:");
-        await conn.OpenAsync();
-        var opts = new DbContextOptionsBuilder<TestContext>().UseSqlite(conn).Options;
+        var opts = new DbContextOptionsBuilder<TestContext>()
+            .UseNpgsql(_fixture.UniqueConnectionString())
+            .Options;
         await using var ctx = new TestContext(opts);
         await ctx.Database.EnsureCreatedAsync();
 

@@ -14,7 +14,6 @@ builder.Services.AddDbContext<AppDbContext>(o => o.UseNpgsql(connectionString));
 
 builder.Services.AddFerret(opts => opts
     .ScanAssembly(typeof(Product).Assembly)
-    .UsePostgres()
     .UseTrigramSearch()
     .WithPaginationDefaults(defaultLimit: 25, maxLimit: 100));
 

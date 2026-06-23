@@ -1,13 +1,17 @@
 using Ferret.EntityFrameworkCore;
 using FluentAssertions;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace Ferret.EntityFrameworkCore.Tests;
 
+[Collection("postgres")]
 public class CrudRepositoryTests
 {
+    private readonly PostgresFixture _fixture;
+
+    public CrudRepositoryTests(PostgresFixture fixture) => _fixture = fixture;
+
     public sealed class PlainEntity
     {
         public Guid Id { get; init; }
@@ -29,11 +33,11 @@ public class CrudRepositoryTests
         public DbSet<TimestampedEntity> Stamped => Set<TimestampedEntity>();
     }
 
-    private static async Task<TestContext> NewContextAsync()
+    private async Task<TestContext> NewContextAsync()
     {
-        var conn = new SqliteConnection("DataSource=:memory:");
-        await conn.OpenAsync();
-        var opts = new DbContextOptionsBuilder<TestContext>().UseSqlite(conn).Options;
+        var opts = new DbContextOptionsBuilder<TestContext>()
+            .UseNpgsql(_fixture.UniqueConnectionString())
+            .Options;
         var ctx = new TestContext(opts);
         await ctx.Database.EnsureCreatedAsync();
         return ctx;
