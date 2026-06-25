@@ -30,7 +30,7 @@ to Typesense / Meilisearch / Elastic for projects that already run PostgreSQL.
 | `Ferret.Abstractions` | Interfaces, attributes, query/result models. Reference from your domain assemblies. |
 | `Ferret.Core` | Engine, SQL builder, attribute discovery, Postgres dialect, search backends. |
 | `Ferret.Migrations` | EF Core migrations bridge — generates trigram/full-text/vector schema from annotations. |
-| `Ferret.EntityFrameworkCore` | EF Core session + hydrator + `CrudRepository<T, TKey>` + `IHasTimestamps`. |
+| `Ferret.EntityFrameworkCore` | EF Core session + hydrator + search extensions. |
 | `Ferret.Hydration.Dapper` | Dapper-based session + hydrator for EF-free use. |
 | `Ferret.AspNetCore` | `OffsetApiQuery` / `CursorApiQuery` + binders + `MapFerret`. |
 | `Ferret.Hosting` | Reindex `BackgroundService` (drains `ferret_reindex_jobs`). |

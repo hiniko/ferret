@@ -1,0 +1,15 @@
+<Project>
+  <PropertyGroup Label="Package metadata" Condition="'$(IsPackable)' == 'true'">
+    <Authors>hiniko</Authors>
+    <Company>hiniko</Company>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageProjectUrl>https://github.com/hiniko/ferret</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/hiniko/ferret</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+  </PropertyGroup>
+</Project>
