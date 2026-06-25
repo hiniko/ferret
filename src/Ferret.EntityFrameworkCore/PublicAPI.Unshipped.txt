@@ -1,10 +1,4 @@
 #nullable enable
-Ferret.EntityFrameworkCore.CrudRepository<T, TKey>
-Ferret.EntityFrameworkCore.CrudRepository<T, TKey>.CreateAsync(T! entity, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T!>!
-Ferret.EntityFrameworkCore.CrudRepository<T, TKey>.CrudRepository(Microsoft.EntityFrameworkCore.DbContext! context) -> void
-Ferret.EntityFrameworkCore.CrudRepository<T, TKey>.DeleteAsync(T! entity, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
-Ferret.EntityFrameworkCore.CrudRepository<T, TKey>.GetAsync(TKey id, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T?>!
-Ferret.EntityFrameworkCore.CrudRepository<T, TKey>.UpdateAsync(T! entity, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T!>!
 Ferret.EntityFrameworkCore.DependencyInjection.FerretEntityFrameworkExtensions
 Ferret.EntityFrameworkCore.EntityFrameworkHydrator
 Ferret.EntityFrameworkCore.EntityFrameworkHydrator.EntityFrameworkHydrator(Microsoft.EntityFrameworkCore.DbContext! context) -> void
@@ -20,11 +14,6 @@ Ferret.EntityFrameworkCore.EntityFrameworkSession.DisposeAsync() -> System.Threa
 Ferret.EntityFrameworkCore.EntityFrameworkSession.EntityFrameworkSession(Microsoft.EntityFrameworkCore.DbContext! context, Ferret.Abstractions.Sql.ISqlDialect! dialect) -> void
 Ferret.EntityFrameworkCore.EntityFrameworkSession.Hydrator.get -> Ferret.Abstractions.Hydration.IEntityHydrator!
 Ferret.EntityFrameworkCore.EntityFrameworkSession.OpenConnectionAsync(System.Threading.CancellationToken ct) -> System.Threading.Tasks.Task<System.Data.Common.DbConnection!>!
-Ferret.EntityFrameworkCore.IHasTimestamps
-Ferret.EntityFrameworkCore.IHasTimestamps.CreatedAt.get -> System.DateTime
-Ferret.EntityFrameworkCore.IHasTimestamps.CreatedAt.set -> void
-Ferret.EntityFrameworkCore.IHasTimestamps.UpdatedAt.get -> System.DateTime
-Ferret.EntityFrameworkCore.IHasTimestamps.UpdatedAt.set -> void
 static Ferret.EntityFrameworkCore.DependencyInjection.FerretEntityFrameworkExtensions.AddFerretEntityFrameworkCore<TContext>(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
 static Ferret.EntityFrameworkCore.DependencyInjection.FerretEntityFrameworkExtensions.AddFerretEntityFrameworkQueryService<TContext>(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
 static Ferret.EntityFrameworkCore.DependencyInjection.FerretEntityFrameworkExtensions.ResolveKeyProperties(Microsoft.EntityFrameworkCore.Metadata.IEntityType! entityType, Ferret.Abstractions.Attributes.SearchableEntityAttribute? attribute) -> System.Collections.Generic.IReadOnlyList<string!>!
