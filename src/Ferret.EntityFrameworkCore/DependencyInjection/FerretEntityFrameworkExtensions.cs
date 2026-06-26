@@ -1,6 +1,4 @@
-using Ferret.Abstractions.Attributes;
 using Ferret.Abstractions.Querying;
-using Ferret.Core.Engine;
 using Ferret.EntityFrameworkCore.Querying;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;

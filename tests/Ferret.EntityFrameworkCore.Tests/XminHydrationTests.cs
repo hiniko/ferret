@@ -1,8 +1,4 @@
-using Ferret.Abstractions.Attributes;
-using Ferret.Abstractions.Models;
-using Ferret.Abstractions.Search;
 using Ferret.Core.DependencyInjection;
-using Ferret.EntityFrameworkCore.DependencyInjection;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
