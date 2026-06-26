@@ -1,7 +1,5 @@
-using Ferret.Abstractions.Attributes;
 using Ferret.Abstractions.Querying;
 using Ferret.Core.DependencyInjection;
-using Ferret.EntityFrameworkCore.DependencyInjection;
 using Ferret.EntityFrameworkCore.Querying;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -36,7 +34,7 @@ public sealed class DiValidationTests
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddDbContext<DiTestContext>(o =>
-            o.UseNpgsql("Host=localhost;Database=ferret_di_test"));
+            o.UseInMemoryDatabase("ferret_di_test"));
         services.AddFerret(opts => opts
             .ScanAssembly(typeof(DiTestDoc).Assembly)
             .UseTrigramSearch());
@@ -58,7 +56,7 @@ public sealed class DiValidationTests
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddDbContext<DiTestContext>(o =>
-            o.UseNpgsql("Host=localhost;Database=ferret_di_test"));
+            o.UseInMemoryDatabase("ferret_di_test"));
         services.AddFerret(opts => opts
             .ScanAssembly(typeof(DiTestDoc).Assembly)
             .UseTrigramSearch());

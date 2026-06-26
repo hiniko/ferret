@@ -9,6 +9,7 @@
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="Testcontainers.PostgreSql" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Ferret.EntityFrameworkCore/Ferret.EntityFrameworkCore.csproj" />
