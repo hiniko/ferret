@@ -1,0 +1,45 @@
+name: release
+
+# Manual publish to NuGet. Tag the commit first (e.g. `git tag 0.1.1 && git push origin 0.1.1`),
+# then run this workflow from the Actions tab and enter that tag. The package version is derived
+# from the tag by MinVer (unprefixed, e.g. tag `0.1.1` -> version 0.1.1), so the tag is the source
+# of truth — this job just checks it out, packs, and pushes. Publishing is never automatic.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing git tag to publish (e.g. 0.1.1)'
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+          fetch-depth: 0          # MinVer needs full history + tags to derive the version
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - run: dotnet restore Ferret.slnx
+      - run: dotnet build Ferret.slnx -c Release --no-restore
+      - run: dotnet test Ferret.slnx -c Release --no-build
+      - run: dotnet pack Ferret.slnx -c Release --no-build -o ./artifacts
+
+      # Fail loudly if the tag did not produce the expected version (MinVer fell back to a height-based pre-release).
+      - name: Verify packed version matches the tag
+        run: |
+          if ! ls ./artifacts/Ferret.Core.${{ inputs.tag }}.nupkg >/dev/null 2>&1; then
+            echo "::error::No Ferret.Core.${{ inputs.tag }}.nupkg — packed version does not match tag '${{ inputs.tag }}'. Is the tag on this commit?"
+            ls -1 ./artifacts
+            exit 1
+          fi
+
+      - run: dotnet nuget push "./artifacts/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      - run: dotnet nuget push "./artifacts/*.snupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
