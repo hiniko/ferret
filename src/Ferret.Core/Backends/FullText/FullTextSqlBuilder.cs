@@ -116,7 +116,7 @@ internal sealed class FullTextSqlBuilder
         sb.AppendLine();
         sb.AppendLine(")");
 
-        sb.Append("SELECT ").Append(outerProjection).Append(", COUNT(*) OVER() AS total_count FROM candidates ORDER BY rank DESC ");
+        sb.Append("SELECT ").Append(outerProjection).Append(", COUNT(*) OVER() AS total_count FROM candidates ORDER BY rank DESC, ").Append(outerProjection).Append(' ');
         sb.Append(_dialect.PagingClause(ctx.Limit, ctx.Offset));
 
         var parameters = new List<KeyValuePair<string, object?>>
@@ -191,7 +191,7 @@ internal sealed class FullTextSqlBuilder
         sb.AppendLine(") candidates");
         if (req.ConfidenceThreshold is { } threshold)
             sb.Append("WHERE rank >= ").Append(threshold.ToString(CultureInfo.InvariantCulture)).AppendLine();
-        sb.Append("ORDER BY rank DESC LIMIT ").Append(req.Depth);
+        sb.Append("ORDER BY rank DESC, ").Append(candProjection).Append(" LIMIT ").Append(req.Depth);
 
         var parameters = new List<KeyValuePair<string, object?>>
         {

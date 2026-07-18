@@ -12,5 +12,5 @@ search_results AS (
   SELECT "id", MIN(distance) AS distance FROM field_matches GROUP BY "id")
 SELECT sr."id", COUNT(*) OVER() AS total_count FROM search_results sr
 WHERE sr.distance <= 0.65
-ORDER BY sr.distance
+ORDER BY sr.distance, sr."id"
 LIMIT 25 OFFSET 0

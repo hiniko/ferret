@@ -63,7 +63,9 @@ internal sealed class TrigramSqlBuilder
         sql.AppendLine($"  SELECT {keyProjection}, MIN(distance) AS distance FROM field_matches GROUP BY {keyProjection})");
         sql.AppendLine($"SELECT {srKeyProjection}, COUNT(*) OVER() AS total_count FROM search_results sr");
         sql.AppendLine($"WHERE sr.distance <= {maxDistance}");
-        sql.AppendLine("ORDER BY sr.distance");
+        // Key tie-break: equal distances must order deterministically or offset pages can
+        // duplicate/drop rows across requests as the plan changes.
+        sql.AppendLine($"ORDER BY sr.distance, {srKeyProjection}");
         sql.Append(_dialect.PagingClause(pageSize, page * pageSize));
 
         return new SearchSqlFragment(sql.ToString(), parameters);
@@ -110,7 +112,7 @@ internal sealed class TrigramSqlBuilder
         sql.AppendLine($"    ) field_matches GROUP BY {keyProjection}");
         sql.AppendLine("  ) sr");
         sql.AppendLine($"  WHERE sr.distance <= {maxDistance}");
-        sql.AppendLine("  ORDER BY sr.distance");
+        sql.AppendLine($"  ORDER BY sr.distance, {srKeyProjection}");
         sql.AppendLine($"  LIMIT {req.Depth}");
         sql.Append(") ranked");
 
