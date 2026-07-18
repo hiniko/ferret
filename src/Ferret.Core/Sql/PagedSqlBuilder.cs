@@ -41,6 +41,10 @@ public static class PagedSqlBuilder
         }
 
         var value = ConvertFilterValue(filter.Value, clr);
+        // Contains is a substring match: escape ILIKE metacharacters in the user value so
+        // "50%" matches literally instead of acting as a wildcard (default escape is backslash).
+        if (filter.Operator == FilterOperator.Contains && value is string sv)
+            value = sv.Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_");
         var sql = filter.Operator switch
         {
             FilterOperator.Equals             => $"{col} = {paramName}",

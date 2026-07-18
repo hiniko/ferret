@@ -66,6 +66,15 @@ public class PagedSqlBuilderTests
     }
 
     [Fact]
+    public void Compile_filter_contains_escapes_ilike_metacharacters()
+    {
+        var fragment = PagedSqlBuilder.CompileFilter(
+            new FilterClause { Field = "Name", Operator = FilterOperator.Contains, Value = @"50%_a\b" },
+            Build(), parameterIndex: 0);
+        fragment.Parameters.Should().ContainSingle().Which.Should().Be(@"50\%\_a\\b");
+    }
+
+    [Fact]
     public void Compile_filter_in_uses_any_with_typed_array()
     {
         var fragment = PagedSqlBuilder.CompileFilter(
