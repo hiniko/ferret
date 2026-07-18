@@ -15,7 +15,7 @@ public static class ClauseParsing
         {
             if (string.IsNullOrWhiteSpace(raw)) continue;
             var parts = raw.Split(':', 3);
-            if (parts.Length != 3) continue;
+            if (parts.Length < 2) continue;
 
             var op = parts[1].ToLowerInvariant() switch
             {
@@ -27,11 +27,17 @@ public static class ClauseParsing
                 "lt" => FilterOperator.LessThan,
                 "lte" => FilterOperator.LessThanOrEqual,
                 "in" => FilterOperator.In,
+                "isnull" => FilterOperator.IsNull,
+                "notnull" => FilterOperator.NotNull,
                 _ => (FilterOperator?)null,
             };
             if (op is null) continue;
 
-            clauses.Add(new FilterClause { Field = parts[0], Operator = op.Value, Value = parts[2] });
+            // Value-less operators accept "field:isnull" (2 parts) or "field:isnull:" (3 parts, ignored value).
+            var valueless = op is FilterOperator.IsNull or FilterOperator.NotNull;
+            if (parts.Length != 3 && !valueless) continue;
+
+            clauses.Add(new FilterClause { Field = parts[0], Operator = op.Value, Value = valueless ? "" : parts[2] });
         }
 
         return clauses;

@@ -26,11 +26,26 @@ public class ClauseParsingTests
     [InlineData("lt", FilterOperator.LessThan)]
     [InlineData("lte", FilterOperator.LessThanOrEqual)]
     [InlineData("in", FilterOperator.In)]
+    [InlineData("isnull", FilterOperator.IsNull)]
+    [InlineData("notnull", FilterOperator.NotNull)]
     public void ParseFilters_supports_all_operators(string wire, FilterOperator expected)
     {
         var result = ClauseParsing.ParseFilters(new[] { $"field:{wire}:val" });
 
         result.Should().ContainSingle().Which.Operator.Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("deletedAt:isnull", FilterOperator.IsNull)]
+    [InlineData("deletedAt:notnull", FilterOperator.NotNull)]
+    [InlineData("deletedAt:isnull:", FilterOperator.IsNull)]
+    public void ParseFilters_valueless_operators_accept_two_part_form(string wire, FilterOperator expected)
+    {
+        var result = ClauseParsing.ParseFilters(new[] { wire });
+
+        result.Should().ContainSingle();
+        result[0].Operator.Should().Be(expected);
+        result[0].Value.Should().BeEmpty();
     }
 
     [Fact]

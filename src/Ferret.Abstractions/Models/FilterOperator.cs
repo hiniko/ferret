@@ -11,5 +11,9 @@ public enum FilterOperator
     [EnumMember(Value = "gte")] GreaterThanOrEqual,
     [EnumMember(Value = "lt")] LessThan,
     [EnumMember(Value = "lte")] LessThanOrEqual,
-    [EnumMember(Value = "in")] In
+    [EnumMember(Value = "in")] In,
+    /// <summary>Value-less: matches rows where the column is NULL.</summary>
+    [EnumMember(Value = "isnull")] IsNull,
+    /// <summary>Value-less: matches rows where the column is not NULL.</summary>
+    [EnumMember(Value = "notnull")] NotNull
 }

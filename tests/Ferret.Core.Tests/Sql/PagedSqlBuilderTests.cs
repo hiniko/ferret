@@ -53,6 +53,18 @@ public class PagedSqlBuilderTests
         fragment.Parameters.Should().ContainSingle().Which.Should().Be("x");
     }
 
+    [Theory]
+    [InlineData(FilterOperator.IsNull, "\"name\" IS NULL")]
+    [InlineData(FilterOperator.NotNull, "\"name\" IS NOT NULL")]
+    public void Compile_filter_null_operators_emit_parameterless_predicate(FilterOperator op, string expected)
+    {
+        var fragment = PagedSqlBuilder.CompileFilter(
+            new FilterClause { Field = "Name", Operator = op, Value = "" },
+            Build(), parameterIndex: 2);
+        fragment.Sql.Should().Be(expected);
+        fragment.Parameters.Should().BeEmpty();
+    }
+
     [Fact]
     public void Compile_filter_in_uses_any_with_typed_array()
     {

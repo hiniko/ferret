@@ -25,6 +25,12 @@ public static class PagedSqlBuilder
         var clr = meta.ClrTypeByPropertyName[filter.Field];
         var paramName = $"@p{parameterIndex}";
 
+        if (filter.Operator is FilterOperator.IsNull or FilterOperator.NotNull)
+        {
+            var nullSql = filter.Operator == FilterOperator.IsNull ? $"{col} IS NULL" : $"{col} IS NOT NULL";
+            return new SqlFragment(nullSql, [], parameterIndex);
+        }
+
         if (filter.Operator == FilterOperator.In)
         {
             var raws = filter.Value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);

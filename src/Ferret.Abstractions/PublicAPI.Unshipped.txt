@@ -143,6 +143,8 @@ Ferret.Abstractions.Models.FilterOperator.In = 7 -> Ferret.Abstractions.Models.F
 Ferret.Abstractions.Models.FilterOperator.LessThan = 5 -> Ferret.Abstractions.Models.FilterOperator
 Ferret.Abstractions.Models.FilterOperator.LessThanOrEqual = 6 -> Ferret.Abstractions.Models.FilterOperator
 Ferret.Abstractions.Models.FilterOperator.NotEquals = 1 -> Ferret.Abstractions.Models.FilterOperator
+Ferret.Abstractions.Models.FilterOperator.IsNull = 8 -> Ferret.Abstractions.Models.FilterOperator
+Ferret.Abstractions.Models.FilterOperator.NotNull = 9 -> Ferret.Abstractions.Models.FilterOperator
 Ferret.Abstractions.Models.OffsetResult<T>
 Ferret.Abstractions.Models.OffsetResult<T>.<Clone>$() -> Ferret.Abstractions.Models.OffsetResult<T>!
 Ferret.Abstractions.Models.OffsetResult<T>.Equals(Ferret.Abstractions.Models.OffsetResult<T>? other) -> bool
