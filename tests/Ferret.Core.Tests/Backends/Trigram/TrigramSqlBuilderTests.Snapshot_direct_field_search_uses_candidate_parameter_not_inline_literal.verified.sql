@@ -1,10 +1,10 @@
 ﻿WITH candidates AS (SELECT unnest(@candidate_ids) AS "id"),
 field_matches AS (
-  SELECT e."id", @p0 <<-> ("name")::text AS distance
+  SELECT e."id", @p0 <<-> (e."name")::text AS distance
   FROM "products" e
   INNER JOIN candidates cnd ON cnd."id" = e."id"
   UNION ALL
-  SELECT e."id", @p1 <<-> ("sku")::text AS distance
+  SELECT e."id", @p1 <<-> (e."sku")::text AS distance
   FROM "products" e
   INNER JOIN candidates cnd ON cnd."id" = e."id"
 ),

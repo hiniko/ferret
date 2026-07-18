@@ -129,8 +129,10 @@ internal sealed class TrigramSqlBuilder
 
         if (prop.JoinPath.IsDirect)
         {
+            // Qualify with the root alias: an unqualified column is ambiguous once the
+            // candidates CTE (which exposes the key column) is joined in.
             var col = _dialect.QuoteIdentifier(colName);
-            sql.AppendLine($"  SELECT {eKeyProjection}, {paramName} <<-> ({col})::text AS distance");
+            sql.AppendLine($"  SELECT {eKeyProjection}, {paramName} <<-> (e.{col})::text AS distance");
             sql.AppendLine($"  FROM {ctx.QuotedTable} e");
             if (ctx.HasCandidateIds)
             {
