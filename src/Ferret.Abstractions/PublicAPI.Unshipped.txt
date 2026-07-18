@@ -181,6 +181,8 @@ Ferret.Abstractions.Models.PagedQuery<T, TKey>.Page.init -> void
 Ferret.Abstractions.Models.PagedQuery<T, TKey>.PagedQuery() -> void
 Ferret.Abstractions.Models.PagedQuery<T, TKey>.RequestTotalCount.get -> bool
 Ferret.Abstractions.Models.PagedQuery<T, TKey>.RequestTotalCount.init -> void
+Ferret.Abstractions.Models.PagedQuery<T, TKey>.CandidateKeys.get -> System.Collections.Generic.IReadOnlyList<TKey>?
+Ferret.Abstractions.Models.PagedQuery<T, TKey>.CandidateKeys.init -> void
 Ferret.Abstractions.Models.PagedQuery<T, TKey>.Search.get -> string?
 Ferret.Abstractions.Models.PagedQuery<T, TKey>.Search.init -> void
 Ferret.Abstractions.Models.PagedQuery<T, TKey>.SearchFields.get -> System.Collections.Generic.IReadOnlyList<string!>!

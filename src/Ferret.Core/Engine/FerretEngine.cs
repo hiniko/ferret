@@ -774,7 +774,7 @@ internal sealed class FerretEngine : IFerretEngine
 
         var connection = await session.OpenConnectionAsync(ct);
 
-        List<TKey>? candidateKeys = null;
+        var candidateKeys = query.CandidateKeys?.ToList();
         if (query.Filter.Count > 0)
         {
             var filterFragments = new List<SqlFragment>();
@@ -792,21 +792,23 @@ internal sealed class FerretEngine : IFerretEngine
 
             var matched = await ExecuteIdReaderAsync<TKey>(
                 connection, "ferret.db.query.filter", filterSql, filterParams, meta.Key.Count, ct);
-            if (matched.Count == 0)
-            {
-                return new OffsetResult<T>
-                {
-                    Items = [],
-                    Limit = limit,
-                    Page = page,
-                    TotalCount = 0,
-                    HasMore = false,
-                    HasPrev = page > 0,
-                    MatchInfo = null,
-                };
-            }
-            candidateKeys = matched;
+            // External CandidateKeys and clause-derived candidates combine by intersection.
+            candidateKeys = candidateKeys is null ? matched : [.. candidateKeys.Intersect(matched)];
             backendActivity?.SetTag(Tags.FilterCount, query.Filter.Count);
+        }
+
+        if (candidateKeys is { Count: 0 })
+        {
+            return new OffsetResult<T>
+            {
+                Items = [],
+                Limit = limit,
+                Page = page,
+                TotalCount = 0,
+                HasMore = false,
+                HasPrev = page > 0,
+                MatchInfo = null,
+            };
         }
 
         var candidateKeyParameterNames = meta.IsComposite

@@ -53,4 +53,14 @@ public sealed record PagedQuery<T, TKey>
 
     /// <summary>Force a single search backend for this query, bypassing hybrid fusion. Null = default routing.</summary>
     public SearchBackend? Backend { get; init; }
+
+    /// <summary>
+    /// Externally-computed candidate restriction for search mode: only rows whose key is in
+    /// this list are ranked. Combined by intersection when <see cref="Filter"/> clauses are
+    /// also present; an empty list short-circuits to an empty result. Ignored when
+    /// <see cref="Search"/> is not set. For callers whose filtering cannot be expressed as
+    /// <see cref="FilterClause"/> (e.g. ORM-composed predicates): materialise the filtered
+    /// keys and pass them here.
+    /// </summary>
+    public IReadOnlyList<TKey>? CandidateKeys { get; init; }
 }
