@@ -75,7 +75,12 @@ public sealed class SearchableSnapshotHandler : IMigrationsSnapshotHandler
         _ when type == typeof(decimal) => "decimal",
         _ when type == typeof(char)    => "char",
         _ when type == typeof(object)  => "object",
-        _ => type.Name,
+        // Generic types (notably Nullable<T>) must render as valid C#, not "Nullable`1",
+        // and non-builtin types must be namespace-qualified — generated designers carry no
+        // usings for domain assemblies.
+        _ when type.IsGenericType =>
+            $"{(type.FullName ?? type.Name).Split('`')[0]}<{string.Join(", ", type.GetGenericArguments().Select(CSharpTypeName))}>",
+        _ => (type.FullName ?? type.Name).Replace('+', '.'),
     };
 
     private static string QuoteCSharpString(string value)
