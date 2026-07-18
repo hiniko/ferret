@@ -51,7 +51,7 @@ internal static class EntityModelBuilder
         }
 
         var searchables = new List<SearchablePropertyInfo>();
-        DiscoverSearchables(clrType, ignored, naming, currentDepth: 0, currentPath: [], naming.TableName(clrType), searchables);
+        DiscoverSearchables(clrType, ignored, naming, currentDepth: 0, currentPath: [], entityAttr?.Table ?? naming.TableName(clrType), searchables);
 
         fullTextDefaults ??= FullTextResolverDefaults.BuiltIn;
         var fullTextGroups = ResolveFullTextGroups(clrType, searchables, fullTextDefaults, out var fullTextGroupRenames);
@@ -175,7 +175,7 @@ internal static class EntityModelBuilder
             var hop = isCollection
                 ? new JoinHop
                 {
-                    TableName = naming.TableName(relatedType),
+                    TableName = TableOf(relatedType, naming),
                     TableAlias = AliasFromName(prop.Name) + newDepth,
                     ForeignKeyColumn = join.ForeignKey ?? CollectionForeignKeyColumn(type, prop, naming),
                     EntityType = relatedType,
@@ -187,7 +187,7 @@ internal static class EntityModelBuilder
                 }
                 : new JoinHop
                 {
-                    TableName = naming.TableName(relatedType),
+                    TableName = TableOf(relatedType, naming),
                     TableAlias = AliasFromName(prop.Name) + newDepth,
                     ForeignKeyColumn = join.ForeignKey ?? ReferenceForeignKeyColumn(type, prop, naming),
                     EntityType = relatedType,
@@ -206,6 +206,11 @@ internal static class EntityModelBuilder
 
     private static string? SchemaOf(Type entityType) =>
         entityType.GetCustomAttribute<SearchableEntityAttribute>()?.Schema;
+
+    /// <summary>Table for a join-hop target: [SearchableEntity(Table = ...)] wins over the
+    /// naming convention, matching how root entity tables resolve.</summary>
+    private static string TableOf(Type entityType, INamingStrategy naming) =>
+        entityType.GetCustomAttribute<SearchableEntityAttribute>()?.Table ?? naming.TableName(entityType);
 
     // The PK column of the table a hop joins into. N:1 joins target this column;
     // multi-hop paths also link through it. Composite keys are out of scope for

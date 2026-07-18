@@ -289,4 +289,28 @@ public sealed class EntityModelBuilderSearchJoinTests
         Action act = () => Build(typeof(OrderWithCompatibleJoinedConfig));
         act.Should().NotThrow();
     }
+
+    [SearchableEntity]
+    private sealed class ParentOfOverriddenTable : ISearchableEntity<Guid>
+    {
+        public Guid Id { get; init; }
+        [SearchJoin(ForeignKey = "parent_id")]
+        public List<OverriddenTableChild> Children { get; init; } = [];
+    }
+
+    [SearchableEntity(Table = "weird_children_table")]
+    private sealed class OverriddenTableChild
+    {
+        public Guid Id { get; init; }
+        [Searchable] public string Name { get; init; } = "";
+    }
+
+    [Fact]
+    public void Hop_table_name_honours_searchable_entity_table_override()
+    {
+        var model = Build(typeof(ParentOfOverriddenTable));
+        var joined = model.SearchableProperties.Single(p => !p.JoinPath.IsDirect);
+        joined.JoinPath.Hops[0].TableName.Should().Be("weird_children_table");
+        joined.OwnerTableName.Should().Be("weird_children_table");
+    }
 }
