@@ -22,6 +22,10 @@ public sealed record JoinHop
     /// Used as the join target for N:1 references and as the link column for downstream hops.
     /// Defaults to <c>"id"</c>.</summary>
     public string ReferencedKeyColumn { get; init; } = "id";
+
+    /// <summary>Raw SQL condition on this hop's table with <c>{c}</c> as the alias placeholder.
+    /// From <c>[SearchJoin(Where = ...)]</c>; applied by query-time join backends.</summary>
+    public string? Where { get; init; }
 }
 
 /// <summary>Ordered chain of joins from root entity to a searchable property.</summary>

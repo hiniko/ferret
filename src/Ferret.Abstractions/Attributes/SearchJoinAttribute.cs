@@ -13,4 +13,14 @@ public sealed class SearchJoinAttribute : Attribute
 
     /// <summary>Override the foreign-key column name (standalone mode only).</summary>
     public string? ForeignKey { get; init; }
+
+    /// <summary>
+    /// Raw SQL condition applied to the joined table in query-time search joins, e.g. to
+    /// exclude soft-deleted or hidden children from parent ranking. Use the <c>{c}</c>
+    /// placeholder for the joined table's alias:
+    /// <c>Where = "{c}.deleted_at IS NULL AND {c}.hidden = false"</c>.
+    /// Trusted developer metadata — never interpolate user input. Applied by query-time
+    /// join backends (trigram); index-time backends (full-text sidecar) do not apply it.
+    /// </summary>
+    public string? Where { get; init; }
 }

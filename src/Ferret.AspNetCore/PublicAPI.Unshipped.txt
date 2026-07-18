@@ -17,15 +17,12 @@ Ferret.AspNetCore.CursorApiQuery.ToPagedQuery<T, TKey>(Ferret.Abstractions.Confi
 Ferret.AspNetCore.DependencyInjection.FerretAspNetCoreExtensions
 Ferret.AspNetCore.FerretEndpointOptions
 Ferret.AspNetCore.FerretEndpointOptions.DefaultLimit.get -> int?
-Ferret.AspNetCore.FerretEndpointRouteBuilderExtensions
-static Ferret.AspNetCore.FerretEndpointRouteBuilderExtensions.MapFerret<T, TKey>(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder! endpoints, string! pattern) -> Microsoft.AspNetCore.Builder.RouteHandlerBuilder!
-static Ferret.AspNetCore.FerretEndpointRouteBuilderExtensions.MapFerret<T, TKey>(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder! endpoints, string! pattern, System.Action<Ferret.AspNetCore.FerretEndpointOptions!>? configure) -> Microsoft.AspNetCore.Builder.RouteHandlerBuilder!
 Ferret.AspNetCore.FerretEndpointOptions.DefaultLimit.set -> void
 Ferret.AspNetCore.FerretEndpointOptions.FerretEndpointOptions() -> void
-Ferret.AspNetCore.FerretEndpointOptions.Name.get -> string?
-Ferret.AspNetCore.FerretEndpointOptions.Name.set -> void
 Ferret.AspNetCore.FerretEndpointOptions.MaxLimit.get -> int?
 Ferret.AspNetCore.FerretEndpointOptions.MaxLimit.set -> void
+Ferret.AspNetCore.FerretEndpointOptions.Name.get -> string?
+Ferret.AspNetCore.FerretEndpointOptions.Name.set -> void
 Ferret.AspNetCore.FerretEndpointOptions.Pagination.get -> Ferret.AspNetCore.FerretEndpointPaginationMode
 Ferret.AspNetCore.FerretEndpointOptions.Pagination.set -> void
 Ferret.AspNetCore.FerretEndpointOptions.Summary.get -> string?
@@ -35,6 +32,7 @@ Ferret.AspNetCore.FerretEndpointOptions.Tag.set -> void
 Ferret.AspNetCore.FerretEndpointPaginationMode
 Ferret.AspNetCore.FerretEndpointPaginationMode.Cursor = 1 -> Ferret.AspNetCore.FerretEndpointPaginationMode
 Ferret.AspNetCore.FerretEndpointPaginationMode.Offset = 0 -> Ferret.AspNetCore.FerretEndpointPaginationMode
+Ferret.AspNetCore.FerretEndpointRouteBuilderExtensions
 Ferret.AspNetCore.OffsetApiQuery
 Ferret.AspNetCore.OffsetApiQuery.Count.get -> bool
 Ferret.AspNetCore.OffsetApiQuery.Count.init -> void
@@ -80,6 +78,8 @@ static Ferret.AspNetCore.Binding.ClauseParsing.ParseSorts(System.Collections.Gen
 static Ferret.AspNetCore.CursorApiQuery.operator !=(Ferret.AspNetCore.CursorApiQuery? left, Ferret.AspNetCore.CursorApiQuery? right) -> bool
 static Ferret.AspNetCore.CursorApiQuery.operator ==(Ferret.AspNetCore.CursorApiQuery? left, Ferret.AspNetCore.CursorApiQuery? right) -> bool
 static Ferret.AspNetCore.DependencyInjection.FerretAspNetCoreExtensions.AddFerretAspNetCore(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static Ferret.AspNetCore.FerretEndpointRouteBuilderExtensions.MapFerret<T, TKey>(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder! endpoints, string! pattern) -> Microsoft.AspNetCore.Builder.RouteHandlerBuilder!
+static Ferret.AspNetCore.FerretEndpointRouteBuilderExtensions.MapFerret<T, TKey>(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder! endpoints, string! pattern, System.Action<Ferret.AspNetCore.FerretEndpointOptions!>? configure) -> Microsoft.AspNetCore.Builder.RouteHandlerBuilder!
 static Ferret.AspNetCore.OffsetApiQuery.operator !=(Ferret.AspNetCore.OffsetApiQuery? left, Ferret.AspNetCore.OffsetApiQuery? right) -> bool
 static Ferret.AspNetCore.OffsetApiQuery.operator ==(Ferret.AspNetCore.OffsetApiQuery? left, Ferret.AspNetCore.OffsetApiQuery? right) -> bool
 static Ferret.AspNetCore.PaginationParameters.operator !=(Ferret.AspNetCore.PaginationParameters? left, Ferret.AspNetCore.PaginationParameters? right) -> bool

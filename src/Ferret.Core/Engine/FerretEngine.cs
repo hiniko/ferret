@@ -533,11 +533,36 @@ internal sealed class FerretEngine : IFerretEngine
         return (ISearchBackend)primaries[0];
     }
 
+    /// <summary>
+    /// Restricts searchable properties to the requested fields. A field matches a property by
+    /// column name or CLR property name (case-insensitive) at any join depth, or by the
+    /// qualified <c>table.column</c> form for joined properties. Unknown names match nothing;
+    /// an all-unknown list therefore yields an empty result (legacy-compatible semantics).
+    /// </summary>
+    private static IReadOnlyList<SearchablePropertyInfo> FilterBySearchFields(
+        IReadOnlyList<SearchablePropertyInfo> properties, IReadOnlyList<string> searchFields)
+    {
+        if (searchFields.Count == 0) return properties;
+
+        return properties.Where(p => searchFields.Any(f =>
+        {
+            var dot = f.IndexOf('.');
+            if (dot > 0)
+            {
+                return !p.JoinPath.IsDirect
+                    && string.Equals(p.OwnerTableName, f[..dot], StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(p.ColumnName, f[(dot + 1)..], StringComparison.OrdinalIgnoreCase);
+            }
+            return string.Equals(p.ColumnName, f, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(p.Property.Name, f, StringComparison.OrdinalIgnoreCase);
+        })).ToList();
+    }
+
     private static SearchSqlFragment BuildSearchFragment(
         ISearchBackend backend, EntityModel model, ISqlDialect dialect, string term,
         float[]? searchVector, int limit, int offset, bool hasCandidateIds,
         EntityMetadata meta, IReadOnlyList<string>? candidateKeyParameterNames,
-        string? resolvedVectorColumn)
+        string? resolvedVectorColumn, IReadOnlyList<string> searchFields)
     {
         var keyColumns = meta.IsComposite ? meta.Key.Select(k => k.ColumnName).ToList() : null;
 
@@ -576,9 +601,11 @@ internal sealed class FerretEngine : IFerretEngine
             });
         }
 
+        // Field restriction applies to property-level backends only; full-text groups and
+        // vector sidecars aggregate at index time and cannot filter per source field.
         var ctx = new SearchContext
         {
-            Properties = model.SearchableProperties,
+            Properties = FilterBySearchFields(model.SearchableProperties, searchFields),
             SearchTerm = term,
             IdColumn = model.KeyColumnName,
             QuotedTable = model.QuotedTable(dialect),
@@ -828,7 +855,7 @@ internal sealed class FerretEngine : IFerretEngine
         var fragment = BuildSearchFragment(
             backend, model, session.Dialect, query.Search!.Trim(),
             searchVector, limit, offset, candidateKeys is not null,
-            meta, candidateKeyParameterNames, resolvedVectorColumn);
+            meta, candidateKeyParameterNames, resolvedVectorColumn, query.SearchFields);
 
         var executionParams = fragment.Parameters.ToList();
         if (vectorBackend is not null && searchVector is not null)

@@ -2,10 +2,6 @@
 Ferret.EntityFrameworkCore.DependencyInjection.FerretEntityFrameworkExtensions
 Ferret.EntityFrameworkCore.EntityFrameworkHydrator
 Ferret.EntityFrameworkCore.EntityFrameworkHydrator.EntityFrameworkHydrator(Microsoft.EntityFrameworkCore.DbContext! context) -> void
-Ferret.EntityFrameworkCore.Querying.EntityFrameworkQueryService<TContext>
-Ferret.EntityFrameworkCore.Querying.EntityFrameworkQueryService<TContext>.EntityFrameworkQueryService(TContext! context, Ferret.Core.Engine.IFerretEngine! engine, Ferret.Abstractions.Sql.ISqlDialect! dialect) -> void
-Ferret.EntityFrameworkCore.Querying.EntityFrameworkQueryService<TContext>.SearchCursorAsync<T, TKey>(Ferret.Abstractions.Models.PagedQuery<T!, TKey>! query, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Ferret.Abstractions.Models.CursorResult<T!>!>!
-Ferret.EntityFrameworkCore.Querying.EntityFrameworkQueryService<TContext>.SearchOffsetAsync<T, TKey>(Ferret.Abstractions.Models.PagedQuery<T!, TKey>! query, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Ferret.Abstractions.Models.OffsetResult<T!>!>!
 Ferret.EntityFrameworkCore.EntityFrameworkHydrator.HydrateAsync<T>(System.Data.Common.DbConnection! connection, Ferret.Abstractions.Hydration.HydrationRequest! request, System.Threading.CancellationToken ct) -> System.Threading.Tasks.Task<System.Collections.Generic.List<T!>!>!
 Ferret.EntityFrameworkCore.EntityFrameworkSearchExtensions
 Ferret.EntityFrameworkCore.EntityFrameworkSession
@@ -14,6 +10,10 @@ Ferret.EntityFrameworkCore.EntityFrameworkSession.DisposeAsync() -> System.Threa
 Ferret.EntityFrameworkCore.EntityFrameworkSession.EntityFrameworkSession(Microsoft.EntityFrameworkCore.DbContext! context, Ferret.Abstractions.Sql.ISqlDialect! dialect) -> void
 Ferret.EntityFrameworkCore.EntityFrameworkSession.Hydrator.get -> Ferret.Abstractions.Hydration.IEntityHydrator!
 Ferret.EntityFrameworkCore.EntityFrameworkSession.OpenConnectionAsync(System.Threading.CancellationToken ct) -> System.Threading.Tasks.Task<System.Data.Common.DbConnection!>!
+Ferret.EntityFrameworkCore.Querying.EntityFrameworkQueryService<TContext>
+Ferret.EntityFrameworkCore.Querying.EntityFrameworkQueryService<TContext>.EntityFrameworkQueryService(TContext! context, Ferret.Core.Engine.IFerretEngine! engine, Ferret.Abstractions.Sql.ISqlDialect! dialect) -> void
+Ferret.EntityFrameworkCore.Querying.EntityFrameworkQueryService<TContext>.SearchCursorAsync<T, TKey>(Ferret.Abstractions.Models.PagedQuery<T!, TKey>! query, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Ferret.Abstractions.Models.CursorResult<T!>!>!
+Ferret.EntityFrameworkCore.Querying.EntityFrameworkQueryService<TContext>.SearchOffsetAsync<T, TKey>(Ferret.Abstractions.Models.PagedQuery<T!, TKey>! query, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Ferret.Abstractions.Models.OffsetResult<T!>!>!
 static Ferret.EntityFrameworkCore.DependencyInjection.FerretEntityFrameworkExtensions.AddFerretEntityFrameworkCore<TContext>(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
 static Ferret.EntityFrameworkCore.DependencyInjection.FerretEntityFrameworkExtensions.AddFerretEntityFrameworkQueryService<TContext>(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
 static Ferret.EntityFrameworkCore.DependencyInjection.FerretEntityFrameworkExtensions.ResolveKeyProperties(Microsoft.EntityFrameworkCore.Metadata.IEntityType! entityType, Ferret.Abstractions.Attributes.SearchableEntityAttribute? attribute) -> System.Collections.Generic.IReadOnlyList<string!>!

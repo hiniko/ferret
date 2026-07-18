@@ -155,14 +155,31 @@ internal sealed class TrigramSqlBuilder
         }
 
         var prevAlias = "e";
+        var prevKeyCol = idCol;
+        var hopConditions = new List<string>();
         for (var i = 0; i < hops.Count; i++)
         {
             var h = hops[i];
             var hopTbl = _dialect.QuoteIdentifier(h.TableName);
             var fkCol = _dialect.QuoteIdentifier(h.ForeignKeyColumn);
-            sql.AppendLine($"  INNER JOIN {hopTbl} {aliases[i]} ON {aliases[i]}.{fkCol} = {prevAlias}.{idCol}");
+            var refKey = _dialect.QuoteIdentifier(h.ReferencedKeyColumn);
+
+            // 1:N — child's FK points at the previous hop's key.
+            // N:1 — the previous hop owns the FK; join into the referenced table's key.
+            var onClause = h.ForeignKeyOwningSide
+                ? $"{prevAlias}.{fkCol} = {aliases[i]}.{refKey}"
+                : $"{aliases[i]}.{fkCol} = {prevAlias}.{prevKeyCol}";
+            sql.AppendLine($"  INNER JOIN {hopTbl} {aliases[i]} ON {onClause}");
+
+            if (!string.IsNullOrWhiteSpace(h.Where))
+                hopConditions.Add($"({h.Where.Replace("{c}", aliases[i])})");
+
             prevAlias = aliases[i];
+            prevKeyCol = refKey;
         }
+
+        if (hopConditions.Count > 0)
+            sql.AppendLine($"  WHERE {string.Join(" AND ", hopConditions)}");
 
         sql.AppendLine($"  GROUP BY e.{idCol}");
     }

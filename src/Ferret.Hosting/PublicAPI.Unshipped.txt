@@ -3,15 +3,15 @@ Ferret.Hosting.DependencyInjection.FerretHostingServiceCollectionExtensions
 Ferret.Hosting.ReindexHostedService
 Ferret.Hosting.ReindexHostedService.ReindexHostedService(System.IServiceProvider! services, Ferret.Core.Engine.Reindex.IReindexRunner! runner, Microsoft.Extensions.Options.IOptions<Ferret.Hosting.ReindexHostedServiceOptions!>! options, Microsoft.Extensions.Logging.ILogger<Ferret.Hosting.ReindexHostedService!>? logger = null) -> void
 Ferret.Hosting.ReindexHostedServiceOptions
+Ferret.Hosting.ReindexHostedServiceOptions.BatchDelayOverride.get -> System.TimeSpan?
+Ferret.Hosting.ReindexHostedServiceOptions.BatchDelayOverride.set -> void
+Ferret.Hosting.ReindexHostedServiceOptions.BatchSizeOverride.get -> int?
+Ferret.Hosting.ReindexHostedServiceOptions.BatchSizeOverride.set -> void
 Ferret.Hosting.ReindexHostedServiceOptions.PollInterval.get -> System.TimeSpan
 Ferret.Hosting.ReindexHostedServiceOptions.PollInterval.set -> void
 Ferret.Hosting.ReindexHostedServiceOptions.ReindexHostedServiceOptions() -> void
-Ferret.Hosting.ReindexHostedServiceOptions.StaleClaimAfter.get -> System.TimeSpan?
-Ferret.Hosting.ReindexHostedServiceOptions.StaleClaimAfter.set -> void
-Ferret.Hosting.ReindexHostedServiceOptions.BatchSizeOverride.get -> int?
-Ferret.Hosting.ReindexHostedServiceOptions.BatchSizeOverride.set -> void
-Ferret.Hosting.ReindexHostedServiceOptions.BatchDelayOverride.get -> System.TimeSpan?
-Ferret.Hosting.ReindexHostedServiceOptions.BatchDelayOverride.set -> void
 Ferret.Hosting.ReindexHostedServiceOptions.SessionFactory.get -> System.Func<System.IServiceProvider!, System.Threading.CancellationToken, System.Threading.Tasks.Task<Ferret.Abstractions.Session.IFerretSession!>!>?
 Ferret.Hosting.ReindexHostedServiceOptions.SessionFactory.set -> void
+Ferret.Hosting.ReindexHostedServiceOptions.StaleClaimAfter.get -> System.TimeSpan?
+Ferret.Hosting.ReindexHostedServiceOptions.StaleClaimAfter.set -> void
 static Ferret.Hosting.DependencyInjection.FerretHostingServiceCollectionExtensions.AddFerretReindexHostedService(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, System.Action<Ferret.Hosting.ReindexHostedServiceOptions!>? configure = null) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!

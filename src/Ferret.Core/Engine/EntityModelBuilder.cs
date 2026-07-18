@@ -183,6 +183,7 @@ internal static class EntityModelBuilder
                     ForeignKeyOwningSide = false,
                     Schema = SchemaOf(relatedType),
                     ReferencedKeyColumn = referencedKey,
+                    Where = join.Where,
                 }
                 : new JoinHop
                 {
@@ -194,6 +195,7 @@ internal static class EntityModelBuilder
                     ForeignKeyOwningSide = true,
                     Schema = SchemaOf(relatedType),
                     ReferencedKeyColumn = referencedKey,
+                    Where = join.Where,
                 };
 
             DiscoverSearchables(

@@ -4,13 +4,20 @@ Ferret.Abstractions.Attributes.FilterableAttribute.FilterableAttribute() -> void
 Ferret.Abstractions.Attributes.FilterableAttribute.Operators.get -> Ferret.Abstractions.Models.FilterOperator[]!
 Ferret.Abstractions.Attributes.FilterableAttribute.Operators.init -> void
 Ferret.Abstractions.Attributes.FullTextParser
-Ferret.Abstractions.Attributes.FullTextParser.Plain = 1 -> Ferret.Abstractions.Attributes.FullTextParser
 Ferret.Abstractions.Attributes.FullTextParser.Phrase = 2 -> Ferret.Abstractions.Attributes.FullTextParser
+Ferret.Abstractions.Attributes.FullTextParser.Plain = 1 -> Ferret.Abstractions.Attributes.FullTextParser
 Ferret.Abstractions.Attributes.FullTextParser.Raw = 3 -> Ferret.Abstractions.Attributes.FullTextParser
 Ferret.Abstractions.Attributes.FullTextParser.Websearch = 0 -> Ferret.Abstractions.Attributes.FullTextParser
 Ferret.Abstractions.Attributes.GroupCombinator
 Ferret.Abstractions.Attributes.GroupCombinator.Max = 0 -> Ferret.Abstractions.Attributes.GroupCombinator
 Ferret.Abstractions.Attributes.GroupCombinator.Sum = 1 -> Ferret.Abstractions.Attributes.GroupCombinator
+Ferret.Abstractions.Attributes.HybridBackendAttribute
+Ferret.Abstractions.Attributes.HybridBackendAttribute.Backend.get -> Ferret.Abstractions.Attributes.SearchBackend
+Ferret.Abstractions.Attributes.HybridBackendAttribute.ConfidenceThreshold.get -> double
+Ferret.Abstractions.Attributes.HybridBackendAttribute.ConfidenceThreshold.init -> void
+Ferret.Abstractions.Attributes.HybridBackendAttribute.HybridBackendAttribute(Ferret.Abstractions.Attributes.SearchBackend backend) -> void
+Ferret.Abstractions.Attributes.HybridBackendAttribute.Weight.get -> double
+Ferret.Abstractions.Attributes.HybridBackendAttribute.Weight.init -> void
 Ferret.Abstractions.Attributes.ReindexMode
 Ferret.Abstractions.Attributes.ReindexMode.Concurrent = 1 -> Ferret.Abstractions.Attributes.ReindexMode
 Ferret.Abstractions.Attributes.ReindexMode.Deferred = 2 -> Ferret.Abstractions.Attributes.ReindexMode
@@ -39,6 +46,8 @@ Ferret.Abstractions.Attributes.SearchJoinAttribute.Depth.init -> void
 Ferret.Abstractions.Attributes.SearchJoinAttribute.ForeignKey.get -> string?
 Ferret.Abstractions.Attributes.SearchJoinAttribute.ForeignKey.init -> void
 Ferret.Abstractions.Attributes.SearchJoinAttribute.SearchJoinAttribute() -> void
+Ferret.Abstractions.Attributes.SearchJoinAttribute.Where.get -> string?
+Ferret.Abstractions.Attributes.SearchJoinAttribute.Where.init -> void
 Ferret.Abstractions.Attributes.SearchableAttribute
 Ferret.Abstractions.Attributes.SearchableAttribute.Backend.get -> Ferret.Abstractions.Attributes.SearchBackend
 Ferret.Abstractions.Attributes.SearchableAttribute.Backend.init -> void
@@ -89,6 +98,10 @@ Ferret.Abstractions.Configuration.PaginationOptions.DefaultLimit.set -> void
 Ferret.Abstractions.Configuration.PaginationOptions.MaxLimit.get -> int
 Ferret.Abstractions.Configuration.PaginationOptions.MaxLimit.set -> void
 Ferret.Abstractions.Configuration.PaginationOptions.PaginationOptions() -> void
+Ferret.Abstractions.Embeddings.IEmbeddingProvider
+Ferret.Abstractions.Embeddings.IEmbeddingProvider.Dimensions.get -> int
+Ferret.Abstractions.Embeddings.IEmbeddingProvider.EmbedAsync(string! text, System.Threading.CancellationToken ct) -> System.Threading.Tasks.Task<float[]!>!
+Ferret.Abstractions.Embeddings.IEmbeddingProvider.ModelId.get -> string!
 Ferret.Abstractions.Hydration.HydrationRequest
 Ferret.Abstractions.Hydration.HydrationRequest.<Clone>$() -> Ferret.Abstractions.Hydration.HydrationRequest!
 Ferret.Abstractions.Hydration.HydrationRequest.Deconstruct(out string! Sql, out System.Collections.Generic.IReadOnlyList<object?>! Parameters) -> void
@@ -140,11 +153,13 @@ Ferret.Abstractions.Models.FilterOperator.Equals = 0 -> Ferret.Abstractions.Mode
 Ferret.Abstractions.Models.FilterOperator.GreaterThan = 3 -> Ferret.Abstractions.Models.FilterOperator
 Ferret.Abstractions.Models.FilterOperator.GreaterThanOrEqual = 4 -> Ferret.Abstractions.Models.FilterOperator
 Ferret.Abstractions.Models.FilterOperator.In = 7 -> Ferret.Abstractions.Models.FilterOperator
+Ferret.Abstractions.Models.FilterOperator.IsNull = 8 -> Ferret.Abstractions.Models.FilterOperator
 Ferret.Abstractions.Models.FilterOperator.LessThan = 5 -> Ferret.Abstractions.Models.FilterOperator
 Ferret.Abstractions.Models.FilterOperator.LessThanOrEqual = 6 -> Ferret.Abstractions.Models.FilterOperator
 Ferret.Abstractions.Models.FilterOperator.NotEquals = 1 -> Ferret.Abstractions.Models.FilterOperator
-Ferret.Abstractions.Models.FilterOperator.IsNull = 8 -> Ferret.Abstractions.Models.FilterOperator
 Ferret.Abstractions.Models.FilterOperator.NotNull = 9 -> Ferret.Abstractions.Models.FilterOperator
+Ferret.Abstractions.Models.InvalidCursorException
+Ferret.Abstractions.Models.InvalidCursorException.InvalidCursorException(string! message) -> void
 Ferret.Abstractions.Models.OffsetResult<T>
 Ferret.Abstractions.Models.OffsetResult<T>.<Clone>$() -> Ferret.Abstractions.Models.OffsetResult<T>!
 Ferret.Abstractions.Models.OffsetResult<T>.Equals(Ferret.Abstractions.Models.OffsetResult<T>? other) -> bool
@@ -164,6 +179,10 @@ Ferret.Abstractions.Models.OffsetResult<T>.Page.init -> void
 Ferret.Abstractions.Models.OffsetResult<T>.TotalCount.get -> int
 Ferret.Abstractions.Models.OffsetResult<T>.TotalCount.init -> void
 Ferret.Abstractions.Models.PagedQuery<T, TKey>
+Ferret.Abstractions.Models.PagedQuery<T, TKey>.Backend.get -> Ferret.Abstractions.Attributes.SearchBackend?
+Ferret.Abstractions.Models.PagedQuery<T, TKey>.Backend.init -> void
+Ferret.Abstractions.Models.PagedQuery<T, TKey>.CandidateKeys.get -> System.Collections.Generic.IReadOnlyList<TKey>?
+Ferret.Abstractions.Models.PagedQuery<T, TKey>.CandidateKeys.init -> void
 Ferret.Abstractions.Models.PagedQuery<T, TKey>.Cursor.get -> string?
 Ferret.Abstractions.Models.PagedQuery<T, TKey>.Cursor.init -> void
 Ferret.Abstractions.Models.PagedQuery<T, TKey>.CursorDirection.get -> Ferret.Abstractions.Models.CursorDirection
@@ -181,8 +200,6 @@ Ferret.Abstractions.Models.PagedQuery<T, TKey>.Page.init -> void
 Ferret.Abstractions.Models.PagedQuery<T, TKey>.PagedQuery() -> void
 Ferret.Abstractions.Models.PagedQuery<T, TKey>.RequestTotalCount.get -> bool
 Ferret.Abstractions.Models.PagedQuery<T, TKey>.RequestTotalCount.init -> void
-Ferret.Abstractions.Models.PagedQuery<T, TKey>.CandidateKeys.get -> System.Collections.Generic.IReadOnlyList<TKey>?
-Ferret.Abstractions.Models.PagedQuery<T, TKey>.CandidateKeys.init -> void
 Ferret.Abstractions.Models.PagedQuery<T, TKey>.Search.get -> string?
 Ferret.Abstractions.Models.PagedQuery<T, TKey>.Search.init -> void
 Ferret.Abstractions.Models.PagedQuery<T, TKey>.SearchFields.get -> System.Collections.Generic.IReadOnlyList<string!>!
@@ -224,6 +241,57 @@ Ferret.Abstractions.Naming.SnakeCaseNamingStrategy
 Ferret.Abstractions.Naming.SnakeCaseNamingStrategy.ColumnName(System.Reflection.PropertyInfo! property) -> string!
 Ferret.Abstractions.Naming.SnakeCaseNamingStrategy.SnakeCaseNamingStrategy() -> void
 Ferret.Abstractions.Naming.SnakeCaseNamingStrategy.TableName(System.Type! entityType) -> string!
+Ferret.Abstractions.Querying.IFerretQueryService
+Ferret.Abstractions.Querying.IFerretQueryService.SearchCursorAsync<T, TKey>(Ferret.Abstractions.Models.PagedQuery<T!, TKey>! query, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Ferret.Abstractions.Models.CursorResult<T!>!>!
+Ferret.Abstractions.Querying.IFerretQueryService.SearchOffsetAsync<T, TKey>(Ferret.Abstractions.Models.PagedQuery<T!, TKey>! query, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Ferret.Abstractions.Models.OffsetResult<T!>!>!
+Ferret.Abstractions.Search.FullTextGroup
+Ferret.Abstractions.Search.FullTextGroup.<Clone>$() -> Ferret.Abstractions.Search.FullTextGroup!
+Ferret.Abstractions.Search.FullTextGroup.Equals(Ferret.Abstractions.Search.FullTextGroup? other) -> bool
+Ferret.Abstractions.Search.FullTextGroup.FullTextConfig.get -> string!
+Ferret.Abstractions.Search.FullTextGroup.FullTextConfig.init -> void
+Ferret.Abstractions.Search.FullTextGroup.FullTextGroup() -> void
+Ferret.Abstractions.Search.FullTextGroup.Name.get -> string!
+Ferret.Abstractions.Search.FullTextGroup.Name.init -> void
+Ferret.Abstractions.Search.FullTextGroup.Properties.get -> System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Search.FullTextGroupProperty!>!
+Ferret.Abstractions.Search.FullTextGroup.Properties.init -> void
+Ferret.Abstractions.Search.FullTextGroup.Reindex.get -> Ferret.Abstractions.Attributes.ReindexMode
+Ferret.Abstractions.Search.FullTextGroup.Reindex.init -> void
+Ferret.Abstractions.Search.FullTextGroupProperty
+Ferret.Abstractions.Search.FullTextGroupProperty.<Clone>$() -> Ferret.Abstractions.Search.FullTextGroupProperty!
+Ferret.Abstractions.Search.FullTextGroupProperty.ColumnName.get -> string!
+Ferret.Abstractions.Search.FullTextGroupProperty.ColumnName.init -> void
+Ferret.Abstractions.Search.FullTextGroupProperty.Equals(Ferret.Abstractions.Search.FullTextGroupProperty? other) -> bool
+Ferret.Abstractions.Search.FullTextGroupProperty.FullTextConfigOverride.get -> string?
+Ferret.Abstractions.Search.FullTextGroupProperty.FullTextConfigOverride.init -> void
+Ferret.Abstractions.Search.FullTextGroupProperty.FullTextGroupProperty() -> void
+Ferret.Abstractions.Search.FullTextGroupProperty.Join.get -> Ferret.Abstractions.Search.JoinPath?
+Ferret.Abstractions.Search.FullTextGroupProperty.Join.init -> void
+Ferret.Abstractions.Search.FullTextGroupProperty.PropertyName.get -> string!
+Ferret.Abstractions.Search.FullTextGroupProperty.PropertyName.init -> void
+Ferret.Abstractions.Search.FullTextGroupProperty.Weight.get -> Ferret.Abstractions.Search.FullTextWeightBucket
+Ferret.Abstractions.Search.FullTextGroupProperty.Weight.init -> void
+Ferret.Abstractions.Search.FullTextWeightBucket
+Ferret.Abstractions.Search.FullTextWeightBucket.A = 0 -> Ferret.Abstractions.Search.FullTextWeightBucket
+Ferret.Abstractions.Search.FullTextWeightBucket.B = 1 -> Ferret.Abstractions.Search.FullTextWeightBucket
+Ferret.Abstractions.Search.FullTextWeightBucket.C = 2 -> Ferret.Abstractions.Search.FullTextWeightBucket
+Ferret.Abstractions.Search.FullTextWeightBucket.D = 3 -> Ferret.Abstractions.Search.FullTextWeightBucket
+Ferret.Abstractions.Search.FullTextWeightBucketMapper
+Ferret.Abstractions.Search.HybridBackendConfig
+Ferret.Abstractions.Search.HybridBackendConfig.<Clone>$() -> Ferret.Abstractions.Search.HybridBackendConfig!
+Ferret.Abstractions.Search.HybridBackendConfig.Backend.get -> Ferret.Abstractions.Attributes.SearchBackend
+Ferret.Abstractions.Search.HybridBackendConfig.Backend.init -> void
+Ferret.Abstractions.Search.HybridBackendConfig.ConfidenceThreshold.get -> double
+Ferret.Abstractions.Search.HybridBackendConfig.ConfidenceThreshold.init -> void
+Ferret.Abstractions.Search.HybridBackendConfig.Equals(Ferret.Abstractions.Search.HybridBackendConfig? other) -> bool
+Ferret.Abstractions.Search.HybridBackendConfig.HybridBackendConfig() -> void
+Ferret.Abstractions.Search.HybridBackendConfig.Weight.get -> double
+Ferret.Abstractions.Search.HybridBackendConfig.Weight.init -> void
+Ferret.Abstractions.Search.HybridConfig
+Ferret.Abstractions.Search.HybridConfig.<Clone>$() -> Ferret.Abstractions.Search.HybridConfig!
+Ferret.Abstractions.Search.HybridConfig.Backends.get -> System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Search.HybridBackendConfig!>!
+Ferret.Abstractions.Search.HybridConfig.Backends.init -> void
+Ferret.Abstractions.Search.HybridConfig.Equals(Ferret.Abstractions.Search.HybridConfig? other) -> bool
+Ferret.Abstractions.Search.HybridConfig.HybridConfig() -> void
 Ferret.Abstractions.Search.ISearchBackend
 Ferret.Abstractions.Search.ISearchBackend.BuildRankingQuery(Ferret.Abstractions.Search.SearchContext! context) -> Ferret.Abstractions.Search.SearchSqlFragment
 Ferret.Abstractions.Search.ISearchBackend.CanHandle(Ferret.Abstractions.Search.SearchablePropertyInfo! property) -> bool
@@ -253,6 +321,8 @@ Ferret.Abstractions.Search.JoinHop.TableAlias.get -> string!
 Ferret.Abstractions.Search.JoinHop.TableAlias.init -> void
 Ferret.Abstractions.Search.JoinHop.TableName.get -> string!
 Ferret.Abstractions.Search.JoinHop.TableName.init -> void
+Ferret.Abstractions.Search.JoinHop.Where.get -> string?
+Ferret.Abstractions.Search.JoinHop.Where.init -> void
 Ferret.Abstractions.Search.JoinPath
 Ferret.Abstractions.Search.JoinPath.<Clone>$() -> Ferret.Abstractions.Search.JoinPath!
 Ferret.Abstractions.Search.JoinPath.Depth.get -> int
@@ -267,13 +337,13 @@ Ferret.Abstractions.Search.SearchContext.CandidateIdsParameterName.get -> string
 Ferret.Abstractions.Search.SearchContext.CandidateIdsParameterName.init -> void
 Ferret.Abstractions.Search.SearchContext.CandidateKeyParameterNames.get -> System.Collections.Generic.IReadOnlyList<string!>?
 Ferret.Abstractions.Search.SearchContext.CandidateKeyParameterNames.init -> void
-Ferret.Abstractions.Search.SearchContext.KeyColumns.get -> System.Collections.Generic.IReadOnlyList<string!>?
-Ferret.Abstractions.Search.SearchContext.KeyColumns.init -> void
 Ferret.Abstractions.Search.SearchContext.Equals(Ferret.Abstractions.Search.SearchContext? other) -> bool
 Ferret.Abstractions.Search.SearchContext.HasCandidateIds.get -> bool
 Ferret.Abstractions.Search.SearchContext.HasCandidateIds.init -> void
 Ferret.Abstractions.Search.SearchContext.IdColumn.get -> string!
 Ferret.Abstractions.Search.SearchContext.IdColumn.init -> void
+Ferret.Abstractions.Search.SearchContext.KeyColumns.get -> System.Collections.Generic.IReadOnlyList<string!>?
+Ferret.Abstractions.Search.SearchContext.KeyColumns.init -> void
 Ferret.Abstractions.Search.SearchContext.Properties.get -> System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Search.SearchablePropertyInfo!>!
 Ferret.Abstractions.Search.SearchContext.Properties.init -> void
 Ferret.Abstractions.Search.SearchContext.QuotedTable.get -> string!
@@ -332,6 +402,30 @@ Ferret.Abstractions.Search.SearchablePropertyInfo.Property.init -> void
 Ferret.Abstractions.Search.SearchablePropertyInfo.SearchablePropertyInfo() -> void
 Ferret.Abstractions.Search.SearchablePropertyInfo.Weight.get -> float
 Ferret.Abstractions.Search.SearchablePropertyInfo.Weight.init -> void
+Ferret.Abstractions.Search.VectorGroup
+Ferret.Abstractions.Search.VectorGroup.<Clone>$() -> Ferret.Abstractions.Search.VectorGroup!
+Ferret.Abstractions.Search.VectorGroup.Dimensions.get -> int
+Ferret.Abstractions.Search.VectorGroup.Dimensions.init -> void
+Ferret.Abstractions.Search.VectorGroup.Equals(Ferret.Abstractions.Search.VectorGroup? other) -> bool
+Ferret.Abstractions.Search.VectorGroup.Name.get -> string!
+Ferret.Abstractions.Search.VectorGroup.Name.init -> void
+Ferret.Abstractions.Search.VectorGroup.Properties.get -> System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Search.VectorGroupProperty!>!
+Ferret.Abstractions.Search.VectorGroup.Properties.init -> void
+Ferret.Abstractions.Search.VectorGroup.Reindex.get -> Ferret.Abstractions.Attributes.ReindexMode
+Ferret.Abstractions.Search.VectorGroup.Reindex.init -> void
+Ferret.Abstractions.Search.VectorGroup.VectorGroup() -> void
+Ferret.Abstractions.Search.VectorGroupProperty
+Ferret.Abstractions.Search.VectorGroupProperty.<Clone>$() -> Ferret.Abstractions.Search.VectorGroupProperty!
+Ferret.Abstractions.Search.VectorGroupProperty.ColumnName.get -> string!
+Ferret.Abstractions.Search.VectorGroupProperty.ColumnName.init -> void
+Ferret.Abstractions.Search.VectorGroupProperty.EmbeddingSource.get -> string!
+Ferret.Abstractions.Search.VectorGroupProperty.EmbeddingSource.init -> void
+Ferret.Abstractions.Search.VectorGroupProperty.Equals(Ferret.Abstractions.Search.VectorGroupProperty? other) -> bool
+Ferret.Abstractions.Search.VectorGroupProperty.Join.get -> Ferret.Abstractions.Search.JoinPath?
+Ferret.Abstractions.Search.VectorGroupProperty.Join.init -> void
+Ferret.Abstractions.Search.VectorGroupProperty.PropertyName.get -> string!
+Ferret.Abstractions.Search.VectorGroupProperty.PropertyName.init -> void
+Ferret.Abstractions.Search.VectorGroupProperty.VectorGroupProperty() -> void
 Ferret.Abstractions.Session.IFerretSession
 Ferret.Abstractions.Session.IFerretSession.Dialect.get -> Ferret.Abstractions.Sql.ISqlDialect!
 Ferret.Abstractions.Session.IFerretSession.Hydrator.get -> Ferret.Abstractions.Hydration.IEntityHydrator!
@@ -363,6 +457,18 @@ override Ferret.Abstractions.Models.SearchMatchInfo.ToString() -> string!
 override Ferret.Abstractions.Models.SortClause.Equals(object? obj) -> bool
 override Ferret.Abstractions.Models.SortClause.GetHashCode() -> int
 override Ferret.Abstractions.Models.SortClause.ToString() -> string!
+override Ferret.Abstractions.Search.FullTextGroup.Equals(object? obj) -> bool
+override Ferret.Abstractions.Search.FullTextGroup.GetHashCode() -> int
+override Ferret.Abstractions.Search.FullTextGroup.ToString() -> string!
+override Ferret.Abstractions.Search.FullTextGroupProperty.Equals(object? obj) -> bool
+override Ferret.Abstractions.Search.FullTextGroupProperty.GetHashCode() -> int
+override Ferret.Abstractions.Search.FullTextGroupProperty.ToString() -> string!
+override Ferret.Abstractions.Search.HybridBackendConfig.Equals(object? obj) -> bool
+override Ferret.Abstractions.Search.HybridBackendConfig.GetHashCode() -> int
+override Ferret.Abstractions.Search.HybridBackendConfig.ToString() -> string!
+override Ferret.Abstractions.Search.HybridConfig.Equals(object? obj) -> bool
+override Ferret.Abstractions.Search.HybridConfig.GetHashCode() -> int
+override Ferret.Abstractions.Search.HybridConfig.ToString() -> string!
 override Ferret.Abstractions.Search.JoinHop.Equals(object? obj) -> bool
 override Ferret.Abstractions.Search.JoinHop.GetHashCode() -> int
 override Ferret.Abstractions.Search.JoinHop.ToString() -> string!
@@ -379,6 +485,12 @@ override Ferret.Abstractions.Search.SearchSqlFragment.GetHashCode() -> int
 override Ferret.Abstractions.Search.SearchablePropertyInfo.Equals(object? obj) -> bool
 override Ferret.Abstractions.Search.SearchablePropertyInfo.GetHashCode() -> int
 override Ferret.Abstractions.Search.SearchablePropertyInfo.ToString() -> string!
+override Ferret.Abstractions.Search.VectorGroup.Equals(object? obj) -> bool
+override Ferret.Abstractions.Search.VectorGroup.GetHashCode() -> int
+override Ferret.Abstractions.Search.VectorGroup.ToString() -> string!
+override Ferret.Abstractions.Search.VectorGroupProperty.Equals(object? obj) -> bool
+override Ferret.Abstractions.Search.VectorGroupProperty.GetHashCode() -> int
+override Ferret.Abstractions.Search.VectorGroupProperty.ToString() -> string!
 static Ferret.Abstractions.Configuration.PaginationDefaults.operator !=(Ferret.Abstractions.Configuration.PaginationDefaults left, Ferret.Abstractions.Configuration.PaginationDefaults right) -> bool
 static Ferret.Abstractions.Configuration.PaginationDefaults.operator ==(Ferret.Abstractions.Configuration.PaginationDefaults left, Ferret.Abstractions.Configuration.PaginationDefaults right) -> bool
 static Ferret.Abstractions.Hydration.HydrationRequest.operator !=(Ferret.Abstractions.Hydration.HydrationRequest? left, Ferret.Abstractions.Hydration.HydrationRequest? right) -> bool
@@ -393,6 +505,15 @@ static Ferret.Abstractions.Models.SearchMatchInfo.operator !=(Ferret.Abstraction
 static Ferret.Abstractions.Models.SearchMatchInfo.operator ==(Ferret.Abstractions.Models.SearchMatchInfo? left, Ferret.Abstractions.Models.SearchMatchInfo? right) -> bool
 static Ferret.Abstractions.Models.SortClause.operator !=(Ferret.Abstractions.Models.SortClause? left, Ferret.Abstractions.Models.SortClause? right) -> bool
 static Ferret.Abstractions.Models.SortClause.operator ==(Ferret.Abstractions.Models.SortClause? left, Ferret.Abstractions.Models.SortClause? right) -> bool
+static Ferret.Abstractions.Search.FullTextGroup.operator !=(Ferret.Abstractions.Search.FullTextGroup? left, Ferret.Abstractions.Search.FullTextGroup? right) -> bool
+static Ferret.Abstractions.Search.FullTextGroup.operator ==(Ferret.Abstractions.Search.FullTextGroup? left, Ferret.Abstractions.Search.FullTextGroup? right) -> bool
+static Ferret.Abstractions.Search.FullTextGroupProperty.operator !=(Ferret.Abstractions.Search.FullTextGroupProperty? left, Ferret.Abstractions.Search.FullTextGroupProperty? right) -> bool
+static Ferret.Abstractions.Search.FullTextGroupProperty.operator ==(Ferret.Abstractions.Search.FullTextGroupProperty? left, Ferret.Abstractions.Search.FullTextGroupProperty? right) -> bool
+static Ferret.Abstractions.Search.FullTextWeightBucketMapper.Bucket(float weight, float a, float b, float c) -> Ferret.Abstractions.Search.FullTextWeightBucket
+static Ferret.Abstractions.Search.HybridBackendConfig.operator !=(Ferret.Abstractions.Search.HybridBackendConfig? left, Ferret.Abstractions.Search.HybridBackendConfig? right) -> bool
+static Ferret.Abstractions.Search.HybridBackendConfig.operator ==(Ferret.Abstractions.Search.HybridBackendConfig? left, Ferret.Abstractions.Search.HybridBackendConfig? right) -> bool
+static Ferret.Abstractions.Search.HybridConfig.operator !=(Ferret.Abstractions.Search.HybridConfig? left, Ferret.Abstractions.Search.HybridConfig? right) -> bool
+static Ferret.Abstractions.Search.HybridConfig.operator ==(Ferret.Abstractions.Search.HybridConfig? left, Ferret.Abstractions.Search.HybridConfig? right) -> bool
 static Ferret.Abstractions.Search.JoinHop.operator !=(Ferret.Abstractions.Search.JoinHop? left, Ferret.Abstractions.Search.JoinHop? right) -> bool
 static Ferret.Abstractions.Search.JoinHop.operator ==(Ferret.Abstractions.Search.JoinHop? left, Ferret.Abstractions.Search.JoinHop? right) -> bool
 static Ferret.Abstractions.Search.JoinPath.operator !=(Ferret.Abstractions.Search.JoinPath? left, Ferret.Abstractions.Search.JoinPath? right) -> bool
@@ -405,6 +526,10 @@ static Ferret.Abstractions.Search.SearchSqlFragment.operator !=(Ferret.Abstracti
 static Ferret.Abstractions.Search.SearchSqlFragment.operator ==(Ferret.Abstractions.Search.SearchSqlFragment left, Ferret.Abstractions.Search.SearchSqlFragment right) -> bool
 static Ferret.Abstractions.Search.SearchablePropertyInfo.operator !=(Ferret.Abstractions.Search.SearchablePropertyInfo? left, Ferret.Abstractions.Search.SearchablePropertyInfo? right) -> bool
 static Ferret.Abstractions.Search.SearchablePropertyInfo.operator ==(Ferret.Abstractions.Search.SearchablePropertyInfo? left, Ferret.Abstractions.Search.SearchablePropertyInfo? right) -> bool
+static Ferret.Abstractions.Search.VectorGroup.operator !=(Ferret.Abstractions.Search.VectorGroup? left, Ferret.Abstractions.Search.VectorGroup? right) -> bool
+static Ferret.Abstractions.Search.VectorGroup.operator ==(Ferret.Abstractions.Search.VectorGroup? left, Ferret.Abstractions.Search.VectorGroup? right) -> bool
+static Ferret.Abstractions.Search.VectorGroupProperty.operator !=(Ferret.Abstractions.Search.VectorGroupProperty? left, Ferret.Abstractions.Search.VectorGroupProperty? right) -> bool
+static Ferret.Abstractions.Search.VectorGroupProperty.operator ==(Ferret.Abstractions.Search.VectorGroupProperty? left, Ferret.Abstractions.Search.VectorGroupProperty? right) -> bool
 ~Ferret.Abstractions.Models.PagedQuery<T, TKey>.<Clone>$() -> Ferret.Abstractions.Models.PagedQuery<T, TKey>!
 ~Ferret.Abstractions.Models.PagedQuery<T, TKey>.Equals(Ferret.Abstractions.Models.PagedQuery<T, TKey>? other) -> bool
 ~override Ferret.Abstractions.Configuration.PaginationDefaults.Equals(object obj) -> bool
@@ -413,125 +538,3 @@ static Ferret.Abstractions.Search.SearchablePropertyInfo.operator ==(Ferret.Abst
 ~override Ferret.Abstractions.Search.SearchSqlFragment.ToString() -> string
 ~static Ferret.Abstractions.Models.PagedQuery<T, TKey>.operator !=(Ferret.Abstractions.Models.PagedQuery<T, TKey>? left, Ferret.Abstractions.Models.PagedQuery<T, TKey>? right) -> bool
 ~static Ferret.Abstractions.Models.PagedQuery<T, TKey>.operator ==(Ferret.Abstractions.Models.PagedQuery<T, TKey>? left, Ferret.Abstractions.Models.PagedQuery<T, TKey>? right) -> bool
-Ferret.Abstractions.Search.FullTextGroup
-Ferret.Abstractions.Search.FullTextGroup.<Clone>$() -> Ferret.Abstractions.Search.FullTextGroup!
-Ferret.Abstractions.Search.FullTextGroup.Equals(Ferret.Abstractions.Search.FullTextGroup? other) -> bool
-Ferret.Abstractions.Search.FullTextGroup.FullTextConfig.get -> string!
-Ferret.Abstractions.Search.FullTextGroup.FullTextConfig.init -> void
-Ferret.Abstractions.Search.FullTextGroup.FullTextGroup() -> void
-Ferret.Abstractions.Search.FullTextGroup.Name.get -> string!
-Ferret.Abstractions.Search.FullTextGroup.Name.init -> void
-Ferret.Abstractions.Search.FullTextGroup.Properties.get -> System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Search.FullTextGroupProperty!>!
-Ferret.Abstractions.Search.FullTextGroup.Properties.init -> void
-Ferret.Abstractions.Search.FullTextGroup.Reindex.get -> Ferret.Abstractions.Attributes.ReindexMode
-Ferret.Abstractions.Search.FullTextGroup.Reindex.init -> void
-Ferret.Abstractions.Search.FullTextGroupProperty
-Ferret.Abstractions.Search.FullTextGroupProperty.<Clone>$() -> Ferret.Abstractions.Search.FullTextGroupProperty!
-Ferret.Abstractions.Search.FullTextGroupProperty.ColumnName.get -> string!
-Ferret.Abstractions.Search.FullTextGroupProperty.ColumnName.init -> void
-Ferret.Abstractions.Search.FullTextGroupProperty.Equals(Ferret.Abstractions.Search.FullTextGroupProperty? other) -> bool
-Ferret.Abstractions.Search.FullTextGroupProperty.FullTextConfigOverride.get -> string?
-Ferret.Abstractions.Search.FullTextGroupProperty.FullTextConfigOverride.init -> void
-Ferret.Abstractions.Search.FullTextGroupProperty.FullTextGroupProperty() -> void
-Ferret.Abstractions.Search.FullTextGroupProperty.Join.get -> Ferret.Abstractions.Search.JoinPath?
-Ferret.Abstractions.Search.FullTextGroupProperty.Join.init -> void
-Ferret.Abstractions.Search.FullTextGroupProperty.PropertyName.get -> string!
-Ferret.Abstractions.Search.FullTextGroupProperty.PropertyName.init -> void
-Ferret.Abstractions.Search.FullTextGroupProperty.Weight.get -> Ferret.Abstractions.Search.FullTextWeightBucket
-Ferret.Abstractions.Search.FullTextGroupProperty.Weight.init -> void
-Ferret.Abstractions.Search.FullTextWeightBucket
-Ferret.Abstractions.Search.FullTextWeightBucket.A = 0 -> Ferret.Abstractions.Search.FullTextWeightBucket
-Ferret.Abstractions.Search.FullTextWeightBucket.B = 1 -> Ferret.Abstractions.Search.FullTextWeightBucket
-Ferret.Abstractions.Search.FullTextWeightBucket.C = 2 -> Ferret.Abstractions.Search.FullTextWeightBucket
-Ferret.Abstractions.Search.FullTextWeightBucket.D = 3 -> Ferret.Abstractions.Search.FullTextWeightBucket
-override Ferret.Abstractions.Search.FullTextGroup.Equals(object? obj) -> bool
-override Ferret.Abstractions.Search.FullTextGroup.GetHashCode() -> int
-override Ferret.Abstractions.Search.FullTextGroup.ToString() -> string!
-override Ferret.Abstractions.Search.FullTextGroupProperty.Equals(object? obj) -> bool
-override Ferret.Abstractions.Search.FullTextGroupProperty.GetHashCode() -> int
-override Ferret.Abstractions.Search.FullTextGroupProperty.ToString() -> string!
-static Ferret.Abstractions.Search.FullTextGroup.operator !=(Ferret.Abstractions.Search.FullTextGroup? left, Ferret.Abstractions.Search.FullTextGroup? right) -> bool
-static Ferret.Abstractions.Search.FullTextGroup.operator ==(Ferret.Abstractions.Search.FullTextGroup? left, Ferret.Abstractions.Search.FullTextGroup? right) -> bool
-static Ferret.Abstractions.Search.FullTextGroupProperty.operator !=(Ferret.Abstractions.Search.FullTextGroupProperty? left, Ferret.Abstractions.Search.FullTextGroupProperty? right) -> bool
-static Ferret.Abstractions.Search.FullTextGroupProperty.operator ==(Ferret.Abstractions.Search.FullTextGroupProperty? left, Ferret.Abstractions.Search.FullTextGroupProperty? right) -> bool
-Ferret.Abstractions.Search.FullTextWeightBucketMapper
-static Ferret.Abstractions.Search.FullTextWeightBucketMapper.Bucket(float weight, float a, float b, float c) -> Ferret.Abstractions.Search.FullTextWeightBucket
-Ferret.Abstractions.Search.VectorGroup
-Ferret.Abstractions.Search.VectorGroup.<Clone>$() -> Ferret.Abstractions.Search.VectorGroup!
-Ferret.Abstractions.Search.VectorGroup.Dimensions.get -> int
-Ferret.Abstractions.Search.VectorGroup.Dimensions.init -> void
-Ferret.Abstractions.Search.VectorGroup.Equals(Ferret.Abstractions.Search.VectorGroup? other) -> bool
-Ferret.Abstractions.Search.VectorGroup.Name.get -> string!
-Ferret.Abstractions.Search.VectorGroup.Name.init -> void
-Ferret.Abstractions.Search.VectorGroup.Properties.get -> System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Search.VectorGroupProperty!>!
-Ferret.Abstractions.Search.VectorGroup.Properties.init -> void
-Ferret.Abstractions.Search.VectorGroup.Reindex.get -> Ferret.Abstractions.Attributes.ReindexMode
-Ferret.Abstractions.Search.VectorGroup.Reindex.init -> void
-Ferret.Abstractions.Search.VectorGroup.VectorGroup() -> void
-Ferret.Abstractions.Search.VectorGroupProperty
-Ferret.Abstractions.Search.VectorGroupProperty.<Clone>$() -> Ferret.Abstractions.Search.VectorGroupProperty!
-Ferret.Abstractions.Search.VectorGroupProperty.ColumnName.get -> string!
-Ferret.Abstractions.Search.VectorGroupProperty.ColumnName.init -> void
-Ferret.Abstractions.Search.VectorGroupProperty.EmbeddingSource.get -> string!
-Ferret.Abstractions.Search.VectorGroupProperty.EmbeddingSource.init -> void
-Ferret.Abstractions.Search.VectorGroupProperty.Equals(Ferret.Abstractions.Search.VectorGroupProperty? other) -> bool
-Ferret.Abstractions.Search.VectorGroupProperty.Join.get -> Ferret.Abstractions.Search.JoinPath?
-Ferret.Abstractions.Search.VectorGroupProperty.Join.init -> void
-Ferret.Abstractions.Search.VectorGroupProperty.PropertyName.get -> string!
-Ferret.Abstractions.Search.VectorGroupProperty.PropertyName.init -> void
-Ferret.Abstractions.Search.VectorGroupProperty.VectorGroupProperty() -> void
-override Ferret.Abstractions.Search.VectorGroup.Equals(object? obj) -> bool
-override Ferret.Abstractions.Search.VectorGroup.GetHashCode() -> int
-override Ferret.Abstractions.Search.VectorGroup.ToString() -> string!
-override Ferret.Abstractions.Search.VectorGroupProperty.Equals(object? obj) -> bool
-override Ferret.Abstractions.Search.VectorGroupProperty.GetHashCode() -> int
-override Ferret.Abstractions.Search.VectorGroupProperty.ToString() -> string!
-static Ferret.Abstractions.Search.VectorGroup.operator !=(Ferret.Abstractions.Search.VectorGroup? left, Ferret.Abstractions.Search.VectorGroup? right) -> bool
-static Ferret.Abstractions.Search.VectorGroup.operator ==(Ferret.Abstractions.Search.VectorGroup? left, Ferret.Abstractions.Search.VectorGroup? right) -> bool
-static Ferret.Abstractions.Search.VectorGroupProperty.operator !=(Ferret.Abstractions.Search.VectorGroupProperty? left, Ferret.Abstractions.Search.VectorGroupProperty? right) -> bool
-static Ferret.Abstractions.Search.VectorGroupProperty.operator ==(Ferret.Abstractions.Search.VectorGroupProperty? left, Ferret.Abstractions.Search.VectorGroupProperty? right) -> bool
-Ferret.Abstractions.Models.InvalidCursorException
-Ferret.Abstractions.Models.InvalidCursorException.InvalidCursorException(string! message) -> void
-Ferret.Abstractions.Querying.IFerretQueryService
-Ferret.Abstractions.Querying.IFerretQueryService.SearchCursorAsync<T, TKey>(Ferret.Abstractions.Models.PagedQuery<T!, TKey>! query, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Ferret.Abstractions.Models.CursorResult<T!>!>!
-Ferret.Abstractions.Querying.IFerretQueryService.SearchOffsetAsync<T, TKey>(Ferret.Abstractions.Models.PagedQuery<T!, TKey>! query, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Ferret.Abstractions.Models.OffsetResult<T!>!>!
-Ferret.Abstractions.Embeddings.IEmbeddingProvider
-Ferret.Abstractions.Embeddings.IEmbeddingProvider.Dimensions.get -> int
-Ferret.Abstractions.Embeddings.IEmbeddingProvider.ModelId.get -> string!
-Ferret.Abstractions.Embeddings.IEmbeddingProvider.EmbedAsync(string! text, System.Threading.CancellationToken ct) -> System.Threading.Tasks.Task<float[]!>!
-Ferret.Abstractions.Attributes.HybridBackendAttribute
-Ferret.Abstractions.Attributes.HybridBackendAttribute.HybridBackendAttribute(Ferret.Abstractions.Attributes.SearchBackend backend) -> void
-Ferret.Abstractions.Attributes.HybridBackendAttribute.Backend.get -> Ferret.Abstractions.Attributes.SearchBackend
-Ferret.Abstractions.Attributes.HybridBackendAttribute.Weight.get -> double
-Ferret.Abstractions.Attributes.HybridBackendAttribute.Weight.init -> void
-Ferret.Abstractions.Attributes.HybridBackendAttribute.ConfidenceThreshold.get -> double
-Ferret.Abstractions.Attributes.HybridBackendAttribute.ConfidenceThreshold.init -> void
-
-Ferret.Abstractions.Search.HybridBackendConfig
-Ferret.Abstractions.Search.HybridBackendConfig.Backend.get -> Ferret.Abstractions.Attributes.SearchBackend
-Ferret.Abstractions.Search.HybridBackendConfig.Backend.init -> void
-Ferret.Abstractions.Search.HybridBackendConfig.ConfidenceThreshold.get -> double
-Ferret.Abstractions.Search.HybridBackendConfig.ConfidenceThreshold.init -> void
-Ferret.Abstractions.Search.HybridBackendConfig.Equals(Ferret.Abstractions.Search.HybridBackendConfig? other) -> bool
-Ferret.Abstractions.Search.HybridBackendConfig.HybridBackendConfig() -> void
-Ferret.Abstractions.Search.HybridBackendConfig.Weight.get -> double
-Ferret.Abstractions.Search.HybridBackendConfig.Weight.init -> void
-Ferret.Abstractions.Search.HybridConfig
-Ferret.Abstractions.Search.HybridConfig.Backends.get -> System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Search.HybridBackendConfig!>!
-Ferret.Abstractions.Search.HybridConfig.Backends.init -> void
-Ferret.Abstractions.Search.HybridConfig.Equals(Ferret.Abstractions.Search.HybridConfig? other) -> bool
-Ferret.Abstractions.Search.HybridConfig.HybridConfig() -> void
-override Ferret.Abstractions.Search.HybridBackendConfig.Equals(object? obj) -> bool
-override Ferret.Abstractions.Search.HybridBackendConfig.GetHashCode() -> int
-override Ferret.Abstractions.Search.HybridConfig.Equals(object? obj) -> bool
-override Ferret.Abstractions.Search.HybridConfig.GetHashCode() -> int
-static Ferret.Abstractions.Search.HybridBackendConfig.operator !=(Ferret.Abstractions.Search.HybridBackendConfig? left, Ferret.Abstractions.Search.HybridBackendConfig? right) -> bool
-static Ferret.Abstractions.Search.HybridBackendConfig.operator ==(Ferret.Abstractions.Search.HybridBackendConfig? left, Ferret.Abstractions.Search.HybridBackendConfig? right) -> bool
-static Ferret.Abstractions.Search.HybridConfig.operator !=(Ferret.Abstractions.Search.HybridConfig? left, Ferret.Abstractions.Search.HybridConfig? right) -> bool
-static Ferret.Abstractions.Search.HybridConfig.operator ==(Ferret.Abstractions.Search.HybridConfig? left, Ferret.Abstractions.Search.HybridConfig? right) -> bool
-Ferret.Abstractions.Search.HybridBackendConfig.<Clone>$() -> Ferret.Abstractions.Search.HybridBackendConfig!
-Ferret.Abstractions.Search.HybridConfig.<Clone>$() -> Ferret.Abstractions.Search.HybridConfig!
-override Ferret.Abstractions.Search.HybridBackendConfig.ToString() -> string!
-override Ferret.Abstractions.Search.HybridConfig.ToString() -> string!
-Ferret.Abstractions.Models.PagedQuery<T, TKey>.Backend.get -> Ferret.Abstractions.Attributes.SearchBackend?
-Ferret.Abstractions.Models.PagedQuery<T, TKey>.Backend.init -> void
