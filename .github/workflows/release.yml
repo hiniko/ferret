@@ -18,6 +18,13 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
+      - name: Fail fast if NUGET_API_KEY is missing
+        run: |
+          if [ -z "${{ secrets.NUGET_API_KEY }}" ]; then
+            echo "::error::NUGET_API_KEY secret is not set on this repo (Settings → Secrets → Actions)."
+            exit 1
+          fi
+
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.tag }}
