@@ -28,7 +28,9 @@ internal sealed class TrigramSearchBackend : ISearchBackend, IAsPrimaryAware
 
     public SearchIndexDefinition? GetIndexDefinition(SearchablePropertyInfo property)
     {
-        var col = property.Property.Name.ToLowerInvariant();
+        // Use the resolved column name (naming strategy / [SearchColumn]) — lowercasing the
+        // CLR name breaks multi-word columns ("DisplayName" is "display_name", not "displayname").
+        var col = property.ColumnName;
         var table = "TBD";                                                        // resolved by engine before passing to schema package
         var idx = $"ix_{table}_{col}_gist_trgm";
         var sql = $"CREATE INDEX CONCURRENTLY IF NOT EXISTS {_dialect.QuoteIdentifier(idx)} " +
