@@ -12,7 +12,7 @@ on:
         required: true
 
 permissions:
-  contents: read
+  contents: write   # gh release create
 
 jobs:
   publish:
@@ -50,3 +50,10 @@ jobs:
 
       - run: dotnet nuget push "./artifacts/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
       - run: dotnet nuget push "./artifacts/*.snupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      # The GitHub release doubles as the changelog: notes are auto-generated from
+      # the commit log since the previous tag.
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${{ inputs.tag }}" --verify-tag --generate-notes --title "${{ inputs.tag }}"
