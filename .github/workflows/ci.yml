@@ -1,10 +1,22 @@
 name: ci
 
+# paths-ignore rather than paths: new code directories are covered by default,
+# only known non-code files skip the 3×postgres matrix.
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - 'LICENSE'
+      - '.github/**'
   pull_request:
     branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - 'LICENSE'
+      - '.github/**'
 
 jobs:
   build-and-test:
