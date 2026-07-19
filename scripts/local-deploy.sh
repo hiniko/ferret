@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Packs all Ferret library packages at VERSION and installs them into the global
-# NuGet cache, so consumer repos (e.g. the catches backend) restore the local build
+# NuGet cache, so consumer repos restore the local build
 # with no NuGet.config changes — cache hits skip source resolution entirely.
 #
 # The cached local build shadows any published package of the same version until
