@@ -146,10 +146,34 @@ public class RankedCandidateTests
         frag.Sql.Should().Contain("row_number() OVER (ORDER BY");
         frag.Sql.Should().Contain("<<->");
         frag.Sql.Should().Contain("LIMIT 100");
-        frag.Sql.Should().Contain("distance");
+        frag.Sql.Should().Contain("distance AS score");
         frag.Sql.Should().Contain("0.2");
         frag.Sql.Should().NotContain("total_count");
         frag.Parameters.Should().Contain(p => p.Key == "@p0");
+    }
+
+    [Fact]
+    public void Trigram_ranked_candidate_with_no_trigram_properties_keeps_score_contract()
+    {
+        var b = new TrigramSqlBuilder(new PostgresDialect(), new TrigramOptions());
+        var ctx = new SearchContext
+        {
+            Properties = [],
+            SearchTerm = "blue",
+            IdColumn = Model().KeyColumnName,
+            QuotedTable = Model().QuotedTable(new PostgresDialect()),
+        };
+
+        var frag = b.BuildRankedCandidate(
+            new RankedCandidateRequest
+            {
+                SourceTable = "products", KeyColumns = new[] { "id" }, SearchTerm = "blue",
+                Depth = 10, CteName = "tri",
+            },
+            ctx);
+
+        frag.Sql.Should().Contain("0.0 AS score");
+        frag.Sql.Should().Contain("AS rnk");
     }
 
     [Fact]
