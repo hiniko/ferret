@@ -35,12 +35,14 @@ public sealed class MultiSearchQuery
 /// <summary>Per-entity options within a multisearch registration.</summary>
 public sealed class MultiSearchEntityOptions
 {
-    internal List<FilterClause> Filters { get; } = [];
+    private readonly List<FilterClause> _filters = [];
+
+    public IReadOnlyList<FilterClause> Filters => _filters;
 
     public MultiSearchEntityOptions Filter(FilterClause clause)
     {
         ArgumentNullException.ThrowIfNull(clause);
-        Filters.Add(clause);
+        _filters.Add(clause);
         return this;
     }
 }

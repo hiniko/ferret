@@ -87,3 +87,15 @@ static Ferret.AspNetCore.PaginationParameters.operator ==(Ferret.AspNetCore.Pagi
 virtual Ferret.AspNetCore.PaginationParameters.EqualityContract.get -> System.Type!
 virtual Ferret.AspNetCore.PaginationParameters.Equals(Ferret.AspNetCore.PaginationParameters? other) -> bool
 virtual Ferret.AspNetCore.PaginationParameters.PrintMembers(System.Text.StringBuilder! builder) -> bool
+Ferret.AspNetCore.MultiSearchEndpointOptions
+Ferret.AspNetCore.MultiSearchEndpointOptions.Entity<T, THit>(System.Linq.Expressions.Expression<System.Func<T!, THit!>!>! projection, System.Action<Ferret.Abstractions.Models.MultiSearchEntityOptions!>? configure = null) -> Ferret.AspNetCore.MultiSearchEndpointOptions!
+Ferret.AspNetCore.MultiSearchEndpointOptions.MultiSearchEndpointOptions() -> void
+Ferret.AspNetCore.MultiSearchEndpointOptions.Name.get -> string?
+Ferret.AspNetCore.MultiSearchEndpointOptions.Name.set -> void
+Ferret.AspNetCore.MultiSearchEndpointOptions.Summary.get -> string?
+Ferret.AspNetCore.MultiSearchEndpointOptions.Summary.set -> void
+Ferret.AspNetCore.MultiSearchEndpointOptions.Tag.get -> string?
+Ferret.AspNetCore.MultiSearchEndpointOptions.Tag.set -> void
+Ferret.AspNetCore.MultiSearchEndpointOptions.WithLimits(int defaultPerEntityLimit, int maxPerEntityLimit) -> Ferret.AspNetCore.MultiSearchEndpointOptions!
+Ferret.AspNetCore.MultiSearchEndpointRouteBuilderExtensions
+static Ferret.AspNetCore.MultiSearchEndpointRouteBuilderExtensions.MapFerretMultiSearch(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder! endpoints, string! pattern, System.Action<Ferret.AspNetCore.MultiSearchEndpointOptions!>! configure) -> Microsoft.AspNetCore.Builder.RouteHandlerBuilder!
