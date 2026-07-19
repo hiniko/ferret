@@ -1,4 +1,5 @@
 name: release
+run-name: release ${{ inputs.tag }}
 
 # Manual publish to NuGet. Tag the commit first (e.g. `git tag 0.1.1 && git push origin 0.1.1`),
 # then run this workflow from the Actions tab and enter that tag. The package version is derived
