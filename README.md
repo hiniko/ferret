@@ -113,6 +113,7 @@ var page = await sp.GetRequiredService<IFerretEngine>()
 - **[Schema & migrations](docs/migrations.md)** — generated schema, reindex modes, the reindex
   worker/CLI, and the manual-SQL reference.
 - **[Full-text search](docs/full-text-search.md)** — groups, weights, hybrid.
+- **[Multisearch](docs/multisearch.md)** — grouped multi-entity search for cmd-K UIs.
 - **[Vector search & embeddings](docs/vector-search.md)** — connectors, version transitions.
 - **[ASP.NET Core](docs/aspnetcore.md)** — query shapes, `MapFerret`, legacy wire shape.
 
