@@ -75,10 +75,33 @@ public class RankedCandidateTests
 
         frag.Sql.Should().Contain("row_number() OVER (ORDER BY");
         frag.Sql.Should().Contain("ts_rank_cd");
+        frag.Sql.Should().Contain("rank AS score");
         frag.Sql.Should().Contain("LIMIT 100");
         frag.Sql.Should().Contain("0.05");
         frag.Sql.Should().NotContain("total_count");
         frag.Parameters.Should().ContainSingle(p => p.Key == "@q");
+    }
+
+    [Fact]
+    public void FullText_ranked_candidate_with_no_groups_keeps_score_contract()
+    {
+        var ctx = new FullTextSqlContext
+        {
+            SourceTable = "products", IdColumn = "id", SearchTerm = "x",
+            Groups = [], Limit = 0, Offset = 0,
+        };
+
+        var b = new FullTextSqlBuilder(new PostgresDialect(), new FullTextOptions());
+        var frag = b.BuildRankedCandidate(
+            new RankedCandidateRequest
+            {
+                SourceTable = "products", KeyColumns = new[] { "id" }, SearchTerm = "x",
+                Depth = 10, CteName = "ft",
+            },
+            ctx);
+
+        frag.Sql.Should().Contain("0.0 AS score");
+        frag.Sql.Should().Contain("AS rnk");
     }
 
     [Fact]

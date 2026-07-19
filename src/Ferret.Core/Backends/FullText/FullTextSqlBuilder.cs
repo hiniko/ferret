@@ -135,7 +135,7 @@ internal sealed class FullTextSqlBuilder
         {
             var emptyProjection = string.Join(", ", keyCols.Select(c => _dialect.QuoteIdentifier(c)));
             return new SearchSqlFragment(
-                $"SELECT {emptyProjection}, row_number() OVER (ORDER BY 1) AS rnk " +
+                $"SELECT {emptyProjection}, 0.0 AS score, row_number() OVER (ORDER BY 1) AS rnk " +
                 $"FROM {_dialect.QuoteIdentifier(ctx.SourceTable)} WHERE 1 = 0",
                 []);
         }
@@ -167,7 +167,7 @@ internal sealed class FullTextSqlBuilder
             : "id";
 
         var sb = new StringBuilder();
-        sb.Append("SELECT ").Append(candProjection).Append(", row_number() OVER (ORDER BY rank DESC, ").Append(candProjection).AppendLine(") AS rnk");
+        sb.Append("SELECT ").Append(candProjection).Append(", rank AS score, row_number() OVER (ORDER BY rank DESC, ").Append(candProjection).AppendLine(") AS rnk");
         sb.AppendLine("FROM (");
         sb.Append("    SELECT ").Append(innerProjection).Append(", ");
         EmitRankExpr(sb, ctx, configAliases);
