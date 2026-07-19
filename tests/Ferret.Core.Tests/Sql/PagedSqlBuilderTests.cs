@@ -75,6 +75,37 @@ public class PagedSqlBuilderTests
     }
 
     [Fact]
+    public void Compile_filter_with_alias_and_prefix_qualifies_column_and_renames_parameter()
+    {
+        var fragment = PagedSqlBuilder.CompileFilter(
+            new FilterClause { Field = "Name", Operator = FilterOperator.Equals, Value = "alpha" },
+            Build(), parameterIndex: 0, tableAlias: "e", parameterPrefix: "f");
+
+        fragment.Sql.Should().Be("e.\"name\" = @f0");
+        fragment.Parameters.Should().ContainSingle().Which.Should().Be("alpha");
+    }
+
+    [Fact]
+    public void Compile_filter_with_alias_and_prefix_applies_to_in_operator()
+    {
+        var fragment = PagedSqlBuilder.CompileFilter(
+            new FilterClause { Field = "Name", Operator = FilterOperator.In, Value = "a,b" },
+            Build(), parameterIndex: 1, tableAlias: "e", parameterPrefix: "f");
+
+        fragment.Sql.Should().Be("e.\"name\" = ANY(@f1)");
+    }
+
+    [Fact]
+    public void Compile_filter_with_alias_applies_to_null_operators()
+    {
+        var fragment = PagedSqlBuilder.CompileFilter(
+            new FilterClause { Field = "Name", Operator = FilterOperator.IsNull, Value = "" },
+            Build(), parameterIndex: 0, tableAlias: "e");
+
+        fragment.Sql.Should().Be("e.\"name\" IS NULL");
+    }
+
+    [Fact]
     public void Compile_filter_in_uses_any_with_typed_array()
     {
         var fragment = PagedSqlBuilder.CompileFilter(

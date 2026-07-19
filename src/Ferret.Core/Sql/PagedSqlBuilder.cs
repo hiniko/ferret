@@ -5,7 +5,9 @@ namespace Ferret.Core.Sql;
 
 public static class PagedSqlBuilder
 {
-    public static SqlFragment CompileFilter(FilterClause filter, EntityMetadata meta, int parameterIndex)
+    public static SqlFragment CompileFilter(
+        FilterClause filter, EntityMetadata meta, int parameterIndex,
+        string? tableAlias = null, string parameterPrefix = "p")
     {
         ArgumentNullException.ThrowIfNull(filter);
         ArgumentNullException.ThrowIfNull(meta);
@@ -21,9 +23,10 @@ public static class PagedSqlBuilder
                 $"Operator {filter.Operator} not allowed on field '{filter.Field}'.");
         }
 
-        var col = meta.Dialect.QuoteIdentifier(meta.ColumnByPropertyName[filter.Field]);
+        var quoted = meta.Dialect.QuoteIdentifier(meta.ColumnByPropertyName[filter.Field]);
+        var col = tableAlias is null ? quoted : $"{tableAlias}.{quoted}";
         var clr = meta.ClrTypeByPropertyName[filter.Field];
-        var paramName = $"@p{parameterIndex}";
+        var paramName = $"@{parameterPrefix}{parameterIndex}";
 
         if (filter.Operator is FilterOperator.IsNull or FilterOperator.NotNull)
         {
