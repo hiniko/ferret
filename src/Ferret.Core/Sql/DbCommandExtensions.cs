@@ -19,6 +19,20 @@ internal static class DbCommandExtensions
         command.Parameters.Add(p);
     }
 
+    public static void AddParameter(this DbBatchCommand command, string name, object? value)
+    {
+        if (command is NpgsqlBatchCommand npg && value is Array array && value is not byte[])
+        {
+            npg.Parameters.Add(BuildArrayParameter(name, array));
+            return;
+        }
+
+        var p = command.CreateParameter();
+        p.ParameterName = name;
+        p.Value = value ?? DBNull.Value;
+        command.Parameters.Add(p);
+    }
+
     private static NpgsqlParameter BuildArrayParameter(string name, Array array) => array switch
     {
         Guid[] a    => new NpgsqlParameter<Guid[]>(name, a),

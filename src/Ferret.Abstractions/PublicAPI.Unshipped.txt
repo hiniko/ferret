@@ -586,3 +586,6 @@ Ferret.Abstractions.Models.MultiSearchResult
 Ferret.Abstractions.Models.MultiSearchResult.Groups.get -> System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Models.MultiSearchGroup!>!
 Ferret.Abstractions.Models.MultiSearchResult.Groups.init -> void
 Ferret.Abstractions.Models.MultiSearchResult.MultiSearchResult() -> void
+Ferret.Abstractions.Querying.FerretQueryServiceMultiSearchExtensions
+Ferret.Abstractions.Querying.IFerretQueryService.MultiSearchAsync(Ferret.Abstractions.Models.MultiSearchQuery! query, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Ferret.Abstractions.Models.MultiSearchResult!>!
+static Ferret.Abstractions.Querying.FerretQueryServiceMultiSearchExtensions.MultiSearchAsync(this Ferret.Abstractions.Querying.IFerretQueryService! service, System.Action<Ferret.Abstractions.Models.MultiSearchQueryBuilder!>! configure, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Ferret.Abstractions.Models.MultiSearchResult!>!

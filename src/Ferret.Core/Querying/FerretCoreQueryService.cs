@@ -29,4 +29,9 @@ public sealed class FerretCoreQueryService : IFerretQueryService
         where T : class
         where TKey : notnull
         => _engine.SearchCursorAsync(_session, query, ct);
+
+    public Task<MultiSearchResult> MultiSearchAsync(
+        MultiSearchQuery query,
+        CancellationToken ct = default)
+        => _engine.MultiSearchAsync(_session, query, ct);
 }

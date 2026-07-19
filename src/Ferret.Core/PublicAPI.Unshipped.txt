@@ -401,3 +401,7 @@ static Ferret.Core.Sql.SqlFragment.operator ==(Ferret.Core.Sql.SqlFragment left,
 static readonly Ferret.Core.Diagnostics.FerretDiagnostics.ActivitySource -> System.Diagnostics.ActivitySource!
 ~override Ferret.Core.Sql.SqlFragment.Equals(object obj) -> bool
 ~override Ferret.Core.Sql.SqlFragment.ToString() -> string
+Ferret.Core.Engine.FerretEngineMultiSearchExtensions
+Ferret.Core.Engine.IFerretEngine.MultiSearchAsync(Ferret.Abstractions.Session.IFerretSession! session, Ferret.Abstractions.Models.MultiSearchQuery! query, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Ferret.Abstractions.Models.MultiSearchResult!>!
+Ferret.Core.Querying.FerretCoreQueryService.MultiSearchAsync(Ferret.Abstractions.Models.MultiSearchQuery! query, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Ferret.Abstractions.Models.MultiSearchResult!>!
+static Ferret.Core.Engine.FerretEngineMultiSearchExtensions.MultiSearchAsync(this Ferret.Core.Engine.IFerretEngine! engine, Ferret.Abstractions.Session.IFerretSession! session, System.Action<Ferret.Abstractions.Models.MultiSearchQueryBuilder!>! configure, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Ferret.Abstractions.Models.MultiSearchResult!>!

@@ -36,4 +36,12 @@ public sealed class EntityFrameworkQueryService<TContext> : IFerretQueryService
         await using var session = new EntityFrameworkSession(_context, _dialect);
         return await _engine.SearchCursorAsync<T, TKey>(session, query, ct);
     }
+
+    public async Task<MultiSearchResult> MultiSearchAsync(
+        MultiSearchQuery query,
+        CancellationToken ct = default)
+    {
+        await using var session = new EntityFrameworkSession(_context, _dialect);
+        return await _engine.MultiSearchAsync(session, query, ct);
+    }
 }

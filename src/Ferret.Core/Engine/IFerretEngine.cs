@@ -22,4 +22,26 @@ public interface IFerretEngine
         ReindexOptions? options = null,
         CancellationToken ct = default)
         where T : class;
+
+    Task<MultiSearchResult> MultiSearchAsync(
+        IFerretSession session,
+        MultiSearchQuery query,
+        CancellationToken ct = default);
+}
+
+/// <summary>Builder-flavored sugar over <see cref="IFerretEngine.MultiSearchAsync"/>.</summary>
+public static class FerretEngineMultiSearchExtensions
+{
+    public static Task<MultiSearchResult> MultiSearchAsync(
+        this IFerretEngine engine,
+        IFerretSession session,
+        Action<MultiSearchQueryBuilder> configure,
+        CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(engine);
+        ArgumentNullException.ThrowIfNull(configure);
+        var builder = new MultiSearchQueryBuilder();
+        configure(builder);
+        return engine.MultiSearchAsync(session, builder.Build(), ct);
+    }
 }

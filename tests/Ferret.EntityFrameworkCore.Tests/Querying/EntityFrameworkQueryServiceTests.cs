@@ -76,6 +76,12 @@ public sealed class EntityFrameworkQueryServiceTests
             CancellationToken ct = default)
             where T : class
             => Task.CompletedTask;
+
+        public Task<MultiSearchResult> MultiSearchAsync(
+            IFerretSession session,
+            MultiSearchQuery query,
+            CancellationToken ct = default)
+            => throw new NotSupportedException();
     }
 
     private static ServiceProvider BuildProvider(NpgsqlConnection conn, FakeEngine engine)

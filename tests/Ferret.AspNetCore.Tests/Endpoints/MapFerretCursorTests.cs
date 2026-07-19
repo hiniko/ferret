@@ -141,6 +141,11 @@ public class MapFerretCursorTests : IClassFixture<MapFerretCursorTests.Factory>
             };
             return Task.FromResult(result);
         }
+
+        public Task<MultiSearchResult> MultiSearchAsync(
+            MultiSearchQuery query,
+            CancellationToken ct = default)
+            => throw new NotSupportedException();
     }
 
     public sealed class Product

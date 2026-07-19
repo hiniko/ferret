@@ -114,6 +114,11 @@ public class MapFerretOffsetTests : IClassFixture<MapFerretOffsetTests.Factory>
             where T : class
             where TKey : notnull
             => throw new NotImplementedException();
+
+        public Task<MultiSearchResult> MultiSearchAsync(
+            MultiSearchQuery query,
+            CancellationToken ct = default)
+            => throw new NotSupportedException();
     }
 
     public sealed class Product

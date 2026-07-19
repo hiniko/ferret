@@ -64,5 +64,10 @@ public class IFerretQueryServiceTests
             where T : class
             where TKey : notnull
             => Task.FromResult(new CursorResult<T> { Items = [] });
+
+        public Task<MultiSearchResult> MultiSearchAsync(
+            MultiSearchQuery query,
+            CancellationToken ct = default)
+            => throw new NotSupportedException();
     }
 }

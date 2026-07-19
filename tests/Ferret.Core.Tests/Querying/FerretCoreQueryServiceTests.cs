@@ -73,6 +73,12 @@ public sealed class FerretCoreQueryServiceTests
             CancellationToken ct = default)
             where T : class
             => Task.CompletedTask;
+
+        public Task<MultiSearchResult> MultiSearchAsync(
+            IFerretSession session,
+            MultiSearchQuery query,
+            CancellationToken ct = default)
+            => throw new NotSupportedException();
     }
 
     [Fact]

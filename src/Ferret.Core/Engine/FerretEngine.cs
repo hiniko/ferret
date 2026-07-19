@@ -17,7 +17,7 @@ using Tags = Ferret.Core.Diagnostics.FerretDiagnostics.Tags;
 
 namespace Ferret.Core.Engine;
 
-internal sealed class FerretEngine : IFerretEngine
+internal sealed partial class FerretEngine : IFerretEngine
 {
     private readonly EntityRegistry _registry;
     private readonly IReadOnlyList<ISearchBackend> _backends;

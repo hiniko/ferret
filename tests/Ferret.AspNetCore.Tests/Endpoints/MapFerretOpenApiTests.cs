@@ -139,6 +139,11 @@ public class MapFerretOpenApiTests
             where T : class
             where TKey : notnull
             => Task.FromResult(new CursorResult<T> { Items = Array.Empty<T>() });
+
+        public Task<MultiSearchResult> MultiSearchAsync(
+            MultiSearchQuery query,
+            CancellationToken ct = default)
+            => throw new NotSupportedException();
     }
 
     public sealed class Product
