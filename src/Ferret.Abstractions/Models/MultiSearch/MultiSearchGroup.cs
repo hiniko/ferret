@@ -5,6 +5,7 @@ public sealed class MultiSearchGroup
 {
     public required string EntityType { get; init; }
 
-    /// <summary>Hits ordered best-match first; runtime type is the concrete <see cref="MultiSearchHit"/> subclass registered for the entity.</summary>
-    public required IReadOnlyList<MultiSearchHit> Hits { get; init; }
+    /// <summary>Hits ordered best-match first. Runtime type is the searched entity type, populated
+    /// with the projected members only — treat as display data, never persist one.</summary>
+    public required IReadOnlyList<object> Hits { get; init; }
 }

@@ -20,56 +20,33 @@ public class MultiSearchEndToEndTests
     [SearchableEntity(Table = "ms_authors")]
     public sealed class Author : ISearchableEntity<Guid>
     {
-        public Guid Id { get; init; }
-        [Searchable] public string Name { get; init; } = "";
-        [Filterable] public string Email { get; init; } = "";
-        public bool Hidden { get; init; }
+        public Guid Id { get; set; }
+        [Searchable] public string Name { get; set; } = "";
+        [Filterable] public string Email { get; set; } = "";
+        public bool Hidden { get; set; }
     }
 
     [SearchableEntity(Table = "ms_books")]
     public sealed class Book : ISearchableEntity<Guid>
     {
-        public Guid Id { get; init; }
-        [Searchable] public string Title { get; init; } = "";
-        public string Isbn { get; init; } = "";
+        public Guid Id { get; set; }
+        [Searchable] public string Title { get; set; } = "";
+        public string Isbn { get; set; } = "";
     }
 
     [SearchableEntity(Table = "ms_editions", KeyProperties = [nameof(TenantId), nameof(Code)])]
     public sealed class Edition
     {
-        public Guid TenantId { get; init; }
-        public string Code { get; init; } = "";
-        [Searchable] public string Label { get; init; } = "";
+        public Guid TenantId { get; set; }
+        public string Code { get; set; } = "";
+        [Searchable] public string Label { get; set; } = "";
     }
 
     [SearchableEntity(Table = "ms_vdocs")]
     public sealed class VectorDoc : ISearchableEntity<Guid>
     {
-        public Guid Id { get; init; }
-        [Searchable(Backend = SearchBackend.Vector, EmbeddingDimensions = 8)] public string Content { get; init; } = "";
-    }
-
-    public sealed class AuthorHit : MultiSearchHit
-    {
-        public string Name { get; set; } = "";
-        public string? Email { get; set; }
-    }
-
-    public sealed class BookHit : MultiSearchHit
-    {
-        public string Title { get; set; } = "";
-        public string Isbn { get; set; } = "";
-        public string Badge { get; set; } = "";
-    }
-
-    public sealed class EditionHit : MultiSearchHit
-    {
-        public string Label { get; set; } = "";
-    }
-
-    public sealed class VectorDocHit : MultiSearchHit
-    {
-        public string Content { get; set; } = "";
+        public Guid Id { get; set; }
+        [Searchable(Backend = SearchBackend.Vector, EmbeddingDimensions = 8)] public string Content { get; set; } = "";
     }
 
     private static readonly Guid AuthorMoby   = Guid.Parse("00000003-0000-0000-0000-000000000001");
@@ -79,7 +56,7 @@ public class MultiSearchEndToEndTests
     private static readonly Guid Tenant       = Guid.Parse("00000003-0000-0000-0000-000000000021");
 
     [Fact]
-    public async Task Grouped_hits_are_typed_stamped_and_capped()
+    public async Task Grouped_hits_are_partial_entities_with_projected_members_only()
     {
         await SeedAsync();
         var (engine, session) = Engine();
@@ -87,25 +64,23 @@ public class MultiSearchEndToEndTests
         var result = await engine.MultiSearchAsync(session, q => q
             .Search("moby")
             .PerEntityLimit(5)
-            .Entity<Author, AuthorHit>(a => new AuthorHit { Name = a.Name, Email = a.Email })
-            .Entity<Book, BookHit>(b => new BookHit { Title = b.Title, Isbn = b.Isbn, Badge = "book" }));
+            .Entity<Author>(a => new Author { Name = a.Name, Email = a.Email })
+            .Entity<Book>(b => new Book { Id = b.Id, Title = b.Title }));
 
         result.Groups.Should().HaveCount(2);
         result.Groups[0].EntityType.Should().Be("ms_authors");
         result.Groups[1].EntityType.Should().Be("ms_books");
 
         var author = result.Groups[0].Hits.Should().NotBeEmpty()
-            .And.AllBeOfType<AuthorHit>().Subject.First();
+            .And.AllBeOfType<Author>().Subject.First();
         author.Name.Should().Be("Moby Dickens");
         author.Email.Should().Be("moby@sea.org");
-        author.EntityType.Should().Be("ms_authors");
-        author.Key.Should().Be(AuthorMoby.ToString("N"));
-        // Trigram score is a distance: 0.0 is a perfect word match.
-        author.Score.Should().BeInRange(0.0, 1.0);
+        author.Id.Should().Be(Guid.Empty, "Id was not projected");
 
-        var book = (BookHit)result.Groups[1].Hits.First();
+        var book = result.HitsOf<Book>().First();
         book.Title.Should().Be("Moby-Dick");
-        book.Badge.Should().Be("book");
+        book.Id.Should().Be(BookMoby, "Id was projected");
+        book.Isbn.Should().BeEmpty("Isbn was not projected");
     }
 
     [Fact]
@@ -116,9 +91,9 @@ public class MultiSearchEndToEndTests
 
         var result = await engine.MultiSearchAsync(session, q => q
             .Search("moby dickens")
-            .Entity<Author, AuthorHit>(a => new AuthorHit { Name = a.Name }));
+            .Entity<Author>(a => new Author { Name = a.Name }));
 
-        var names = result.Groups[0].Hits.Cast<AuthorHit>().Select(h => h.Name).ToList();
+        var names = result.HitsOf<Author>().Select(h => h.Name).ToList();
         names.First().Should().Be("Moby Dickens");
     }
 
@@ -130,13 +105,13 @@ public class MultiSearchEndToEndTests
 
         var result = await engine.MultiSearchAsync(session, q => q
             .Search("moby")
-            .Entity<Author, AuthorHit>(a => new AuthorHit { Name = a.Name },
+            .Entity<Author>(a => new Author { Name = a.Name },
                 o => o.Filter(new FilterClause
                 {
                     Field = "Email", Operator = FilterOperator.NotEquals, Value = "moby@sea.org",
                 })));
 
-        result.Groups[0].Hits.Cast<AuthorHit>().Should().NotContain(h => h.Name == "Moby Dickens");
+        result.HitsOf<Author>().Should().NotContain(h => h.Name == "Moby Dickens");
     }
 
     [Fact]
@@ -147,8 +122,8 @@ public class MultiSearchEndToEndTests
 
         var result = await engine.MultiSearchAsync(session, q => q
             .Search("zzzzqqqq")
-            .Entity<Author, AuthorHit>(a => new AuthorHit { Name = a.Name })
-            .Entity<Book, BookHit>(b => new BookHit { Title = b.Title }));
+            .Entity<Author>(a => new Author { Name = a.Name })
+            .Entity<Book>(b => new Book { Title = b.Title }));
 
         result.Groups.Should().HaveCount(2);
         result.Groups.Should().OnlyContain(g => g.Hits.Count == 0);
@@ -163,25 +138,27 @@ public class MultiSearchEndToEndTests
         var result = await engine.MultiSearchAsync(session, q => q
             .Search("moby")
             .PerEntityLimit(1)
-            .Entity<Author, AuthorHit>(a => new AuthorHit { Name = a.Name })
-            .Entity<Book, BookHit>(b => new BookHit { Title = b.Title }));
+            .Entity<Author>(a => new Author { Name = a.Name })
+            .Entity<Book>(b => new Book { Title = b.Title }));
 
         result.Groups.Should().OnlyContain(g => g.Hits.Count <= 1);
         result.Groups[0].Hits.Should().HaveCount(1);
     }
 
     [Fact]
-    public async Task Composite_key_is_string_encoded()
+    public async Task Composite_key_entity_projects_key_parts()
     {
         await SeedAsync();
         var (engine, session) = Engine();
 
         var result = await engine.MultiSearchAsync(session, q => q
             .Search("collector")
-            .Entity<Edition, EditionHit>(e => new EditionHit { Label = e.Label }));
+            .Entity<Edition>(e => new Edition { TenantId = e.TenantId, Code = e.Code, Label = e.Label }));
 
-        var hit = result.Groups[0].Hits.Should().ContainSingle().Subject;
-        hit.Key.Should().Be($"{Tenant:N}\u001fCOLL-1");
+        var hit = result.HitsOf<Edition>().Should().ContainSingle().Subject;
+        hit.TenantId.Should().Be(Tenant);
+        hit.Code.Should().Be("COLL-1");
+        hit.Label.Should().Be("Collector Edition");
     }
 
     [Fact]
@@ -193,15 +170,15 @@ public class MultiSearchEndToEndTests
         var subset = await engine.MultiSearchAsync(session, q => q
             .Search("moby")
             .Types("ms_books")
-            .Entity<Author, AuthorHit>(a => new AuthorHit { Name = a.Name })
-            .Entity<Book, BookHit>(b => new BookHit { Title = b.Title }));
+            .Entity<Author>(a => new Author { Name = a.Name })
+            .Entity<Book>(b => new Book { Title = b.Title }));
 
         subset.Groups.Should().ContainSingle().Which.EntityType.Should().Be("ms_books");
 
         await FluentActions.Awaiting(() => engine.MultiSearchAsync(session, q => q
                 .Search("moby")
                 .Types("nope")
-                .Entity<Author, AuthorHit>(a => new AuthorHit { Name = a.Name })))
+                .Entity<Author>(a => new Author { Name = a.Name })))
             .Should().ThrowAsync<ArgumentException>().WithMessage("*nope*ms_authors*");
     }
 
@@ -212,7 +189,7 @@ public class MultiSearchEndToEndTests
 
         await FluentActions.Awaiting(() => engine.MultiSearchAsync(session, q => q
                 .Search("moby")
-                .Entity<VectorDoc, VectorDocHit>(v => new VectorDocHit { Content = v.Content })))
+                .Entity<VectorDoc>(v => new VectorDoc { Content = v.Content })))
             .Should().ThrowAsync<NotSupportedException>().WithMessage("*ms_vdocs*");
     }
 

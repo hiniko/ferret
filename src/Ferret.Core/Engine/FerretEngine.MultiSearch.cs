@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Globalization;
 using Ferret.Abstractions.Attributes;
 using Ferret.Abstractions.Search;
 using Ferret.Core.Backends.FullText;
@@ -178,12 +177,13 @@ internal sealed partial class FerretEngine
 
         var joinConditions = string.Join(" AND ",
             quotedKeyCols.Select((col, idx) => $"e.{col} = r.{rankedKeyCols[idx]}"));
-        var keySelects = string.Concat(quotedKeyCols.Select(col => $", e.{col}"));
-        var slotSelects = string.Concat(projection.ColumnNames.Select(col => $", e.{dialect.QuoteIdentifier(col)}"));
+        var slotSelects = projection.ColumnNames.Count > 0
+            ? string.Join(", ", projection.ColumnNames.Select(col => $"e.{dialect.QuoteIdentifier(col)}"))
+            : "1";
         var where = filterSql.Count > 0 ? $"WHERE {string.Join(" AND ", filterSql)}\n" : "";
 
         var sql =
-            $"SELECT r.score{keySelects}{slotSelects}\n" +
+            $"SELECT {slotSelects}\n" +
             $"FROM (\n{fragment.Sql}\n) r\n" +
             $"JOIN {model.QuotedTable(dialect)} e ON {joinConditions}\n" +
             $"{where}ORDER BY r.rnk";
@@ -214,30 +214,19 @@ internal sealed partial class FerretEngine
         for (var i = 0; i < arms.Count; i++)
         {
             var arm = arms[i];
-            var keyCount = arm.Model.Key.Count;
             var slotCount = arm.Projection.ColumnNames.Count;
-            var hits = new List<MultiSearchHit>();
+            var hits = new List<object>();
 
             while (await reader.ReadAsync(ct))
             {
-                var score = Convert.ToDouble(reader.GetValue(0), CultureInfo.InvariantCulture);
-                var keyParts = new object[keyCount];
-                for (var k = 0; k < keyCount; k++)
-                {
-                    keyParts[k] = reader.GetValue(1 + k);
-                }
                 var values = new object?[slotCount];
                 for (var s = 0; s < slotCount; s++)
                 {
-                    var raw = reader.GetValue(1 + keyCount + s);
+                    var raw = reader.GetValue(s);
                     values[s] = raw is DBNull ? null : raw;
                 }
 
-                var hit = arm.Projection.Materializer(values);
-                hit.EntityType = arm.Model.TableName;
-                hit.Key = CompositeKeyString(keyParts);
-                hit.Score = score;
-                hits.Add(hit);
+                hits.Add(arm.Projection.Materializer(values));
             }
 
             groups.Add(new MultiSearchGroup { EntityType = arm.Model.TableName, Hits = hits });

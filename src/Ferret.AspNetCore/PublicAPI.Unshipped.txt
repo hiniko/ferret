@@ -88,7 +88,7 @@ virtual Ferret.AspNetCore.PaginationParameters.EqualityContract.get -> System.Ty
 virtual Ferret.AspNetCore.PaginationParameters.Equals(Ferret.AspNetCore.PaginationParameters? other) -> bool
 virtual Ferret.AspNetCore.PaginationParameters.PrintMembers(System.Text.StringBuilder! builder) -> bool
 Ferret.AspNetCore.MultiSearchEndpointOptions
-Ferret.AspNetCore.MultiSearchEndpointOptions.Entity<T, THit>(System.Linq.Expressions.Expression<System.Func<T!, THit!>!>! projection, System.Action<Ferret.Abstractions.Models.MultiSearchEntityOptions!>? configure = null) -> Ferret.AspNetCore.MultiSearchEndpointOptions!
+Ferret.AspNetCore.MultiSearchEndpointOptions.Entity<T>(System.Linq.Expressions.Expression<System.Func<T!, T!>!>! projection, System.Action<Ferret.Abstractions.Models.MultiSearchEntityOptions!>? configure = null) -> Ferret.AspNetCore.MultiSearchEndpointOptions!
 Ferret.AspNetCore.MultiSearchEndpointOptions.MultiSearchEndpointOptions() -> void
 Ferret.AspNetCore.MultiSearchEndpointOptions.Name.get -> string?
 Ferret.AspNetCore.MultiSearchEndpointOptions.Name.set -> void

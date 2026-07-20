@@ -7,10 +7,9 @@ public sealed class MultiSearchEntityDefinition
 {
     public required Type EntityType { get; init; }
 
-    public required Type HitType { get; init; }
-
-    /// <summary>An <c>Expression&lt;Func&lt;TEntity, THit&gt;&gt;</c> whose body is a new-expression or
-    /// member-init over plain entity property accesses and constants.</summary>
+    /// <summary>An <c>Expression&lt;Func&lt;TEntity, TEntity&gt;&gt;</c> whose body is a new-expression or
+    /// member-init over plain entity property accesses and constants; only the projected members
+    /// are populated on the resulting hits.</summary>
     public required LambdaExpression Projection { get; init; }
 
     public IReadOnlyList<FilterClause> Filters { get; init; } = [];

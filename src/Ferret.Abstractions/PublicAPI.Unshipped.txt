@@ -543,8 +543,6 @@ Ferret.Abstractions.Models.MultiSearchEntityDefinition.EntityType.get -> System.
 Ferret.Abstractions.Models.MultiSearchEntityDefinition.EntityType.init -> void
 Ferret.Abstractions.Models.MultiSearchEntityDefinition.Filters.get -> System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Models.FilterClause!>!
 Ferret.Abstractions.Models.MultiSearchEntityDefinition.Filters.init -> void
-Ferret.Abstractions.Models.MultiSearchEntityDefinition.HitType.get -> System.Type!
-Ferret.Abstractions.Models.MultiSearchEntityDefinition.HitType.init -> void
 Ferret.Abstractions.Models.MultiSearchEntityDefinition.MultiSearchEntityDefinition() -> void
 Ferret.Abstractions.Models.MultiSearchEntityDefinition.Projection.get -> System.Linq.Expressions.LambdaExpression!
 Ferret.Abstractions.Models.MultiSearchEntityDefinition.Projection.init -> void
@@ -554,17 +552,9 @@ Ferret.Abstractions.Models.MultiSearchEntityOptions.MultiSearchEntityOptions() -
 Ferret.Abstractions.Models.MultiSearchGroup
 Ferret.Abstractions.Models.MultiSearchGroup.EntityType.get -> string!
 Ferret.Abstractions.Models.MultiSearchGroup.EntityType.init -> void
-Ferret.Abstractions.Models.MultiSearchGroup.Hits.get -> System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Models.MultiSearchHit!>!
+Ferret.Abstractions.Models.MultiSearchGroup.Hits.get -> System.Collections.Generic.IReadOnlyList<object!>!
 Ferret.Abstractions.Models.MultiSearchGroup.Hits.init -> void
 Ferret.Abstractions.Models.MultiSearchGroup.MultiSearchGroup() -> void
-Ferret.Abstractions.Models.MultiSearchHit
-Ferret.Abstractions.Models.MultiSearchHit.EntityType.get -> string!
-Ferret.Abstractions.Models.MultiSearchHit.EntityType.set -> void
-Ferret.Abstractions.Models.MultiSearchHit.Key.get -> string!
-Ferret.Abstractions.Models.MultiSearchHit.Key.set -> void
-Ferret.Abstractions.Models.MultiSearchHit.MultiSearchHit() -> void
-Ferret.Abstractions.Models.MultiSearchHit.Score.get -> double
-Ferret.Abstractions.Models.MultiSearchHit.Score.set -> void
 Ferret.Abstractions.Models.MultiSearchQuery
 Ferret.Abstractions.Models.MultiSearchQuery.Entities.get -> System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Models.MultiSearchEntityDefinition!>!
 Ferret.Abstractions.Models.MultiSearchQuery.Entities.init -> void
@@ -577,7 +567,7 @@ Ferret.Abstractions.Models.MultiSearchQuery.Types.get -> System.Collections.Gene
 Ferret.Abstractions.Models.MultiSearchQuery.Types.init -> void
 Ferret.Abstractions.Models.MultiSearchQueryBuilder
 Ferret.Abstractions.Models.MultiSearchQueryBuilder.Build() -> Ferret.Abstractions.Models.MultiSearchQuery!
-Ferret.Abstractions.Models.MultiSearchQueryBuilder.Entity<T, THit>(System.Linq.Expressions.Expression<System.Func<T!, THit!>!>! projection, System.Action<Ferret.Abstractions.Models.MultiSearchEntityOptions!>? configure = null) -> Ferret.Abstractions.Models.MultiSearchQueryBuilder!
+Ferret.Abstractions.Models.MultiSearchQueryBuilder.Entity<T>(System.Linq.Expressions.Expression<System.Func<T!, T!>!>! projection, System.Action<Ferret.Abstractions.Models.MultiSearchEntityOptions!>? configure = null) -> Ferret.Abstractions.Models.MultiSearchQueryBuilder!
 Ferret.Abstractions.Models.MultiSearchQueryBuilder.MultiSearchQueryBuilder() -> void
 Ferret.Abstractions.Models.MultiSearchQueryBuilder.PerEntityLimit(int limit) -> Ferret.Abstractions.Models.MultiSearchQueryBuilder!
 Ferret.Abstractions.Models.MultiSearchQueryBuilder.Search(string! term) -> Ferret.Abstractions.Models.MultiSearchQueryBuilder!
@@ -585,6 +575,7 @@ Ferret.Abstractions.Models.MultiSearchQueryBuilder.Types(params string![]! types
 Ferret.Abstractions.Models.MultiSearchResult
 Ferret.Abstractions.Models.MultiSearchResult.Groups.get -> System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Models.MultiSearchGroup!>!
 Ferret.Abstractions.Models.MultiSearchResult.Groups.init -> void
+Ferret.Abstractions.Models.MultiSearchResult.HitsOf<T>() -> System.Collections.Generic.IReadOnlyList<T!>!
 Ferret.Abstractions.Models.MultiSearchResult.MultiSearchResult() -> void
 Ferret.Abstractions.Querying.FerretQueryServiceMultiSearchExtensions
 Ferret.Abstractions.Querying.IFerretQueryService.MultiSearchAsync(Ferret.Abstractions.Models.MultiSearchQuery! query, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Ferret.Abstractions.Models.MultiSearchResult!>!

@@ -11,14 +11,9 @@ public class MultiSearchQueryBuilderTests
         public string Name { get; set; } = "";
     }
 
-    private sealed class FakeHit : MultiSearchHit
-    {
-        public string Title { get; set; } = "";
-    }
-
     private static MultiSearchQueryBuilder Valid() =>
         new MultiSearchQueryBuilder().Search("term")
-            .Entity<FakeEntity, FakeHit>(e => new FakeHit { Title = e.Name });
+            .Entity<FakeEntity>(e => new FakeEntity { Name = e.Name });
 
     [Fact]
     public void build_produces_query_with_defaults()
@@ -29,14 +24,13 @@ public class MultiSearchQueryBuilderTests
         q.Types.Should().BeNull();
         q.Entities.Should().ContainSingle()
             .Which.EntityType.Should().Be(typeof(FakeEntity));
-        q.Entities[0].HitType.Should().Be(typeof(FakeHit));
     }
 
     [Fact]
     public void blank_search_throws() =>
         FluentActions.Invoking(() => new MultiSearchQueryBuilder()
                 .Search("  ")
-                .Entity<FakeEntity, FakeHit>(e => new FakeHit { Title = e.Name })
+                .Entity<FakeEntity>(e => new FakeEntity { Name = e.Name })
                 .Build())
             .Should().Throw<InvalidOperationException>().WithMessage("*search*");
 
@@ -48,7 +42,7 @@ public class MultiSearchQueryBuilderTests
     [Fact]
     public void duplicate_entity_throws() =>
         FluentActions.Invoking(() => Valid()
-                .Entity<FakeEntity, FakeHit>(e => new FakeHit { Title = e.Name })
+                .Entity<FakeEntity>(e => new FakeEntity { Name = e.Name })
                 .Build())
             .Should().Throw<InvalidOperationException>().WithMessage("*FakeEntity*");
 
@@ -61,7 +55,7 @@ public class MultiSearchQueryBuilderTests
     public void filters_flow_to_definition()
     {
         var q = new MultiSearchQueryBuilder().Search("x")
-            .Entity<FakeEntity, FakeHit>(e => new FakeHit { Title = e.Name },
+            .Entity<FakeEntity>(e => new FakeEntity { Name = e.Name },
                 o => o.Filter(new FilterClause { Field = "Name", Operator = FilterOperator.Equals, Value = "a" }))
             .Build();
         q.Entities[0].Filters.Should().ContainSingle().Which.Field.Should().Be("Name");

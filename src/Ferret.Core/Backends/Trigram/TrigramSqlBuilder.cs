@@ -84,7 +84,7 @@ internal sealed class TrigramSqlBuilder
         if (props.Count == 0)
         {
             return new SearchSqlFragment(
-                $"SELECT {keyProjection}, 0.0 AS score, row_number() OVER (ORDER BY 1) AS rnk " +
+                $"SELECT {keyProjection}, row_number() OVER (ORDER BY 1) AS rnk " +
                 $"FROM {ctx.QuotedTable} WHERE 1 = 0",
                 []);
         }
@@ -95,7 +95,7 @@ internal sealed class TrigramSqlBuilder
         var sql = new StringBuilder();
         var parameters = new List<KeyValuePair<string, object?>>();
 
-        sql.AppendLine($"SELECT {keyProjection}, distance AS score, row_number() OVER (ORDER BY distance ASC, {keyProjection}) AS rnk");
+        sql.AppendLine($"SELECT {keyProjection}, row_number() OVER (ORDER BY distance ASC, {keyProjection}) AS rnk");
         sql.AppendLine("FROM (");
         sql.AppendLine($"  SELECT {srKeyProjection}, sr.distance FROM (");
         sql.AppendLine($"    SELECT {keyProjection}, MIN(distance) AS distance FROM (");

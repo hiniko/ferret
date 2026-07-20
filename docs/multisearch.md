@@ -6,29 +6,16 @@ type, no paging.
 
 ## Shape
 
-You define one hit class per entity, subclassing `MultiSearchHit`. The engine
-populates the base members (`EntityType`, `Key`, `Score`); your projection fills the
-rest. Projections are plain expressions — property accesses and constants only,
-translated straight to SQL columns.
+There are no hit DTOs: you project each entity into *itself*, selecting only the
+fields you want back. Hits are instances of your entity type with just those
+members populated — treat them as display data, never persist one.
 
 ```csharp
-public sealed class UserHit : MultiSearchHit
-{
-    public string Name { get; set; } = "";
-    public string? Email { get; set; }
-}
-
-public sealed class ProductHit : MultiSearchHit
-{
-    public string Name { get; set; } = "";
-    public string Sku { get; set; } = "";
-}
-
 var result = await queryService.MultiSearchAsync(q => q
     .Search("jon")
     .PerEntityLimit(5)
-    .Entity<User, UserHit>(u => new UserHit { Name = u.Name, Email = u.Email })
-    .Entity<Product, ProductHit>(p => new ProductHit { Name = p.Name, Sku = p.Sku },
+    .Entity<User>(u => new User { Id = u.Id, Name = u.Name, Email = u.Email })
+    .Entity<Product>(p => new Product { Id = p.Id, Name = p.Name, Sku = p.Sku },
         o => o.Filter(new FilterClause
         {
             Field = "Hidden", Operator = FilterOperator.Equals, Value = "false",
@@ -37,18 +24,20 @@ var result = await queryService.MultiSearchAsync(q => q
 foreach (var group in result.Groups)          // registration order
 {
     // group.EntityType — table name, e.g. "products"
-    // group.Hits — best-match first, runtime type is your concrete hit class
+    // group.Hits — best-match first; runtime type is the entity type
 }
+
+var users = result.HitsOf<User>();            // typed access, best-match first
 ```
 
+- Hits are ordered best-match first within each group; the order *is* the ranking.
+  There are no scores — backend-native scores aren't comparable across types
+  anyway, and consumers render in published order.
+- Want the key on a hit? Project it: `u => new User { Id = u.Id, … }`. Composite
+  keys are just more projected members.
 - `PerEntityLimit` caps each group independently (default 5). There is no overall
   ranking across types: groups are independent, so entities with different backends
-  can share one call and scores never compete across groups.
-- `Score` is backend-native: trigram scores are distances (0.0 = perfect match,
-  lower is better); fulltext scores are `ts_rank_cd` values (higher is better).
-  Order within a group is always correct regardless.
-- `Key` is the string-encoded primary key; composite key parts are joined with
-  U+001F.
+  can share one call.
 - Per-entity `Filter` clauses use the same `[Filterable]` fields and operators as
   single-entity queries. Filters apply after the per-arm top-k ranking, so a
   heavily filtered entity can return fewer than `PerEntityLimit` hits.
@@ -63,8 +52,8 @@ foreach (var group in result.Groups)          // registration order
 ```csharp
 app.MapFerretMultiSearch("/api/search", o => o
     .WithLimits(defaultPerEntityLimit: 5, maxPerEntityLimit: 25)
-    .Entity<User, UserHit>(u => new UserHit { Name = u.Name, Email = u.Email })
-    .Entity<Product, ProductHit>(p => new ProductHit { Name = p.Name, Sku = p.Sku }));
+    .Entity<User>(u => new User { Id = u.Id, Name = u.Name, Email = u.Email })
+    .Entity<Product>(p => new Product { Id = p.Id, Name = p.Name, Sku = p.Sku }));
 ```
 
 `GET /api/search?q=jon&types=users,products&limit=5` →
@@ -73,30 +62,31 @@ app.MapFerretMultiSearch("/api/search", o => o
 {
   "groups": [
     { "entityType": "users",
-      "hits": [ { "entityType": "users", "key": "…", "score": 0.15,
-                  "name": "Jon Snow", "email": "jon@wall.org" } ] },
+      "hits": [ { "id": "…", "name": "Jon Snow", "email": "jon@wall.org" } ] },
     { "entityType": "products", "hits": [] }
   ]
 }
 ```
 
-Hits serialize by their runtime type — the concrete hit properties appear directly,
-`entityType` is the discriminator, no synthetic `$type` is emitted. Blank `q`,
+Only the projected members go on the wire (camelCased) — unprojected entity
+properties are never serialized, so a partially-populated entity never leaks
+default values into the response. Endpoint projections must be member-inits
+(`u => new User { … }`) so the field names are known at map time. Blank `q`,
 `limit` over the max, or an unknown `types` name → 400 ProblemDetails.
 
 ## Execution model
 
 Each entity becomes one ranked-arm statement (the same per-backend ranked-candidate
-SQL hybrid search uses, plus the projected display columns), executed together as a
-single `DbBatch` — one round-trip, one result set per group, native column types
-throughout.
+SQL hybrid search uses) joined to the base table for the projected columns, executed
+together as a single `DbBatch` — one round-trip, one result set per group, native
+column types throughout.
 
 ## v1 limits
 
 - Backends: trigram and fulltext arms only. A vector or hybrid-configured entity in
   a multisearch throws `NotSupportedException`. Single-backend-per-entity rules
   match normal search (`AsPrimary()` for multi-backend entities).
-- No offset/cursor paging, no total counts, no `MatchInfo`, no `CandidateKeys`.
-- Projections: `new THit(...)` or member-init over direct entity properties and
-  constants — no method calls, no navigation properties, no assigning the
-  engine-owned base members.
+- No offset/cursor paging, no total counts, no scores, no `MatchInfo`, no
+  `CandidateKeys`.
+- Projections: member-init (or constructor call, core-only) over direct entity
+  properties and constants — no method calls, no navigation properties.

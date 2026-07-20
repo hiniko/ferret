@@ -76,14 +76,23 @@ public static class MultiSearchEndpointRouteBuilderExtensions
             try
             {
                 var result = await service.MultiSearchAsync(query, ct);
-                // Hits are exposed as object so each serializes by its runtime (concrete) hit type;
-                // EntityType on the base is the discriminator, no synthetic $type is emitted.
+                // Hits are partially-populated entities; only the projected members go on the wire,
+                // looked up by the hit's runtime type. entityType on the group is the discriminator.
                 return Results.Json(new
                 {
                     groups = result.Groups.Select(g => new
                     {
                         entityType = g.EntityType,
-                        hits = (IEnumerable<object>)g.Hits,
+                        hits = g.Hits.Select(h =>
+                        {
+                            var fields = options.HitShapes[h.GetType()];
+                            var shaped = new Dictionary<string, object?>(fields.Count);
+                            foreach (var field in fields)
+                            {
+                                shaped[field.JsonName] = field.Getter(h);
+                            }
+                            return shaped;
+                        }),
                     }),
                 });
             }

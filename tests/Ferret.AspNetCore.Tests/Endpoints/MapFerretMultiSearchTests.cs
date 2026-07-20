@@ -20,28 +20,24 @@ public class MapFerretMultiSearchTests : IClassFixture<MapFerretMultiSearchTests
 
     public sealed class Author
     {
+        public Author() { }
+
+        public Author(string name) => Name = name;
+
+        public Guid Id { get; set; }
         public string Name { get; set; } = "";
         public string Email { get; set; } = "";
+        public bool Hidden { get; set; }
     }
 
     public sealed class Book
     {
         public string Title { get; set; } = "";
-    }
-
-    public sealed class AuthorHit : MultiSearchHit
-    {
-        public string Name { get; set; } = "";
-        public string? Email { get; set; }
-    }
-
-    public sealed class BookHit : MultiSearchHit
-    {
-        public string Title { get; set; } = "";
+        public string Isbn { get; set; } = "";
     }
 
     [Fact]
-    public async Task Happy_path_returns_grouped_polymorphic_hits()
+    public async Task Happy_path_returns_grouped_hits_with_projected_fields_only()
     {
         _factory.Service.Reset();
         var client = _factory.CreateClient();
@@ -59,12 +55,11 @@ public class MapFerretMultiSearchTests : IClassFixture<MapFerretMultiSearchTests
         var authorHit = groups[0].GetProperty("hits")[0];
         authorHit.GetProperty("name").GetString().Should().Be("Moby Dickens");
         authorHit.GetProperty("email").GetString().Should().Be("moby@sea.org");
-        authorHit.GetProperty("entityType").GetString().Should().Be("authors");
-        authorHit.GetProperty("key").GetString().Should().Be("a1");
-        authorHit.GetProperty("score").GetDouble().Should().Be(0.1);
+        authorHit.EnumerateObject().Should().HaveCount(2, "only projected members go on the wire");
 
         var bookHit = groups[1].GetProperty("hits")[0];
         bookHit.GetProperty("title").GetString().Should().Be("Moby-Dick");
+        bookHit.EnumerateObject().Should().HaveCount(1);
     }
 
     [Fact]
@@ -112,6 +107,14 @@ public class MapFerretMultiSearchTests : IClassFixture<MapFerretMultiSearchTests
         problem.GetProperty("detail").GetString().Should().Contain("nope");
     }
 
+    [Fact]
+    public void Ctor_form_projection_is_rejected_at_map_time()
+    {
+        var options = new MultiSearchEndpointOptions();
+        FluentActions.Invoking(() => options.Entity<Author>(a => new Author(a.Name)))
+            .Should().Throw<InvalidOperationException>().WithMessage("*member-init*");
+    }
+
     public sealed class FakeMultiSearchService : IFerretQueryService
     {
         public MultiSearchQuery? LastQuery { get; private set; }
@@ -134,26 +137,12 @@ public class MapFerretMultiSearchTests : IClassFixture<MapFerretMultiSearchTests
                     new MultiSearchGroup
                     {
                         EntityType = "authors",
-                        Hits =
-                        [
-                            new AuthorHit
-                            {
-                                EntityType = "authors", Key = "a1", Score = 0.1,
-                                Name = "Moby Dickens", Email = "moby@sea.org",
-                            },
-                        ],
+                        Hits = [new Author { Name = "Moby Dickens", Email = "moby@sea.org" }],
                     },
                     new MultiSearchGroup
                     {
                         EntityType = "books",
-                        Hits =
-                        [
-                            new BookHit
-                            {
-                                EntityType = "books", Key = "b1", Score = 0.2,
-                                Title = "Moby-Dick",
-                            },
-                        ],
+                        Hits = [new Book { Title = "Moby-Dick" }],
                     },
                 ],
             });
@@ -190,8 +179,8 @@ public class MapFerretMultiSearchTests : IClassFixture<MapFerretMultiSearchTests
             _app = builder.Build();
             _app.MapFerretMultiSearch("/api/search", o => o
                 .WithLimits(defaultPerEntityLimit: 5, maxPerEntityLimit: 10)
-                .Entity<Author, AuthorHit>(a => new AuthorHit { Name = a.Name, Email = a.Email })
-                .Entity<Book, BookHit>(b => new BookHit { Title = b.Title }));
+                .Entity<Author>(a => new Author { Name = a.Name, Email = a.Email })
+                .Entity<Book>(b => new Book { Title = b.Title }));
             await _app.StartAsync();
         }
 

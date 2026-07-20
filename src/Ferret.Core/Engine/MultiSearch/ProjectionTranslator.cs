@@ -9,8 +9,9 @@ internal sealed class CompiledProjection
     /// <summary>Slot columns in read order; slot i's value feeds the i-th entity-property reference in the projection.</summary>
     public required IReadOnlyList<string> ColumnNames { get; init; }
 
-    /// <summary>Builds a hit from DBNull-normalized slot values (same order as <see cref="ColumnNames"/>).</summary>
-    public required Func<object?[], MultiSearchHit> Materializer { get; init; }
+    /// <summary>Builds a partially-populated entity instance from DBNull-normalized slot values
+    /// (same order as <see cref="ColumnNames"/>).</summary>
+    public required Func<object?[], object> Materializer { get; init; }
 }
 
 /// <summary>
@@ -25,6 +26,11 @@ internal static class ProjectionTranslator
         {
             throw new NotSupportedException(
                 $"Multisearch projection for {model.ClrType.Name} must be a new-expression or member-init; got: {projection.Body}");
+        }
+        if (projection.Body.Type != model.ClrType)
+        {
+            throw new NotSupportedException(
+                $"Multisearch projection for {model.ClrType.Name} must construct {model.ClrType.Name}; got: {projection.Body.Type.Name}");
         }
 
         var entityParam = projection.Parameters[0];
@@ -41,17 +47,12 @@ internal static class ProjectionTranslator
                     throw new NotSupportedException(
                         $"Multisearch projection supports simple member assignments only; got: {binding}");
                 }
-                if (binding.Member.DeclaringType == typeof(MultiSearchHit))
-                {
-                    throw new NotSupportedException(
-                        $"Multisearch projection may not assign engine-owned member '{binding.Member.Name}'.");
-                }
             }
         }
 
         var rewrittenBody = visitor.Visit(projection.Body);
-        var materializer = Expression.Lambda<Func<object?[], MultiSearchHit>>(
-            Expression.Convert(rewrittenBody, typeof(MultiSearchHit)), valuesParam).Compile();
+        var materializer = Expression.Lambda<Func<object?[], object>>(
+            Expression.Convert(rewrittenBody, typeof(object)), valuesParam).Compile();
 
         return new CompiledProjection { ColumnNames = columns, Materializer = materializer };
     }

@@ -28,11 +28,10 @@ public sealed class MultiSearchQueryBuilder
         return this;
     }
 
-    public MultiSearchQueryBuilder Entity<T, THit>(
-        Expression<Func<T, THit>> projection,
+    public MultiSearchQueryBuilder Entity<T>(
+        Expression<Func<T, T>> projection,
         Action<MultiSearchEntityOptions>? configure = null)
         where T : class
-        where THit : MultiSearchHit
     {
         ArgumentNullException.ThrowIfNull(projection);
         var options = new MultiSearchEntityOptions();
@@ -40,7 +39,6 @@ public sealed class MultiSearchQueryBuilder
         _entities.Add(new MultiSearchEntityDefinition
         {
             EntityType = typeof(T),
-            HitType = typeof(THit),
             Projection = projection,
             Filters = options.Filters,
         });

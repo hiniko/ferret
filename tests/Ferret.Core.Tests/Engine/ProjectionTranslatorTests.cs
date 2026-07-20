@@ -11,105 +11,104 @@ public class ProjectionTranslatorTests
     [SearchableEntity]
     private sealed class Author : ISearchableEntity<Guid>
     {
-        public Guid Id { get; init; }
-        [Searchable] public string Name { get; init; } = "";
-        public string? Email { get; init; }
-        public int Age { get; init; }
-        public Author? Friend { get; init; }
-    }
+        public Author() { }
 
-    private sealed class AuthorHit : MultiSearchHit
-    {
-        public AuthorHit() { }
-
-        public AuthorHit(string title, string? subtitle)
+        public Author(string name, string? email)
         {
-            Title = title;
-            Subtitle = subtitle;
+            Name = name;
+            Email = email;
         }
 
-        public string Title { get; set; } = "";
-        public string? Subtitle { get; set; }
+        public Guid Id { get; set; }
+        [Searchable] public string Name { get; set; } = "";
+        public string? Email { get; set; }
         public int Age { get; set; }
         public string Badge { get; set; } = "";
+        public Author? Friend { get; set; }
+    }
+
+    private sealed class NotTheEntity
+    {
     }
 
     private static EntityModel Model() => EntityRegistry
         .Build([typeof(Author)], new SnakeCaseNamingStrategy())
         .Get<Author>();
 
-    private static CompiledProjection Translate(Expression<Func<Author, AuthorHit>> projection) =>
+    private static CompiledProjection Translate(Expression<Func<Author, Author>> projection) =>
         ProjectionTranslator.Translate(projection, Model());
 
     [Fact]
     public void member_init_maps_properties_to_columns_in_binding_order()
     {
-        var p = Translate(a => new AuthorHit { Title = a.Name, Subtitle = a.Email, Age = a.Age });
+        var p = Translate(a => new Author { Name = a.Name, Email = a.Email, Age = a.Age });
         p.ColumnNames.Should().Equal("name", "email", "age");
     }
 
     [Fact]
-    public void member_init_materializes_hit()
+    public void member_init_materializes_partial_entity()
     {
-        var p = Translate(a => new AuthorHit { Title = a.Name, Subtitle = a.Email });
-        var hit = (AuthorHit)p.Materializer(["Jane", "jane@x.com"]);
-        hit.Title.Should().Be("Jane");
-        hit.Subtitle.Should().Be("jane@x.com");
+        var p = Translate(a => new Author { Name = a.Name, Email = a.Email });
+        var hit = (Author)p.Materializer(["Jane", "jane@x.com"]);
+        hit.Name.Should().Be("Jane");
+        hit.Email.Should().Be("jane@x.com");
+        hit.Age.Should().Be(0);
     }
 
     [Fact]
     public void ctor_form_maps_arguments_to_columns()
     {
-        var p = Translate(a => new AuthorHit(a.Name, a.Email));
+        var p = Translate(a => new Author(a.Name, a.Email));
         p.ColumnNames.Should().Equal("name", "email");
-        var hit = (AuthorHit)p.Materializer(["Jane", null]);
-        hit.Title.Should().Be("Jane");
-        hit.Subtitle.Should().BeNull();
+        var hit = (Author)p.Materializer(["Jane", null]);
+        hit.Name.Should().Be("Jane");
+        hit.Email.Should().BeNull();
     }
 
     [Fact]
     public void constant_binding_produces_no_column()
     {
-        var p = Translate(a => new AuthorHit { Title = a.Name, Badge = "author" });
+        var p = Translate(a => new Author { Name = a.Name, Badge = "author" });
         p.ColumnNames.Should().Equal("name");
-        var hit = (AuthorHit)p.Materializer(["Jane"]);
+        var hit = (Author)p.Materializer(["Jane"]);
         hit.Badge.Should().Be("author");
     }
 
     [Fact]
     public void null_value_materializes_null_property()
     {
-        var p = Translate(a => new AuthorHit { Title = a.Name, Subtitle = a.Email });
-        var hit = (AuthorHit)p.Materializer(["Jane", null]);
-        hit.Subtitle.Should().BeNull();
+        var p = Translate(a => new Author { Name = a.Name, Email = a.Email });
+        var hit = (Author)p.Materializer(["Jane", null]);
+        hit.Email.Should().BeNull();
     }
 
     [Fact]
     public void method_call_throws()
     {
-        FluentActions.Invoking(() => Translate(a => new AuthorHit { Title = a.Name.ToUpper() }))
+        FluentActions.Invoking(() => Translate(a => new Author { Name = a.Name.ToUpper() }))
             .Should().Throw<NotSupportedException>().WithMessage("*ToUpper*");
     }
 
     [Fact]
     public void nested_member_throws()
     {
-        FluentActions.Invoking(() => Translate(a => new AuthorHit { Title = a.Friend!.Name }))
+        FluentActions.Invoking(() => Translate(a => new Author { Name = a.Friend!.Name }))
             .Should().Throw<NotSupportedException>();
     }
 
     [Fact]
-    public void assigning_engine_owned_member_throws()
+    public void constructing_a_different_type_throws()
     {
-        FluentActions.Invoking(() => Translate(a => new AuthorHit { Title = a.Name, Score = 1.0 }))
-            .Should().Throw<NotSupportedException>().WithMessage("*Score*");
+        LambdaExpression projection = (Expression<Func<Author, NotTheEntity>>)(a => new NotTheEntity());
+        FluentActions.Invoking(() => ProjectionTranslator.Translate(projection, Model()))
+            .Should().Throw<NotSupportedException>().WithMessage("*must construct Author*");
     }
 
     [Fact]
     public void non_new_body_throws()
     {
-        var hit = new AuthorHit();
-        FluentActions.Invoking(() => Translate(a => hit))
+        var existing = new Author();
+        FluentActions.Invoking(() => Translate(a => existing))
             .Should().Throw<NotSupportedException>();
     }
 }

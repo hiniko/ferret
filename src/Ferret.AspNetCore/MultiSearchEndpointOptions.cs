@@ -1,12 +1,20 @@
 using System.Linq.Expressions;
+using System.Reflection;
+using System.Text.Json;
 using Ferret.Abstractions.Models;
 
 namespace Ferret.AspNetCore;
 
-/// <summary>Map-time configuration for a multisearch endpoint: the entity/hit shapes and per-entity limits.</summary>
+/// <summary>Map-time configuration for a multisearch endpoint: the entity projections and per-entity limits.</summary>
 public sealed class MultiSearchEndpointOptions
 {
+    internal sealed record HitField(string JsonName, Func<object, object?> Getter);
+
     internal List<MultiSearchEntityDefinition> Definitions { get; } = [];
+
+    /// <summary>Per entity CLR type, the projected members to emit on the wire (camelCase name + getter).
+    /// Only these appear in the response — unprojected entity properties are never serialized.</summary>
+    internal Dictionary<Type, IReadOnlyList<HitField>> HitShapes { get; } = [];
 
     internal int DefaultPerEntityLimit { get; private set; } = 5;
 
@@ -25,22 +33,39 @@ public sealed class MultiSearchEndpointOptions
         return this;
     }
 
-    public MultiSearchEndpointOptions Entity<T, THit>(
-        Expression<Func<T, THit>> projection,
+    public MultiSearchEndpointOptions Entity<T>(
+        Expression<Func<T, T>> projection,
         Action<MultiSearchEntityOptions>? configure = null)
         where T : class
-        where THit : MultiSearchHit
     {
         ArgumentNullException.ThrowIfNull(projection);
+        if (projection.Body is not MemberInitExpression init)
+        {
+            throw new InvalidOperationException(
+                $"MapFerretMultiSearch projections must be member-inits (u => new {typeof(T).Name} {{ … }}) so response field names are known.");
+        }
+
         var options = new MultiSearchEntityOptions();
         configure?.Invoke(options);
         Definitions.Add(new MultiSearchEntityDefinition
         {
             EntityType = typeof(T),
-            HitType = typeof(THit),
             Projection = projection,
             Filters = options.Filters,
         });
+        HitShapes[typeof(T)] = init.Bindings
+            .Select(b => new HitField(
+                JsonNamingPolicy.CamelCase.ConvertName(b.Member.Name),
+                CompileGetter<T>(b.Member)))
+            .ToList();
         return this;
+    }
+
+    private static Func<object, object?> CompileGetter<T>(MemberInfo member)
+    {
+        var obj = Expression.Parameter(typeof(object), "o");
+        var access = Expression.MakeMemberAccess(Expression.Convert(obj, typeof(T)), member);
+        return Expression.Lambda<Func<object, object?>>(
+            Expression.Convert(access, typeof(object)), obj).Compile();
     }
 }
