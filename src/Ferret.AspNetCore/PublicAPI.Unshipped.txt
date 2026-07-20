@@ -99,3 +99,14 @@ Ferret.AspNetCore.MultiSearchEndpointOptions.Tag.set -> void
 Ferret.AspNetCore.MultiSearchEndpointOptions.WithLimits(int defaultPerEntityLimit, int maxPerEntityLimit) -> Ferret.AspNetCore.MultiSearchEndpointOptions!
 Ferret.AspNetCore.MultiSearchEndpointRouteBuilderExtensions
 static Ferret.AspNetCore.MultiSearchEndpointRouteBuilderExtensions.MapFerretMultiSearch(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder! endpoints, string! pattern, System.Action<Ferret.AspNetCore.MultiSearchEndpointOptions!>! configure) -> Microsoft.AspNetCore.Builder.RouteHandlerBuilder!
+Ferret.AspNetCore.MultiSearchApiGroup
+Ferret.AspNetCore.MultiSearchApiGroup.EntityType.get -> string!
+Ferret.AspNetCore.MultiSearchApiGroup.EntityType.init -> void
+Ferret.AspNetCore.MultiSearchApiGroup.Hits.get -> System.Collections.Generic.IReadOnlyList<System.Collections.Generic.IReadOnlyDictionary<string!, object?>!>!
+Ferret.AspNetCore.MultiSearchApiGroup.Hits.init -> void
+Ferret.AspNetCore.MultiSearchApiGroup.MultiSearchApiGroup() -> void
+Ferret.AspNetCore.MultiSearchApiResponse
+Ferret.AspNetCore.MultiSearchApiResponse.Groups.get -> System.Collections.Generic.IReadOnlyList<Ferret.AspNetCore.MultiSearchApiGroup!>!
+Ferret.AspNetCore.MultiSearchApiResponse.Groups.init -> void
+Ferret.AspNetCore.MultiSearchApiResponse.MultiSearchApiResponse() -> void
+Ferret.AspNetCore.MultiSearchEndpointOptions.ShapeResponse(System.Func<Ferret.Abstractions.Models.MultiSearchResult!, object!>! shaper) -> Ferret.AspNetCore.MultiSearchEndpointOptions!

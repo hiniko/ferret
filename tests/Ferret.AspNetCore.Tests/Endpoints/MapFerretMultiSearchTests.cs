@@ -27,6 +27,7 @@ public class MapFerretMultiSearchTests : IClassFixture<MapFerretMultiSearchTests
         public Guid Id { get; set; }
         public string Name { get; set; } = "";
         public string Email { get; set; } = "";
+        public string DisplayName { get; set; } = "";
         public bool Hidden { get; set; }
     }
 
@@ -108,6 +109,55 @@ public class MapFerretMultiSearchTests : IClassFixture<MapFerretMultiSearchTests
     }
 
     [Fact]
+    public async Task Hit_keys_follow_the_apps_json_naming_policy()
+    {
+        await using var app = await CreateAppAsync(
+            b => b.Services.ConfigureHttpJsonOptions(o =>
+                o.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower),
+            o => o.Entity<Author>(a => new Author { Name = a.Name, DisplayName = a.DisplayName }));
+
+        var response = await app.GetTestClient().GetAsync("/api/search?q=moby");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        var group = doc.RootElement.GetProperty("groups")[0];
+        group.GetProperty("entity_type").GetString().Should().Be("authors");
+        var hit = group.GetProperty("hits")[0];
+        hit.GetProperty("name").GetString().Should().Be("Moby Dickens");
+        hit.GetProperty("display_name").GetString().Should().Be("Moby D.");
+    }
+
+    [Fact]
+    public async Task Custom_shaper_owns_the_response()
+    {
+        await using var app = await CreateAppAsync(null, o => o
+            .Entity<Author>(a => new Author { Name = a.Name })
+            .ShapeResponse(r => new { total = r.Groups.Count, names = r.HitsOf<Author>().Select(a => a.Name) }));
+
+        var response = await app.GetTestClient().GetAsync("/api/search?q=moby");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        doc.RootElement.GetProperty("total").GetInt32().Should().Be(1);
+        doc.RootElement.GetProperty("names")[0].GetString().Should().Be("Moby Dickens");
+    }
+
+    private static async Task<WebApplication> CreateAppAsync(
+        Action<WebApplicationBuilder>? configureBuilder,
+        Action<MultiSearchEndpointOptions> configureOptions)
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.WebHost.UseTestServer();
+        builder.Services.AddRouting();
+        builder.Services.AddSingleton<IFerretQueryService>(new FakeMultiSearchService());
+        configureBuilder?.Invoke(builder);
+        var app = builder.Build();
+        app.MapFerretMultiSearch("/api/search", configureOptions);
+        await app.StartAsync();
+        return app;
+    }
+
+    [Fact]
     public void Ctor_form_projection_is_rejected_at_map_time()
     {
         var options = new MultiSearchEndpointOptions();
@@ -130,22 +180,24 @@ public class MapFerretMultiSearchTests : IClassFixture<MapFerretMultiSearchTests
                 throw new ArgumentException("Unknown multisearch type(s): nope. Valid types: authors, books.");
             }
             LastQuery = query;
-            return Task.FromResult(new MultiSearchResult
+            var groups = new List<MultiSearchGroup>();
+            if (query.Entities.Any(e => e.EntityType == typeof(Author)))
             {
-                Groups =
-                [
-                    new MultiSearchGroup
-                    {
-                        EntityType = "authors",
-                        Hits = [new Author { Name = "Moby Dickens", Email = "moby@sea.org" }],
-                    },
-                    new MultiSearchGroup
-                    {
-                        EntityType = "books",
-                        Hits = [new Book { Title = "Moby-Dick" }],
-                    },
-                ],
-            });
+                groups.Add(new MultiSearchGroup
+                {
+                    EntityType = "authors",
+                    Hits = [new Author { Name = "Moby Dickens", Email = "moby@sea.org", DisplayName = "Moby D." }],
+                });
+            }
+            if (query.Entities.Any(e => e.EntityType == typeof(Book)))
+            {
+                groups.Add(new MultiSearchGroup
+                {
+                    EntityType = "books",
+                    Hits = [new Book { Title = "Moby-Dick" }],
+                });
+            }
+            return Task.FromResult(new MultiSearchResult { Groups = groups });
         }
 
         public Task<OffsetResult<T>> SearchOffsetAsync<T, TKey>(

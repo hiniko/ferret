@@ -68,11 +68,23 @@ app.MapFerretMultiSearch("/api/search", o => o
 }
 ```
 
-Only the projected members go on the wire (camelCased) — unprojected entity
-properties are never serialized, so a partially-populated entity never leaks
-default values into the response. Endpoint projections must be member-inits
-(`u => new User { … }`) so the field names are known at map time. Blank `q`,
-`limit` over the max, or an unknown `types` name → 400 ProblemDetails.
+The default response is `MultiSearchApiResponse` (`Produces` documents it). Only
+the projected members go on the wire — unprojected entity properties are never
+serialized, so a partially-populated entity never leaks default values into the
+response. Hit keys follow the app's configured JSON property naming policy
+(camelCase in a default web app, snake_case if you configure it), matching the
+envelope. Endpoint projections must be member-inits (`u => new User { … }`) so
+the field names are known at map time. Blank `q`, `limit` over the max, or an
+unknown `types` name → 400 ProblemDetails.
+
+Need a different envelope? `ShapeResponse` hands you the raw `MultiSearchResult`
+(hits are partially-populated entities) and serializes whatever you return:
+
+```csharp
+app.MapFerretMultiSearch("/api/search", o => o
+    .Entity<User>(u => new User { Id = u.Id, Name = u.Name })
+    .ShapeResponse(r => new { users = r.HitsOf<User>().Select(u => new { u.Id, u.Name }) }));
+```
 
 ## Execution model
 

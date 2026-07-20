@@ -76,24 +76,32 @@ public static class MultiSearchEndpointRouteBuilderExtensions
             try
             {
                 var result = await service.MultiSearchAsync(query, ct);
-                // Hits are partially-populated entities; only the projected members go on the wire,
-                // looked up by the hit's runtime type. entityType on the group is the discriminator.
-                return Results.Json(new
+                if (options.Shaper is not null)
                 {
-                    groups = result.Groups.Select(g => new
+                    return Results.Json(options.Shaper(result));
+                }
+
+                // Hits are partially-populated entities; only the projected members go on the wire,
+                // looked up by the hit's runtime type and named per the app's JSON naming policy.
+                var policy = httpContext.RequestServices
+                    .GetService<IOptions<Microsoft.AspNetCore.Http.Json.JsonOptions>>()
+                    ?.Value.SerializerOptions.PropertyNamingPolicy;
+                return Results.Json(new MultiSearchApiResponse
+                {
+                    Groups = result.Groups.Select(g => new MultiSearchApiGroup
                     {
-                        entityType = g.EntityType,
-                        hits = g.Hits.Select(h =>
+                        EntityType = g.EntityType,
+                        Hits = g.Hits.Select(IReadOnlyDictionary<string, object?> (h) =>
                         {
                             var fields = options.HitShapes[h.GetType()];
                             var shaped = new Dictionary<string, object?>(fields.Count);
                             foreach (var field in fields)
                             {
-                                shaped[field.JsonName] = field.Getter(h);
+                                shaped[policy?.ConvertName(field.MemberName) ?? field.MemberName] = field.Getter(h);
                             }
                             return shaped;
-                        }),
-                    }),
+                        }).ToList(),
+                    }).ToList(),
                 });
             }
             catch (ArgumentException ex)
@@ -106,8 +114,15 @@ public static class MultiSearchEndpointRouteBuilderExtensions
             .WithName(options.Name ?? "Ferret_MultiSearch")
             .WithTags(options.Tag ?? "Ferret")
             .WithSummary(options.Summary ?? "Search multiple entity types in one call; grouped top-k hits per type.")
-            .Produces<MultiSearchResult>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest);
+        if (options.Shaper is null)
+        {
+            builder.Produces<MultiSearchApiResponse>(StatusCodes.Status200OK);
+        }
+        else
+        {
+            builder.Produces(StatusCodes.Status200OK);
+        }
 
         if (endpoints.ServiceProvider.GetService<IConfigureOptions<OpenApiOptions>>() is not null)
         {

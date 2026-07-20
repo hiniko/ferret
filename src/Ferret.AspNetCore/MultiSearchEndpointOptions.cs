@@ -1,6 +1,5 @@
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text.Json;
 using Ferret.Abstractions.Models;
 
 namespace Ferret.AspNetCore;
@@ -8,13 +7,16 @@ namespace Ferret.AspNetCore;
 /// <summary>Map-time configuration for a multisearch endpoint: the entity projections and per-entity limits.</summary>
 public sealed class MultiSearchEndpointOptions
 {
-    internal sealed record HitField(string JsonName, Func<object, object?> Getter);
+    internal sealed record HitField(string MemberName, Func<object, object?> Getter);
 
     internal List<MultiSearchEntityDefinition> Definitions { get; } = [];
 
-    /// <summary>Per entity CLR type, the projected members to emit on the wire (camelCase name + getter).
-    /// Only these appear in the response — unprojected entity properties are never serialized.</summary>
+    /// <summary>Per entity CLR type, the projected members to emit on the wire (raw member name + getter;
+    /// the endpoint applies the app's JSON naming policy at request time). Only these appear in the
+    /// response — unprojected entity properties are never serialized.</summary>
     internal Dictionary<Type, IReadOnlyList<HitField>> HitShapes { get; } = [];
+
+    internal Func<MultiSearchResult, object>? Shaper { get; private set; }
 
     internal int DefaultPerEntityLimit { get; private set; } = 5;
 
@@ -54,10 +56,17 @@ public sealed class MultiSearchEndpointOptions
             Filters = options.Filters,
         });
         HitShapes[typeof(T)] = init.Bindings
-            .Select(b => new HitField(
-                JsonNamingPolicy.CamelCase.ConvertName(b.Member.Name),
-                CompileGetter<T>(b.Member)))
+            .Select(b => new HitField(b.Member.Name, CompileGetter<T>(b.Member)))
             .ToList();
+        return this;
+    }
+
+    /// <summary>Replaces the default <see cref="MultiSearchApiResponse"/> wire shape: receives the raw
+    /// engine result (hits are partially-populated entities) and returns the object to serialize.</summary>
+    public MultiSearchEndpointOptions ShapeResponse(Func<MultiSearchResult, object> shaper)
+    {
+        ArgumentNullException.ThrowIfNull(shaper);
+        Shaper = shaper;
         return this;
     }
 
