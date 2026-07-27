@@ -52,9 +52,44 @@ jobs:
       - run: dotnet nuget push "./artifacts/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
       - run: dotnet nuget push "./artifacts/*.snupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
-      # The GitHub release doubles as the changelog: notes are auto-generated from
-      # the commit log since the previous tag.
+      # The GitHub release doubles as the changelog. --generate-notes only lists merged
+      # PRs, and this repo commits straight to main — so build the notes from the commit
+      # log between the previous tag and this one, grouped by conventional-commit type.
+      - name: Build release notes
+        run: |
+          prev=$(git describe --tags --abbrev=0 "${{ inputs.tag }}^" 2>/dev/null || true)
+          range=${prev:+$prev..}${{ inputs.tag }}
+          repo_url=${{ github.server_url }}/${{ github.repository }}
+
+          section() {  # $1 = heading, $2 = conventional-commit type prefix regex
+            body=$(git log --no-merges --reverse --format='%H%x09%s' "$range" |
+              awk -F'\t' -v re="^$2(\\(.+\\))?!?: " -v url="$repo_url" '
+                $2 ~ re { sub(re, "", $2); printf "- %s ([%s](%s/commit/%s))\n", $2, substr($1,1,7), url, $1 }')
+            [ -n "$body" ] && printf '### %s\n\n%s\n\n' "$1" "$body" >> notes.md
+          }
+
+          section 'Features'       'feat'
+          section 'Fixes'          'fix'
+          section 'Performance'    'perf'
+          section 'Refactoring'    'refactor'
+          section 'Documentation'  'docs'
+          section 'Build & CI'     '(build|chore|ci)'
+          section 'Tests'          'test'
+
+          # Anything that does not parse as a conventional commit still belongs in the notes.
+          other=$(git log --no-merges --reverse --format='%H%x09%s' "$range" |
+            awk -F'\t' -v url="$repo_url" '
+              $2 !~ /^(feat|fix|perf|refactor|docs|build|chore|ci|test|style)(\(.+\))?!?: / {
+                printf "- %s ([%s](%s/commit/%s))\n", $2, substr($1,1,7), url, $1 }')
+          [ -n "$other" ] && printf '### Other\n\n%s\n\n' "$other" >> notes.md
+
+          [ -s notes.md ] || echo "_No changes recorded._" >> notes.md
+          [ -n "$prev" ] && printf '**Full Changelog**: %s/compare/%s...%s\n' "$repo_url" "$prev" "${{ inputs.tag }}" >> notes.md
+
+          echo "--- release notes ---"
+          cat notes.md
+
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${{ inputs.tag }}" --verify-tag --generate-notes --title "${{ inputs.tag }}"
+        run: gh release create "${{ inputs.tag }}" --verify-tag --notes-file notes.md --title "${{ inputs.tag }}"
