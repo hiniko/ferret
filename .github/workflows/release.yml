@@ -61,30 +61,35 @@ jobs:
           range=${prev:+$prev..}${{ inputs.tag }}
           repo_url=${{ github.server_url }}/${{ github.repository }}
 
-          section() {  # $1 = heading, $2 = conventional-commit type prefix regex
-            body=$(git log --no-merges --reverse --format='%H%x09%s' "$range" |
-              awk -F'\t' -v re="^$2(\\(.+\\))?!?: " -v url="$repo_url" '
+          # Types that are pure repo plumbing (ci, chore, build, test, style) are collected
+          # but never rendered — a consumer reading the release does not care about them.
+          log=$(git log --no-merges --reverse --format='%H%x09%s' "$range")
+
+          # Note: every conditional below ends in `|| true`. GitHub runs `run:` under `bash -e`,
+          # where a bare `[ .. ] && ..` that evaluates false becomes a nonzero step exit.
+          section() {  # $1 = heading, $2 = alternation of conventional-commit types
+            body=$(printf '%s\n' "$log" |
+              awk -F'\t' -v types="$2" -v url="$repo_url" '
+                { re = "^(" types ")(\\(.+\\))?!?: " }
                 $2 ~ re { sub(re, "", $2); printf "- %s ([%s](%s/commit/%s))\n", $2, substr($1,1,7), url, $1 }')
-            [ -n "$body" ] && printf '### %s\n\n%s\n\n' "$1" "$body" >> notes.md
+            [ -n "$body" ] && printf '### %s\n\n%s\n\n' "$1" "$body" >> notes.md || true
           }
 
-          section 'Features'       'feat'
-          section 'Fixes'          'fix'
-          section 'Performance'    'perf'
-          section 'Refactoring'    'refactor'
-          section 'Documentation'  'docs'
-          section 'Build & CI'     '(build|chore|ci)'
-          section 'Tests'          'test'
+          section 'Features'      'feat'
+          section 'Fixes'         'fix'
+          section 'Performance'   'perf'
+          section 'Refactoring'   'refactor'
+          section 'Documentation' 'docs'
 
-          # Anything that does not parse as a conventional commit still belongs in the notes.
-          other=$(git log --no-merges --reverse --format='%H%x09%s' "$range" |
+          # Non-conventional subjects still belong in the notes; the plumbing types do not.
+          other=$(printf '%s\n' "$log" |
             awk -F'\t' -v url="$repo_url" '
               $2 !~ /^(feat|fix|perf|refactor|docs|build|chore|ci|test|style)(\(.+\))?!?: / {
                 printf "- %s ([%s](%s/commit/%s))\n", $2, substr($1,1,7), url, $1 }')
-          [ -n "$other" ] && printf '### Other\n\n%s\n\n' "$other" >> notes.md
+          [ -n "$other" ] && printf '### Other\n\n%s\n\n' "$other" >> notes.md || true
 
-          [ -s notes.md ] || echo "_No changes recorded._" >> notes.md
-          [ -n "$prev" ] && printf '**Full Changelog**: %s/compare/%s...%s\n' "$repo_url" "$prev" "${{ inputs.tag }}" >> notes.md
+          [ -s notes.md ] || echo "_No user-facing changes._" >> notes.md
+          [ -n "$prev" ] && printf '**Full Changelog**: %s/compare/%s...%s\n' "$repo_url" "$prev" "${{ inputs.tag }}" >> notes.md || true
 
           echo "--- release notes ---"
           cat notes.md
