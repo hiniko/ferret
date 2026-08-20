@@ -47,9 +47,8 @@ public static class FerretEntityFrameworkExtensions
     public static IServiceCollection AddFerretEntityFrameworkQueryService<TContext>(this IServiceCollection services)
         where TContext : DbContext
     {
-        // Replace (not Add) so the core FerretCoreQueryService registration is removed.
-        // Without this, DI ValidateOnBuild fails because FerretCoreQueryService can't
-        // resolve IFerretSession (which is per-call, never in DI).
+        // Replace (not Add) so calling this twice, or after another adapter, leaves
+        // exactly one IFerretQueryService registration rather than stacking them.
         services.Replace(ServiceDescriptor.Scoped<IFerretQueryService, EntityFrameworkQueryService<TContext>>());
         // Register the key-override source here too: this is the documented entry point,
         // so a composite-PK EF entity that does not name its key via [SearchableEntity]

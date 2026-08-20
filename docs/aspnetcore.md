@@ -86,8 +86,15 @@ builder.Services.AddFerretEntityFrameworkQueryService<AppDbContext>(); // IFerre
 builder.Services.AddFerretAspNetCore();                                // PaginationDefaultsResolver
 ```
 
-The endpoint resolves `IFerretQueryService` from DI, so any backend (EF Core, Dapper, or the
-in-process core service) works without changing the route.
+The endpoint resolves `IFerretQueryService` from DI. `AddFerret` alone does not register one —
+an `IFerretSession` owns a connection and is built per call, so only an adapter that knows where
+connections come from can supply the service. Today that adapter is EF Core
+(`AddFerretEntityFrameworkQueryService<TContext>()`).
+
+Dapper consumers drive `IFerretEngine` directly with a `DapperSession` they construct themselves
+(see [setup.md](setup.md)) and do not use `MapFerret`. To put Dapper behind these endpoints you
+would add an `IFerretQueryService` that builds a `DapperSession` per call, mirroring
+`EntityFrameworkQueryService<TContext>`.
 
 ### Query-string grammar
 

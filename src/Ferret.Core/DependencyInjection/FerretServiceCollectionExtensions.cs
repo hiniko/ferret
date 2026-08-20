@@ -6,7 +6,6 @@ using Ferret.Core.Backends.FullText;
 using Ferret.Core.Backends.Hybrid;
 using Ferret.Core.Backends.Vector;
 using Ferret.Core.Engine.Reindex;
-using Ferret.Core.Querying;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -100,8 +99,12 @@ public static class FerretServiceCollectionExtensions
             SlowQueryThresholdMs = builder.Options.SlowQueryThresholdMs,
             LogStatements = builder.Options.LogStatements,
         });
+
+        // No IFerretQueryService here: an IFerretSession owns a connection and is built
+        // per call, so only an adapter that knows where connections come from can supply
+        // one — e.g. AddFerretEntityFrameworkCore<TContext>(). Consumers driving
+        // IFerretEngine directly with their own session need no query service at all.
         services.AddSingleton<IFerretEngine, FerretEngine>();
-        services.AddScoped<IFerretQueryService, FerretCoreQueryService>();
 
         services.Configure<PaginationOptions>(o =>
         {

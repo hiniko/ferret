@@ -9,9 +9,9 @@ using Xunit;
 namespace Ferret.EntityFrameworkCore.Tests;
 
 /// <summary>
-/// Bug 2 regression: AddFerretEntityFrameworkCore used services.AddScoped (not Replace),
-/// leaving the core FerretCoreQueryService registration alive. DI ValidateOnBuild would
-/// fail at startup because FerretCoreQueryService can't resolve IFerretSession (not in DI).
+/// AddFerret must not register any IFerretQueryService of its own — an IFerretSession is
+/// per-call and never in DI, so only an adapter can supply one. The EF adapter is what
+/// makes IFerretQueryService resolvable, and a dev host's ValidateOnBuild must pass.
 /// </summary>
 public sealed class DiValidationTests
 {
@@ -47,7 +47,28 @@ public sealed class DiValidationTests
             ValidateScopes = true,
         });
 
-        act.Should().NotThrow("EF adapter must replace the core IFerretQueryService so DI validation passes");
+        act.Should().NotThrow("the EF adapter supplies a fully DI-constructable IFerretQueryService");
+    }
+
+    [Fact]
+    public void AddFerret_alone_registers_no_query_service()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddFerret(opts => opts
+            .ScanAssembly(typeof(DiTestDoc).Assembly)
+            .UseTrigramSearch());
+
+        services.Where(d => d.ServiceType == typeof(IFerretQueryService))
+            .Should().BeEmpty("AddFerret cannot supply a query service — IFerretSession is per-call, never in DI");
+
+        // And the container must still validate: no unconstructable descriptor left behind.
+        var act = () => services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+        act.Should().NotThrow();
     }
 
     [Fact]
@@ -64,9 +85,9 @@ public sealed class DiValidationTests
 
         using var sp = services.BuildServiceProvider();
 
-        // Only ONE registration must remain after Replace.
+        // Exactly one registration — the adapter's, not a stack of them.
         var descriptors = services.Where(d => d.ServiceType == typeof(IFerretQueryService)).ToList();
-        descriptors.Should().ContainSingle("Replace should leave exactly one IFerretQueryService registration");
+        descriptors.Should().ContainSingle("the EF adapter should leave exactly one IFerretQueryService registration");
         descriptors[0].ImplementationType.Should().Be<EntityFrameworkQueryService<DiTestContext>>();
 
         // And it must resolve in a scope.
