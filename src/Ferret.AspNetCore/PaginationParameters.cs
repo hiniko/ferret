@@ -12,7 +12,7 @@ public abstract record PaginationParameters
     [ModelBinder(Name = "q")]
     public string? Q { get; init; }
 
-    [ModelBinder(Name = "fields")]
+    [ModelBinder(Name = "fields", BinderType = typeof(StringListBinder))]
     public IReadOnlyList<string> Fields { get; init; } = [];
 
     [ModelBinder(Name = "match_info")]

@@ -8,6 +8,18 @@ scaffold a full endpoint with `MapFerret`.
 Non-generic `OffsetApiQuery` / `CursorApiQuery` bind compact query strings and map to a
 `PagedQuery<T, TKey>` at the controller boundary, so OpenAPI shows one shape per endpoint.
 
+Register the MVC binding alongside `AddControllers()`:
+
+```csharp
+builder.Services.AddFerretAspNetCore();
+builder.Services.AddFerretMvcBinding();  // required for [FromQuery] on these types
+```
+
+Without it, MVC binds these as complex objects prefixed by the **action parameter name**.
+An action written as `Get([FromQuery] OffsetApiQuery q, …)` makes MVC look for `q.Q`,
+`q.limit`, … the moment a request carries `?q=`, so every property silently takes its
+default — a search then returns an unfiltered page rather than failing loudly.
+
 ### Offset
 
 ```
