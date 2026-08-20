@@ -1,0 +1,12 @@
+#nullable enable
+Ferret.Hydration.Dapper.DapperHydrator
+Ferret.Hydration.Dapper.DapperHydrator.DapperHydrator() -> void
+Ferret.Hydration.Dapper.DapperHydrator.HydrateAsync<T>(System.Data.Common.DbConnection! connection, Ferret.Abstractions.Hydration.HydrationRequest! request, System.Threading.CancellationToken ct) -> System.Threading.Tasks.Task<System.Collections.Generic.List<T!>!>!
+Ferret.Hydration.Dapper.DapperSession
+Ferret.Hydration.Dapper.DapperSession.DapperSession(System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task<System.Data.Common.DbConnection!>!>! connectionFactory, Ferret.Abstractions.Sql.ISqlDialect! dialect) -> void
+Ferret.Hydration.Dapper.DapperSession.Dialect.get -> Ferret.Abstractions.Sql.ISqlDialect!
+Ferret.Hydration.Dapper.DapperSession.DisposeAsync() -> System.Threading.Tasks.ValueTask
+Ferret.Hydration.Dapper.DapperSession.Hydrator.get -> Ferret.Abstractions.Hydration.IEntityHydrator!
+Ferret.Hydration.Dapper.DapperSession.OpenConnectionAsync(System.Threading.CancellationToken ct) -> System.Threading.Tasks.Task<System.Data.Common.DbConnection!>!
+Ferret.Hydration.Dapper.DependencyInjection.DapperHydrationExtensions
+static Ferret.Hydration.Dapper.DependencyInjection.DapperHydrationExtensions.UseDapperHydration(this Ferret.Core.Configuration.FerretOptions! options) -> Ferret.Core.Configuration.FerretOptions!

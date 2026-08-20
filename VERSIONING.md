@@ -46,3 +46,32 @@ prefix; tags are plain SemVer like `0.1.0`).
 
 NuGet treats a version as **pre-release only if it has a `-suffix`**. So `0.1.0` is a normal
 (stable) package — being on `0.x` is the "handle with care" signal, per the policy above.
+
+## Public API baseline
+
+Each packable project tracks its surface in two files:
+
+- `PublicAPI.Shipped.txt` — the surface as of the last release. Removing or changing
+  anything listed here fails the build with `RS0017`. This is the breaking-change guard.
+- `PublicAPI.Unshipped.txt` — additions since that release. New public symbols must be
+  added here or the build fails with `RS0016`.
+
+**Before tagging a release**, promote the accumulated additions:
+
+```bash
+python3 scripts/ship-public-api.py     # Unshipped -> Shipped
+dotnet build Ferret.slnx -c Release    # confirm the surface still matches
+git add src/*/PublicAPI.*.txt && git commit -m "chore: ship public API for <version>"
+git tag <version>
+```
+
+Then run the release workflow against that tag. The promotion cannot be a workflow step:
+the workflow checks out an existing tag, so anything it changed would land after the tag
+it describes.
+
+`scripts/ship-public-api.py --check` reports pending entries and exits non-zero — useful
+as a pre-tag guard. `scripts/regen-public-api.py` is the different tool: it rebuilds
+`Unshipped.txt` from compiler diagnostics after a large refactor.
+
+**Removing a public symbol** is a breaking change. Delete its line from `Shipped.txt` in
+the same commit, and bump accordingly per the policy above.
