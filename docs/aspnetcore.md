@@ -132,10 +132,3 @@ With `AddOpenApi()` registered, `MapFerret` documents every parameter for the ch
 the `200`/`400` responses. Customize via the `configure` callback (`o.Name`, `o.Tag`,
 `o.Summary`).
 
-## Legacy wire shape
-
-Migrating a service whose clients depend on the original PagedQuery parameter names (`page`,
-`page_size`, `search`, `search_fields`, `include_match_info`, `include_hidden`) and response
-JSON (`items`, `page`, `count`, `total`, `match_info`)? Reference `Ferret.Compat.LegacyApi`,
-bind `LegacyApiQuery`, and return `LegacyPagedResponse<T>` via
-`result.ToLegacyResponse(p => p.Id)`. See `samples/Ferret.Example.LegacyApi`.

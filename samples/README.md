@@ -9,7 +9,6 @@ legacy-compat surfaces.
 | --- | --- |
 | `Ferret.Example.Basic` | Offset-paging endpoint; `OffsetApiQuery` + `OffsetResult<T>` |
 | `Ferret.Example.Cursor` | Cursor-paging endpoint; `CursorApiQuery` + `CursorResult<T>` |
-| `Ferret.Example.LegacyApi` | Backend wire-compat shape via `Ferret.Compat.LegacyApi` |
 
 Each sample is self-contained: domain entity, DI wiring, controller, and seeder
 all live in the same project so a reader can grok one app without crossing project
@@ -19,15 +18,13 @@ boundaries.
 
 ```bash
 docker compose up -d              # postgres on :5433
-# Pick any one of the three samples
+# Pick either sample
 cd Ferret.Example.Basic && dotnet run
 # or
 cd Ferret.Example.Cursor && dotnet run
-# or
-cd Ferret.Example.LegacyApi && dotnet run
 ```
 
-Only run one sample at a time — they all share the same `products` table. The seeder is
+Only run one sample at a time — they share the same `products` table. The seeder is
 idempotent (skips when the table is already populated), so you can switch between samples
 without resetting Postgres.
 

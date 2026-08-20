@@ -5,12 +5,10 @@
   <Folder Name="/samples/">
     <Project Path="samples\Ferret.Samples.Basic\Ferret.Samples.Basic.csproj" />
     <Project Path="samples\Ferret.Samples.Cursor\Ferret.Samples.Cursor.csproj" />
-    <Project Path="samples\Ferret.Samples.LegacyApi\Ferret.Samples.LegacyApi.csproj" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/Ferret.Abstractions/Ferret.Abstractions.csproj" />
     <Project Path="src/Ferret.AspNetCore/Ferret.AspNetCore.csproj" />
-    <Project Path="src/Ferret.Compat.LegacyApi/Ferret.Compat.LegacyApi.csproj" />
     <Project Path="src/Ferret.Core/Ferret.Core.csproj" />
     <Project Path="src/Ferret.EntityFrameworkCore/Ferret.EntityFrameworkCore.csproj" />
     <Project Path="src/Ferret.Hosting/Ferret.Hosting.csproj" />
@@ -21,7 +19,6 @@
   <Folder Name="/tests/">
     <Project Path="tests/Ferret.Abstractions.Tests/Ferret.Abstractions.Tests.csproj" />
     <Project Path="tests/Ferret.AspNetCore.Tests/Ferret.AspNetCore.Tests.csproj" />
-    <Project Path="tests/Ferret.Compat.LegacyApi.Tests/Ferret.Compat.LegacyApi.Tests.csproj" />
     <Project Path="tests/Ferret.Core.IntegrationTests/Ferret.Core.IntegrationTests.csproj" />
     <Project Path="tests/Ferret.Core.Tests/Ferret.Core.Tests.csproj" />
     <Project Path="tests/Ferret.EntityFrameworkCore.Tests/Ferret.EntityFrameworkCore.Tests.csproj" />

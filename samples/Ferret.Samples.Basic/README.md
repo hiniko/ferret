@@ -52,4 +52,4 @@ GET /products?filter=Name:contains:widget&sort=CreatedAt:desc&page=1&limit=10
   internal service provider, which doesn't see services registered via `AddFerret(...)`
   on the application provider. This sample injects `IFerretEngine` + `ISqlDialect` into
   the controller and constructs `EntityFrameworkSession` directly.
-- Database state is shared with the Cursor and LegacyApi samples. Run one at a time.
+- Database state is shared with the Cursor sample. Run one at a time.

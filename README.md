@@ -35,7 +35,6 @@ to Typesense / Meilisearch / Elastic for projects that already run PostgreSQL.
 | `Ferret.AspNetCore` | `OffsetApiQuery` / `CursorApiQuery` + binders + `MapFerret`. |
 | `Ferret.Hosting` | Reindex `BackgroundService` (drains `ferret_reindex_jobs`). |
 | `Ferret.Tools.Cli` | `dotnet ferret reindex` CLI tool. |
-| `Ferret.Compat.LegacyApi` | Wire-shape adapter for clients using the original PagedQuery JSON shape. |
 
 ## Install
 

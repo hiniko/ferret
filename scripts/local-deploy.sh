@@ -43,7 +43,6 @@ cat > "$WORK/seed.csproj" <<EOF
     <PackageReference Include="Ferret.Core" Version="$VERSION" />
     <PackageReference Include="Ferret.EntityFrameworkCore" Version="$VERSION" />
     <PackageReference Include="Ferret.AspNetCore" Version="$VERSION" />
-    <PackageReference Include="Ferret.Compat.LegacyApi" Version="$VERSION" />
     <PackageReference Include="Ferret.Migrations" Version="$VERSION" />
     <PackageReference Include="Ferret.Hosting" Version="$VERSION" />
     <PackageReference Include="Ferret.Hydration.Dapper" Version="$VERSION" />
