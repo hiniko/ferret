@@ -1,5 +1,4 @@
 using Ferret.Abstractions;
-using Ferret.Abstractions.Models;
 using Ferret.AspNetCore.Binding;
 using FluentAssertions;
 using Xunit;

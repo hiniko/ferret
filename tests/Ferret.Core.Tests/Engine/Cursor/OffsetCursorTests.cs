@@ -1,4 +1,3 @@
-using Ferret.Core.Engine.Cursor;
 using FluentAssertions;
 using Xunit;
 

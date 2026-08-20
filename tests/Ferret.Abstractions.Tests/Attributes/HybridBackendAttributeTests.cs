@@ -1,4 +1,3 @@
-using Ferret.Abstractions.Attributes;
 using FluentAssertions;
 using Xunit;
 

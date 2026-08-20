@@ -1,6 +1,3 @@
-using Ferret.Abstractions.Search;
-using Ferret.Migrations.Handlers;
-using Ferret.Migrations.Operations;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;

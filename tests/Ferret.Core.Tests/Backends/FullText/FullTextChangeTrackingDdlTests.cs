@@ -1,4 +1,3 @@
-using Ferret.Abstractions.Search;
 using Ferret.Core.Backends.FullText;
 using FluentAssertions;
 using Xunit;

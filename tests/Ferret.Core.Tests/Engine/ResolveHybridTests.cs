@@ -1,9 +1,5 @@
 using Ferret.Abstractions;
-using Ferret.Abstractions.Attributes;
-using Ferret.Core.Configuration;
-using Ferret.Core.DependencyInjection;
 using Ferret.Core.Embeddings;
-using Ferret.Core.Engine;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;

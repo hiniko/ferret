@@ -1,5 +1,4 @@
 using Ferret.Core.Backends.FullText;
-using Ferret.Core.Engine;
 using FluentAssertions;
 using Xunit;
 

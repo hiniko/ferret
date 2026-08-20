@@ -1,5 +1,3 @@
-using Ferret.Abstractions.Search;
-using Ferret.Migrations.Operations;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;

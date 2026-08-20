@@ -1,6 +1,5 @@
 using EntityFrameworkCore.ExtensibleMigrations;
 using Ferret.Core.Backends.Vector;
-using Ferret.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 

@@ -1,4 +1,3 @@
-using Ferret.Abstractions.Models;
 using FluentAssertions;
 using Xunit;
 

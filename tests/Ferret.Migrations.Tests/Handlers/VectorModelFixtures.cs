@@ -1,5 +1,4 @@
 using System.Text.Json;
-using Ferret.Migrations.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 

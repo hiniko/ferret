@@ -1,6 +1,5 @@
 using System.Data.Common;
 using Ferret.Abstractions;
-using Ferret.Core.Engine;
 using Ferret.Core.IntegrationTests.Fixtures;
 using Ferret.Hydration.Dapper;
 using FluentAssertions;

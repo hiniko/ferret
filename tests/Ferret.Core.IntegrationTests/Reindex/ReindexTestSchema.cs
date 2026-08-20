@@ -1,5 +1,3 @@
-using Ferret.Abstractions.Attributes;
-using Ferret.Abstractions.Search;
 using Npgsql;
 
 namespace Ferret.Core.IntegrationTests.Reindex;

@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Ferret.Abstractions.Models;
 using Ferret.Abstractions.Querying;
 using FluentAssertions;
 using Microsoft.AspNetCore.Builder;

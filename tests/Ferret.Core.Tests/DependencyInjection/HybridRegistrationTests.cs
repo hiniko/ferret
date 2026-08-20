@@ -1,5 +1,4 @@
 using Ferret.Core.Backends.Hybrid;
-using Ferret.Core.DependencyInjection;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;

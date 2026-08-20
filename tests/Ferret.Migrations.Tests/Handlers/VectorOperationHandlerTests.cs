@@ -1,5 +1,3 @@
-using Ferret.Migrations.Handlers;
-using Ferret.Migrations.Operations;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Xunit;

@@ -1,6 +1,4 @@
 using EntityFrameworkCore.ExtensibleMigrations;
-using Ferret.Migrations.Handlers;
-using Ferret.Migrations.Operations;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;

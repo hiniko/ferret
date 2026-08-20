@@ -1,6 +1,4 @@
 using Ferret.Abstractions.Embeddings;
-using Ferret.Abstractions.Search;
-using Ferret.Abstractions.Sql;
 using Ferret.Core.Backends.FullText;
 using Ferret.Core.Backends.Hybrid;
 

@@ -1,8 +1,6 @@
 using System.Text.Json;
 using EntityFrameworkCore.ExtensibleMigrations;
 using Ferret.Abstractions;
-using Ferret.Abstractions.Search;
-using Ferret.Migrations.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 

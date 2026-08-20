@@ -1,6 +1,5 @@
 using System.Data.Common;
 using Dapper;
-using Ferret.Abstractions;
 
 namespace Ferret.Hydration.Dapper;
 

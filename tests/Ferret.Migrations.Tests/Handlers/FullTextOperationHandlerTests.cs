@@ -1,7 +1,3 @@
-using Ferret.Abstractions.Attributes;
-using Ferret.Migrations.Annotations;
-using Ferret.Migrations.Handlers;
-using Ferret.Migrations.Operations;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Xunit;

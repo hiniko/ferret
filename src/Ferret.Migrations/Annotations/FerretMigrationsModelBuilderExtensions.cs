@@ -3,7 +3,6 @@ using System.Text.Json;
 using Ferret.Core.Backends.FullText;
 using Ferret.Core.Backends.Trigram;
 using Ferret.Core.Backends.Vector;
-using Ferret.Core.Engine;
 using Ferret.Core.Sql;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;

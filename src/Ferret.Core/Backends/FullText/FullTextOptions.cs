@@ -1,4 +1,3 @@
-using Ferret.Abstractions.Attributes;
 
 namespace Ferret.Core.Backends.FullText;
 

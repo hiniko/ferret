@@ -1,9 +1,6 @@
 using System.Diagnostics;
-using Ferret.Abstractions.Attributes;
-using Ferret.Abstractions.Search;
 using Ferret.Core.Backends.FullText;
 using Ferret.Core.Backends.Hybrid;
-using Ferret.Core.Backends.Trigram;
 using Ferret.Core.Diagnostics;
 using Ferret.Core.Engine.MultiSearch;
 using Tags = Ferret.Core.Diagnostics.FerretDiagnostics.Tags;

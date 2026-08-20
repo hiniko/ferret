@@ -1,4 +1,3 @@
-using Ferret.Abstractions.Search;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
 namespace Ferret.Migrations.Operations;

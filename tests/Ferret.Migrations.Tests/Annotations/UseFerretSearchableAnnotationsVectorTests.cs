@@ -1,7 +1,5 @@
 using System.Text.Json;
 using Ferret.Abstractions;
-using Ferret.Abstractions.Attributes;
-using Ferret.Migrations.Annotations;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;

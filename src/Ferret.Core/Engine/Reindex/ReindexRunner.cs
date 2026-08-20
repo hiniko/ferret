@@ -1,4 +1,3 @@
-using Ferret.Abstractions.Session;
 using Ferret.Core.Backends.FullText;
 using Microsoft.Extensions.Logging;
 using Npgsql;

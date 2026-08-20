@@ -1,4 +1,3 @@
-using Ferret.Abstractions;
 using Ferret.AspNetCore.Binding;
 using Microsoft.AspNetCore.Mvc;
 

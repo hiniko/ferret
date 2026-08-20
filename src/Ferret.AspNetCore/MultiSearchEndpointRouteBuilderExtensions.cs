@@ -1,4 +1,3 @@
-using Ferret.Abstractions.Models;
 using Ferret.Abstractions.Querying;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;

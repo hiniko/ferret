@@ -1,6 +1,5 @@
 using System.Linq.Expressions;
 using System.Reflection;
-using Ferret.Abstractions.Models;
 
 namespace Ferret.AspNetCore;
 

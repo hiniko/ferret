@@ -1,10 +1,6 @@
 using System.Data.Common;
 using Ferret.Abstractions;
-using Ferret.Abstractions.Attributes;
-using Ferret.Abstractions.Models;
-using Ferret.Abstractions.Search;
 using Ferret.Core.Backends.FullText;
-using Ferret.Core.Engine;
 using Ferret.Core.IntegrationTests.Fixtures;
 using Ferret.Hydration.Dapper;
 using FluentAssertions;

@@ -1,7 +1,6 @@
 using Ferret.Abstractions;
 using Ferret.Core.Backends.FullText;
 using Ferret.Core.Backends.Hybrid;
-using Ferret.Core.Backends.Trigram;
 using Ferret.Core.Backends.Vector;
 using FluentAssertions;
 using Xunit;

@@ -1,6 +1,4 @@
 using System.Text.Json;
-using Ferret.Abstractions.Search;
-using Ferret.Migrations.Annotations;
 using FluentAssertions;
 using Xunit;
 

@@ -1,7 +1,5 @@
-using Ferret.Abstractions.Attributes;
 using Ferret.Core.DependencyInjection;
 using Ferret.Core.Engine;
-using Ferret.EntityFrameworkCore.DependencyInjection;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

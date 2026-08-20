@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System.Globalization;
 using Ferret.Abstractions.Embeddings;
-using Ferret.Abstractions.Search;
 using Ferret.Core.Backends.FullText;
 using Ferret.Core.Backends.Vector;
 using Ferret.Core.Diagnostics;

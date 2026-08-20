@@ -1,5 +1,3 @@
-using Ferret.Abstractions.Attributes;
-using Ferret.Abstractions.Search;
 using Ferret.Core.Backends.FullText;
 using Ferret.Core.Engine.Reindex;
 using Ferret.Core.IntegrationTests.Fixtures;

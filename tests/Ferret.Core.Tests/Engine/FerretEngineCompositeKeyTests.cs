@@ -1,10 +1,5 @@
 using System.Reflection;
 using Ferret.Abstractions;
-using Ferret.Abstractions.Naming;
-using Ferret.Abstractions.Sql;
-using Ferret.Core.Engine;
-using Ferret.Core.Engine.Cursor;
-using Ferret.Core.Sql;
 using FluentAssertions;
 using Xunit;
 

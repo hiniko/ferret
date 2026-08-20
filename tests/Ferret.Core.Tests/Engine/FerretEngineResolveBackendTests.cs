@@ -1,11 +1,4 @@
-using Ferret.Abstractions.Attributes;
-using Ferret.Abstractions.Naming;
-using Ferret.Abstractions.Search;
-using Ferret.Abstractions.Sql;
 using Ferret.Core.Backends.FullText;
-using Ferret.Core.Backends.Trigram;
-using Ferret.Core.Configuration;
-using Ferret.Core.Engine;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;

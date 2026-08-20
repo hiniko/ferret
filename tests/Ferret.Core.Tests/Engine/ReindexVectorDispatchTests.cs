@@ -1,16 +1,7 @@
 using System.Data.Common;
-using Ferret.Abstractions.Attributes;
-using Ferret.Abstractions.Naming;
-using Ferret.Abstractions.Search;
-using Ferret.Abstractions.Session;
-using Ferret.Abstractions.Sql;
-using Ferret.Abstractions.Hydration;
 using Ferret.Core.Backends.FullText;
 using Ferret.Core.Backends.Vector;
-using Ferret.Core.Configuration;
 using Ferret.Core.Embeddings;
-using Ferret.Core.Engine;
-using Ferret.Core.Sql;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;

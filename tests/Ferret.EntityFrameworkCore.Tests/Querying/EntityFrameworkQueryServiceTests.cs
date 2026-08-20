@@ -1,9 +1,7 @@
 using System.Data.Common;
 using Ferret.Abstractions.Querying;
 using Ferret.Core.Engine;
-using Ferret.Core.Sql;
 using Ferret.EntityFrameworkCore;
-using Ferret.EntityFrameworkCore.DependencyInjection;
 using Ferret.EntityFrameworkCore.Querying;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;

@@ -1,7 +1,4 @@
 using System.Text.Json;
-using Ferret.Abstractions.Attributes;
-using Ferret.Abstractions.Search;
-using Ferret.Migrations.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 

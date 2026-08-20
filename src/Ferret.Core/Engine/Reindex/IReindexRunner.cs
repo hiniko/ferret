@@ -1,4 +1,3 @@
-using Ferret.Abstractions.Session;
 
 namespace Ferret.Core.Engine.Reindex;
 
