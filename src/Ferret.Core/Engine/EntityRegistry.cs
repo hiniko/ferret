@@ -9,12 +9,6 @@ public sealed class EntityRegistry
     public static EntityRegistry Build(IEnumerable<Type> entityTypes, INamingStrategy naming) =>
         Build(entityTypes, naming, (FullTextResolverDefaults?)null, keyOverrides: null);
 
-    internal static EntityRegistry Build(
-        IEnumerable<Type> entityTypes,
-        INamingStrategy naming,
-        FullTextResolverDefaults? fullTextDefaults) =>
-        Build(entityTypes, naming, fullTextDefaults, keyOverrides: null);
-
     public static EntityRegistry Build(
         IEnumerable<Type> entityTypes,
         INamingStrategy naming,
