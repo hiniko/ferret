@@ -1,4 +1,3 @@
-using Ferret.AspNetCore;
 using Ferret.Example.Basic;
 using Ferret.Example.Basic.Seed;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +16,9 @@ builder.Services.AddFerret(opts => opts
     .UseTrigramSearch()
     .WithPaginationDefaults(defaultLimit: 25, maxLimit: 100));
 
+builder.Services.AddFerretEntityFrameworkCore<AppDbContext>();
 builder.Services.AddFerretAspNetCore();
+builder.Services.AddFerretMvcBinding();
 
 builder.Services.AddHostedService<ProductSeeder>();
 
