@@ -21,7 +21,7 @@ internal sealed class TrigramSearchBackend : ISearchBackend, IAsPrimaryAware
     public bool CanHandle(SearchablePropertyInfo property) => property.Backend == SearchBackend.Trigram;
 
     public SearchSqlFragment BuildRankingQuery(SearchContext context) =>
-        _builder.BuildRanking(context, page: 0, pageSize: int.MaxValue);          // engine clamps via PagedQuery.Page/PageSize
+        _builder.BuildRanking(context, context.Limit, context.Offset);
 
     internal SearchSqlFragment BuildRankedCandidate(RankedCandidateRequest req, SearchContext context) =>
         _builder.BuildRankedCandidate(req, context);

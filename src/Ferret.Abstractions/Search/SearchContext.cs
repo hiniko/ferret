@@ -12,4 +12,6 @@ public sealed record SearchContext
     public bool HasCandidateIds { get; init; }
     public IReadOnlyList<string>? KeyColumns { get; init; }
     public IReadOnlyList<string>? CandidateKeyParameterNames { get; init; }
+    public int Limit { get; init; } = int.MaxValue;
+    public int Offset { get; init; }
 }

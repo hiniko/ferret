@@ -612,6 +612,8 @@ internal sealed partial class FerretEngine : IFerretEngine
             HasCandidateIds = hasCandidateIds,
             KeyColumns = keyColumns,
             CandidateKeyParameterNames = hasCandidateIds ? candidateKeyParameterNames : null,
+            Limit = limit,
+            Offset = offset,
         };
         return backend.BuildRankingQuery(ctx);
     }

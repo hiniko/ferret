@@ -15,7 +15,7 @@ internal sealed class TrigramSqlBuilder
         _options = options;
     }
 
-    public SearchSqlFragment BuildRanking(SearchContext ctx, int page, int pageSize)
+    public SearchSqlFragment BuildRanking(SearchContext ctx, int limit, int offset)
     {
         var composite = ctx.KeyColumns is { Count: > 1 };
         var keyColsList = composite
@@ -66,7 +66,7 @@ internal sealed class TrigramSqlBuilder
         // Key tie-break: equal distances must order deterministically or offset pages can
         // duplicate/drop rows across requests as the plan changes.
         sql.AppendLine($"ORDER BY sr.distance, {srKeyProjection}");
-        sql.Append(_dialect.PagingClause(pageSize, page * pageSize));
+        sql.Append(_dialect.PagingClause(limit, offset));
 
         return new SearchSqlFragment(sql.ToString(), parameters);
     }

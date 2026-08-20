@@ -29,7 +29,7 @@ public class TrigramThresholdTests
             SearchTerm = "x",
             IdColumn = model.KeyColumnName,
             QuotedTable = model.QuotedTable(new PostgresDialect()),
-        }, page: 0, pageSize: 25).Sql;
+        }, limit: 25, offset: 0).Sql;
 
         sql.Should().Contain($"distance <= {expectedMaxDistance}");
     }

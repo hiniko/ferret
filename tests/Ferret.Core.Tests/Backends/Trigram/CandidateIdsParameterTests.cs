@@ -26,7 +26,7 @@ public class CandidateIdsParameterTests
             IdColumn = model.KeyColumnName,
             QuotedTable = model.QuotedTable(new PostgresDialect()),
             HasCandidateIds = true,
-        }, page: 0, pageSize: 25).Sql;
+        }, limit: 25, offset: 0).Sql;
 
         sql.Should().Contain("@candidate_ids");
         sql.Should().NotContain("ARRAY[");
@@ -48,7 +48,7 @@ public class CandidateIdsParameterTests
             CandidateKeyParameterNames = ["@candidate_k0", "@candidate_k1"],
             QuotedTable = model.QuotedTable(new PostgresDialect()),
             HasCandidateIds = true,
-        }, page: 0, pageSize: 25).Sql;
+        }, limit: 25, offset: 0).Sql;
 
         sql.Should().Contain("WITH ORDINALITY");
         sql.Should().Contain("unnest(@candidate_k0)");

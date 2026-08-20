@@ -31,7 +31,7 @@ public class TrigramSqlBuilderTests
             QuotedTable = Model().QuotedTable(new PostgresDialect()),
             HasCandidateIds = true,
         };
-        var fragment = b.BuildRanking(ctx, page: 0, pageSize: 25);
+        var fragment = b.BuildRanking(ctx, limit: 25, offset: 0);
         return Verifier.Verify(fragment.Sql, extension: "sql");
     }
 
@@ -47,7 +47,7 @@ public class TrigramSqlBuilderTests
             QuotedTable = Model().QuotedTable(new PostgresDialect()),
             HasCandidateIds = false,
         };
-        var fragment = b.BuildRanking(ctx, page: 0, pageSize: 25);
+        var fragment = b.BuildRanking(ctx, limit: 25, offset: 0);
         fragment.Sql.Should().NotContain("candidate_ids");
         fragment.Sql.Should().NotContain("ARRAY[");
     }
@@ -64,7 +64,7 @@ public class TrigramSqlBuilderTests
             IdColumn = Model().KeyColumnName,
             QuotedTable = Model().QuotedTable(new PostgresDialect()),
         };
-        var fragment = b.BuildRanking(ctx, page: 0, pageSize: 25);
+        var fragment = b.BuildRanking(ctx, limit: 25, offset: 0);
         fragment.Sql.Should().Contain("0.30");                // 1 - 0.7 = 0.30
     }
 
@@ -107,7 +107,7 @@ public class TrigramSqlBuilderTests
             IdColumn = OrderModel().KeyColumnName,
             QuotedTable = OrderModel().QuotedTable(new PostgresDialect()),
         };
-        var fragment = b.BuildRanking(ctx, page: 0, pageSize: 25);
+        var fragment = b.BuildRanking(ctx, limit: 25, offset: 0);
         fragment.Sql.Should().MatchRegex(
             @"WHERE \((\w+)\.deleted_at IS NULL AND \1\.hidden = false\)");
         fragment.Sql.Should().NotContain("{c}");
@@ -124,10 +124,49 @@ public class TrigramSqlBuilderTests
             IdColumn = OrderModel().KeyColumnName,
             QuotedTable = OrderModel().QuotedTable(new PostgresDialect()),
         };
-        var fragment = b.BuildRanking(ctx, page: 0, pageSize: 25);
+        var fragment = b.BuildRanking(ctx, limit: 25, offset: 0);
         // N:1 (Supplier): owner carries the FK — ON e."supplier_id" = <alias>."id"
         fragment.Sql.Should().MatchRegex(@"INNER JOIN ""suppliers"" \w+ ON e\.""supplier_id"" = \w+\.""id""");
         // 1:N (Items): child carries the FK — ON <alias>."order_id" = e."id"
         fragment.Sql.Should().MatchRegex(@"INNER JOIN ""order_items"" \w+ ON \w+\.""order_id"" = e\.""id""");
+    }
+
+    [Fact]
+    public void Ranking_applies_caller_limit_and_offset()
+    {
+        var b = new TrigramSqlBuilder(new PostgresDialect(), new TrigramOptions());
+        var ctx = new SearchContext
+        {
+            Properties = Model().SearchableProperties,
+            SearchTerm = "blue",
+            IdColumn = Model().KeyColumnName,
+            QuotedTable = Model().QuotedTable(new PostgresDialect()),
+        };
+
+        var fragment = b.BuildRanking(ctx, limit: 2, offset: 10);
+
+        fragment.Sql.Should().Contain("LIMIT 2").And.Contain("OFFSET 10");
+        fragment.Sql.Should().NotContain(int.MaxValue.ToString(),
+            "an unbounded LIMIT means the caller's page size is silently ignored");
+    }
+
+    [Fact]
+    public void Backend_threads_context_limit_into_ranking_sql()
+    {
+        var backend = new TrigramSearchBackend(new PostgresDialect(), new TrigramOptions());
+        var ctx = new SearchContext
+        {
+            Properties = Model().SearchableProperties,
+            SearchTerm = "blue",
+            IdColumn = Model().KeyColumnName,
+            QuotedTable = Model().QuotedTable(new PostgresDialect()),
+            Limit = 5,
+            Offset = 15,
+        };
+
+        // Regression: the backend used to hardcode pageSize: int.MaxValue, dropping the
+        // caller's limit entirely. The engine does not truncate ranked ids on the offset
+        // path, so every trigram search returned the whole match set.
+        backend.BuildRankingQuery(ctx).Sql.Should().Contain("LIMIT 5").And.Contain("OFFSET 15");
     }
 }

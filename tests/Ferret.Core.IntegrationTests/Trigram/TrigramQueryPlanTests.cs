@@ -54,7 +54,7 @@ public class TrigramQueryPlanTests
             IdColumn = model.KeyColumnName,
             QuotedTable = model.QuotedTable(new PostgresDialect()),
             HasCandidateIds = false,
-        }, page: 0, pageSize: 10).Sql;
+        }, limit: 10, offset: 0).Sql;
 
         await using var cmd = conn.CreateCommand();
         cmd.CommandText = $"EXPLAIN (FORMAT JSON) {sql.Replace("@p0", "'Widget 4242'")}";
