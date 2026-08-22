@@ -139,7 +139,9 @@ Two things are already correct and worth stating clearly:
   vector backend.
 
 Routing between exact scan and index — the fix the ecosystem has converged on — is specified in
-`docs/superpowers/specs/2026-08-22-filtered-vector-search.md` and not yet implemented.
+`docs/superpowers/specs/2026-08-22-filtered-vector-search.md` and not yet implemented. It will be
+configurable rather than automatic-only: a deployment whose vector searches are always
+tenant-scoped can simply choose exact scanning and never think about recall again.
 
 ## What to do today
 
