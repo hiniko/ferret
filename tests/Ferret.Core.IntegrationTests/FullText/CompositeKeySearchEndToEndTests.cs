@@ -137,8 +137,7 @@ public class CompositeKeySearchEndToEndTests
         sc.AddLogging();
         sc.AddFerret(opts => opts
             .ScanAssembly(typeof(CkDoc).Assembly)
-            .UseFullTextSearch(ft => ft.DefaultConfig = "simple")
-            .UseDapperHydration());
+            .UseFullTextSearch(ft => ft.DefaultConfig = "simple"));
         return sc.BuildServiceProvider();
     }
 

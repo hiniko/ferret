@@ -38,12 +38,6 @@ public static class FerretEntityFrameworkExtensions
     }
 
 
-    public static FerretOptions UseEntityFrameworkCore<TContext>(this FerretOptions options) where TContext : DbContext
-    {
-        // Marker hook only — actual session is opened per-call by the SearchAsync extension.
-        return options;
-    }
-
     public static IServiceCollection AddFerretEntityFrameworkQueryService<TContext>(this IServiceCollection services)
         where TContext : DbContext
     {
@@ -70,8 +64,6 @@ public static class FerretEntityFrameworkExtensions
         where TContext : DbContext
     {
         services.AddFerretEntityFrameworkQueryService<TContext>();
-        services.TryAddEnumerable(
-            ServiceDescriptor.Singleton<IEntityKeyOverrideSource, EntityFrameworkKeyOverrideSource<TContext>>());
         return services;
     }
 }

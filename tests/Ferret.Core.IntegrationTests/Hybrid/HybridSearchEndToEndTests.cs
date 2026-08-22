@@ -188,8 +188,7 @@ public class HybridSearchEndToEndTests
         sc.AddFerret(o => o.ScanAssembly(typeof(T).Assembly)
             .UseFullTextSearch(ft => ft.DefaultConfig = "english")
             .UseVectorSearch(v => { v.UseEmbeddingProvider(_ => provider); v.EfSearch = efSearch; })
-            .UseHybridSearch(_ => { })
-            .UseDapperHydration());
+            .UseHybridSearch(_ => { }));
         return sc.BuildServiceProvider();
     }
 

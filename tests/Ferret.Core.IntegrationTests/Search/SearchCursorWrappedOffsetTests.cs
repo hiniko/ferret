@@ -208,8 +208,7 @@ public class SearchCursorWrappedOffsetTests
         sc.AddFerret(opts =>
         {
             opts.ScanAssembly(typeof(RDoc).Assembly)
-                .UseFullTextSearch(ft => ft.DefaultConfig = "english")
-                .UseDapperHydration();
+                .UseFullTextSearch(ft => ft.DefaultConfig = "english");
             if (maxSearchCursorOffset is { } cap)
                 opts.UseHybridSearch(h => h.MaxSearchCursorOffset = cap);
         });

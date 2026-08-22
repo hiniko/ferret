@@ -50,8 +50,9 @@ public sealed class EfCompositeKeyAutoFillRuntimeTests
         model.Key.Select(k => k.ColumnName).Should().Equal("tenant_id", "id");
     }
 
-    // The documented registration path (README:304) is AddFerretEntityFrameworkQueryService;
-    // it must register the key-override source too so composite EF PKs auto-fill.
+    // AddFerretEntityFrameworkCore is the blessed registration path, but the lower-level
+    // AddFerretEntityFrameworkQueryService is supported for custom adapters (see docs/advanced.md)
+    // and must register the key-override source too so composite EF PKs auto-fill.
     [Fact]
     public void Composite_ef_key_auto_fills_through_documented_query_service_registration()
     {

@@ -30,7 +30,7 @@ to Typesense / Meilisearch / Elastic for projects that already run PostgreSQL.
 | `Ferret.Abstractions` | Interfaces, attributes, query/result models. Reference from your domain assemblies. |
 | `Ferret.Core` | Engine, SQL builder, attribute discovery, Postgres dialect, search backends. |
 | `Ferret.Migrations` | EF Core migrations bridge — generates trigram/full-text/vector schema from annotations. |
-| `Ferret.EntityFrameworkCore` | EF Core session + hydrator + search extensions. |
+| `Ferret.EntityFrameworkCore` | EF Core session + hydrator + DI registration. |
 | `Ferret.Hydration.Dapper` | Dapper-based session + hydrator for EF-free use. |
 | `Ferret.AspNetCore` | `OffsetApiQuery` / `CursorApiQuery` + binders + `MapFerret`. |
 | `Ferret.Hosting` | Reindex `BackgroundService` (drains `ferret_reindex_jobs`). |
@@ -70,32 +70,36 @@ services.AddDbContext<AppDbContext>(o => o.UseNpgsql(connectionString));
 services.AddFerret(opts => opts
     .ScanAssembly(typeof(Product).Assembly)
     .UseTrigramSearch());
+services.AddFerretEntityFrameworkCore<AppDbContext>();
 ```
 
 Generate the schema (`Ferret.Migrations` — see [docs/migrations.md](docs/migrations.md)), then
-search:
+inject `IFerretQueryService` (`Ferret.Abstractions.Querying`) and search:
 
 ```csharp
-var page = await dbContext.SearchOffsetAsync<Product, Guid>(serviceProvider,
-    new PagedQuery<Product, Guid>
-    {
-        Mode = PaginationMode.Offset,
-        Search = "blue widge",
-        Limit = 25,
-        Page = 0,
-        Sort = [new SortClause { Field = "Name", Direction = SortDirection.Ascending }],
-    });
+public sealed class ProductsController(IFerretQueryService search) : ControllerBase
+{
+    [HttpGet]
+    public Task<OffsetResult<Product>> Get(CancellationToken ct) =>
+        search.SearchOffsetAsync<Product, Guid>(new PagedQuery<Product, Guid>
+        {
+            Mode = PaginationMode.Offset,
+            Search = "blue widge",
+            Limit = 25,
+            Page = 0,
+            Sort = [new SortClause { Field = "Name", Direction = SortDirection.Ascending }],
+        }, ct);
+}
 ```
 
-Cursor mode is available via `dbContext.SearchCursorAsync<...>` returning `CursorResult<T>`.
+Cursor mode is available via `search.SearchCursorAsync<...>` returning `CursorResult<T>`.
 
 ## Quickstart — Dapper
 
 ```csharp
 services.AddFerret(opts => opts
     .ScanAssembly(typeof(Product).Assembly)
-    .UseTrigramSearch()
-    .UseDapperHydration());
+    .UseTrigramSearch());
 
 await using var session = new DapperSession(
     ct => Task.FromResult<DbConnection>(new NpgsqlConnection(connectionString)),
@@ -106,15 +110,20 @@ var page = await sp.GetRequiredService<IFerretEngine>()
         new PagedQuery<Product, Guid> { Mode = PaginationMode.Offset, Search = "widge", Limit = 25 });
 ```
 
+See [docs/advanced.md](docs/advanced.md) for the lower-level `IFerretEngine` / session APIs.
+
 ## Documentation
 
-- **[Setup & integration modes](docs/setup.md)** — EF Core, Dapper, or bring-your-own-session.
+- **[Setup](docs/setup.md)** — EF Core quickstart, Dapper/BYO pointers.
+- **[Adding Ferret to an existing app](docs/integration.md)** — retrofitting into an app that
+  already has an EF model, migrations, and controllers.
 - **[Schema & migrations](docs/migrations.md)** — generated schema, reindex modes, the reindex
   worker/CLI, and the manual-SQL reference.
 - **[Full-text search](docs/full-text-search.md)** — groups, weights, hybrid.
 - **[Multisearch](docs/multisearch.md)** — grouped multi-entity search for cmd-K UIs.
 - **[Vector search & embeddings](docs/vector-search.md)** — connectors, version transitions.
 - **[ASP.NET Core](docs/aspnetcore.md)** — query shapes, `MapFerret`, legacy wire shape.
+- **[Lower-level APIs](docs/advanced.md)** — Dapper, `IFerretEngine`, bring-your-own session.
 
 ## Compatibility
 

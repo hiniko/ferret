@@ -132,8 +132,7 @@ public class VectorSearchEndToEndTests
         var sc = new ServiceCollection();
         sc.AddLogging();
         sc.AddFerret(o => o.ScanAssembly(typeof(VDoc).Assembly)
-            .UseVectorSearch(v => { v.UseEmbeddingProvider(_ => provider); v.EfSearch = efSearch; })
-            .UseDapperHydration());
+            .UseVectorSearch(v => { v.UseEmbeddingProvider(_ => provider); v.EfSearch = efSearch; }));
         return sc.BuildServiceProvider();
     }
 

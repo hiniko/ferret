@@ -76,8 +76,7 @@ public class FilterOperatorsEndToEndTests
         sc.AddLogging();
         sc.AddFerret(opts => opts
             .ScanAssembly(typeof(Widget).Assembly)
-            .UseTrigramSearch()
-            .UseDapperHydration());
+            .UseTrigramSearch());
         var sp = sc.BuildServiceProvider();
         await Task.CompletedTask;
         return sp.GetRequiredService<IFerretEngine>();

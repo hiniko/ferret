@@ -105,8 +105,7 @@ public class CompositeKeyCursorEndToEndTests
         sc.AddLogging();
         sc.AddFerret(opts => opts
             .ScanAssembly(typeof(TenantDoc).Assembly)
-            .UseFullTextSearch(ft => ft.DefaultConfig = "simple")
-            .UseDapperHydration());
+            .UseFullTextSearch(ft => ft.DefaultConfig = "simple"));
         return sc.BuildServiceProvider();
     }
 

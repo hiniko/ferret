@@ -9,7 +9,7 @@ Minimal ASP.NET Core API showing Ferret in **cursor-pagination** mode with EF Co
 # from repo root
 cd samples
 docker compose up -d
-cd Ferret.Example.Cursor
+cd Ferret.Samples.Cursor
 dotnet run
 ```
 
@@ -39,7 +39,7 @@ After fetching the first page, use the `nextCursor` value from the response as
   indexes from `[Searchable]` annotations during `dotnet ef migrations add`.
 - ASP.NET Core MVC binding the compact `filter=field:op:value&sort=field:dir` query shape
   into `CursorApiQuery`.
-- The `db.SearchCursorAsync<T, TKey>` extension running the engine in cursor mode.
+- `IFerretQueryService.SearchCursorAsync<T, TKey>` running the engine in cursor mode.
 
 ## Notes
 

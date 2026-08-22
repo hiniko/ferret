@@ -2,16 +2,12 @@
 using System.Data.Common;
 using Ferret.Abstractions;
 using Ferret.Abstractions.Attributes;
-using Ferret.Abstractions.Search;
 using Ferret.Abstractions.Session;
 using Ferret.Abstractions.Sql;
 using Ferret.Core.Backends.FullText;
-using Ferret.Core.Configuration;
 using Ferret.Core.DependencyInjection;
-using Ferret.Hosting;
 using Ferret.Hosting.DependencyInjection;
 using Ferret.Hydration.Dapper;
-using Ferret.Hydration.Dapper.DependencyInjection;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -71,8 +67,7 @@ public sealed class ReindexHostedServiceTests : IAsyncLifetime
         sc.AddLogging();
         sc.AddFerret(opts => opts
             .ScanAssembly(typeof(ReindexDoc).Assembly)
-            .UseFullTextSearch(ft => ft.DefaultConfig = "english")
-            .UseDapperHydration());
+            .UseFullTextSearch(ft => ft.DefaultConfig = "english"));
 
         var connectionString = ConnectionString;
         sc.AddFerretReindexHostedService(o =>

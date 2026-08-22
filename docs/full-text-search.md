@@ -28,6 +28,19 @@ services.AddFerret(o => o
     .UseFullTextSearch(ft => ft.DefaultConfig = "english"));
 ```
 
+## Trigram threshold
+
+`UseTrigramSearch` configures the sibling trigram backend (`Backend = SearchBackend.Trigram`,
+the default when `Backend` is omitted). `MinimumSimilarity` (default `0.35`) is the minimum
+`word_similarity` for a field to count as a match — raise it to tighten fuzzy matches, lower it
+to loosen them:
+
+```csharp
+services.AddFerret(o => o
+    .ScanAssembly(typeof(Article).Assembly)
+    .UseTrigramSearch(t => t.MinimumSimilarity = 0.35));
+```
+
 ## Groups & weights
 
 A property joins a named **group** (e.g. `content`, `tags`); all properties in a group share
@@ -46,7 +59,48 @@ The migration backfills per the group's `ReindexMode` (`Inline` / `Concurrent` /
 
 ## Hybrid
 
-When an entity declares more than one backend (e.g. full-text + vector), enable
-`UseHybridSearch()` to fuse them with weighted Reciprocal Rank Fusion. Per-backend weights and
-confidence thresholds via `[HybridBackend(...)]`; force a single backend per query with
-`PagedQuery.Backend`.
+An entity that declares more than one backend on its searchable properties auto-routes to
+hybrid search — and the engine fails loud if you haven't wired it up.
+
+```csharp
+[SearchableEntity]
+[SearchGroup("content", FullTextConfig = "english")]
+[HybridBackend(SearchBackend.FullText, Weight = 2.0)]
+[HybridBackend(SearchBackend.Vector, Weight = 1.0)]
+public sealed class Article : ISearchableEntity<Guid>
+{
+    public Guid Id { get; init; }
+
+    [Searchable(Backend = SearchBackend.FullText, Group = "content", Weight = 2.0f)]
+    [Searchable(Backend = SearchBackend.Vector, Group = "semantic", EmbeddingDimensions = 768)]
+    public string Title { get; init; } = "";
+
+    [Searchable(Backend = SearchBackend.FullText, Group = "content", Weight = 1.0f)]
+    public string Body { get; init; } = "";
+}
+```
+
+```csharp
+services.AddFerret(o => o
+    .ScanAssembly(typeof(Article).Assembly)
+    .UseFullTextSearch(ft => ft.DefaultConfig = "english")
+    .UseVectorSearch(v => v.UseOllamaEmbeddings("http://localhost:11434"))
+    .UseHybridSearch(h => h.RrfK = 60));
+```
+
+`[HybridBackend(SearchBackend, Weight = ..., ConfidenceThreshold = ...)]` on the class tunes
+fusion per backend; both default to `NaN`, which inherits `HybridOptions.DefaultWeight` /
+`DefaultConfidenceThreshold`. Here full-text is weighted 2x the vector arm.
+
+Fusion is weighted Reciprocal Rank Fusion: each backend ranks candidates independently, then
+per-candidate scores are combined as `weight / (RrfK + rank)` and summed across backends. RRF
+is rank-based, not score-based, so backends with incomparable score scales (tsvector `ts_rank`
+vs. cosine distance) still combine sanely; `RrfK` (default 60) dampens how much a rank-1 hit
+dominates over lower ranks — raise it to flatten the influence of top ranks, lower it to sharpen
+it.
+
+**v1 limits**: `Filter` + hybrid is not supported — a hybrid query with `PagedQuery.Filter` set
+throws `NotSupportedException`. To filter, force a single backend for that query with
+`PagedQuery.Backend = SearchBackend.FullText` (bypasses fusion entirely) instead.
+
+See [vector-search.md](vector-search.md) for the vector-side annotation details and reindexing.

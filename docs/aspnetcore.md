@@ -8,7 +8,9 @@ scaffold a full endpoint with `MapFerret`.
 Non-generic `OffsetApiQuery` / `CursorApiQuery` bind compact query strings and map to a
 `PagedQuery<T, TKey>` at the controller boundary, so OpenAPI shows one shape per endpoint.
 
-Register the MVC binding alongside `AddControllers()`:
+Register both alongside `AddControllers()` — they are independent registrations, neither
+calls the other: `AddFerretAspNetCore()` registers `PaginationDefaultsResolver` (used below),
+`AddFerretMvcBinding()` registers the model-binder provider for `[FromQuery]` on these types.
 
 ```csharp
 builder.Services.AddFerretAspNetCore();
@@ -27,13 +29,15 @@ GET /products?page=0&limit=25&q=widge&filter=Name:eq:Blue&sort=Name:asc
 ```
 
 ```csharp
-[HttpGet, Route("products")]
-public Task<OffsetResult<Product>> Get(
-    [FromQuery] OffsetApiQuery q, PaginationDefaultsResolver resolver,
-    IServiceProvider sp, CancellationToken ct)
+public sealed class ProductsController(IFerretQueryService search) : ControllerBase
 {
-    var defaults = resolver.Resolve(HttpContext);
-    return db.SearchOffsetAsync<Product, Guid>(sp, q.ToPagedQuery<Product, Guid>(defaults), ct);
+    [HttpGet, Route("products")]
+    public Task<OffsetResult<Product>> Get(
+        [FromQuery] OffsetApiQuery q, PaginationDefaultsResolver resolver, CancellationToken ct)
+    {
+        var defaults = resolver.Resolve(HttpContext);
+        return search.SearchOffsetAsync<Product, Guid>(q.ToPagedQuery<Product, Guid>(defaults), ct);
+    }
 }
 ```
 
@@ -46,11 +50,10 @@ GET /products?after=<token>&limit=25&q=widge&sort=Name:asc
 ```csharp
 [HttpGet, Route("products/stream")]
 public Task<CursorResult<Product>> Stream(
-    [FromQuery] CursorApiQuery q, PaginationDefaultsResolver resolver,
-    IServiceProvider sp, CancellationToken ct)
+    [FromQuery] CursorApiQuery q, PaginationDefaultsResolver resolver, CancellationToken ct)
 {
     var defaults = resolver.Resolve(HttpContext);
-    return db.SearchCursorAsync<Product, Guid>(sp, q.ToPagedQuery<Product, Guid>(defaults), ct);
+    return search.SearchCursorAsync<Product, Guid>(q.ToPagedQuery<Product, Guid>(defaults), ct);
 }
 ```
 
@@ -79,17 +82,17 @@ app.MapFerret<Product, Guid>("/api/products");
 ### Prerequisites
 
 ```csharp
+builder.Services.AddDbContext<AppDbContext>(o => o.UseNpgsql(connectionString));
 builder.Services.AddFerret(opts => opts
     .ScanAssembly(typeof(Product).Assembly).UseTrigramSearch());
-builder.Services.AddDbContext<AppDbContext>(o => o.UseNpgsql(connectionString));
-builder.Services.AddFerretEntityFrameworkQueryService<AppDbContext>(); // IFerretQueryService
-builder.Services.AddFerretAspNetCore();                                // PaginationDefaultsResolver
+builder.Services.AddFerretEntityFrameworkCore<AppDbContext>(); // IFerretQueryService
+builder.Services.AddFerretAspNetCore();                        // PaginationDefaultsResolver
 ```
 
 The endpoint resolves `IFerretQueryService` from DI. `AddFerret` alone does not register one —
 an `IFerretSession` owns a connection and is built per call, so only an adapter that knows where
 connections come from can supply the service. Today that adapter is EF Core
-(`AddFerretEntityFrameworkQueryService<TContext>()`).
+(`AddFerretEntityFrameworkCore<TContext>()`).
 
 Dapper consumers drive `IFerretEngine` directly with a `DapperSession` they construct themselves
 (see [setup.md](setup.md)) and do not use `MapFerret`. To put Dapper behind these endpoints you
@@ -131,4 +134,25 @@ app.MapFerret<Product, Guid>("/api/products/stream",
 With `AddOpenApi()` registered, `MapFerret` documents every parameter for the chosen mode and
 the `200`/`400` responses. Customize via the `configure` callback (`o.Name`, `o.Tag`,
 `o.Summary`).
+
+## Mapping into an existing response DTO
+
+If your API contract is fixed and can't return `OffsetResult<T>` / `CursorResult<T>` directly,
+call `IFerretQueryService` yourself and project the result into your own envelope:
+
+```csharp
+var result = await search.SearchOffsetAsync<Product, Guid>(query, ct);
+return new ProductListResponse
+{
+    Products = result.Items.Select(ProductDto.FromEntity).ToList(),
+    Total = result.TotalCount,
+    HasMore = result.HasMore,
+};
+```
+
+`OffsetResult<T>` exposes `Items`, `Limit`, `Page`, `TotalCount`, `HasMore`, `HasPrev`, and
+`MatchInfo`; `CursorResult<T>` swaps `Page`/`TotalCount` for `NextCursor`/`PrevCursor`. Neither
+`MapFerret` nor the query types are required for this — `OffsetApiQuery`/`CursorApiQuery` still
+save you writing the query-string parsing in `### Query-string grammar` above, even if the
+response shape is your own.
 

@@ -1,3 +1,4 @@
+using Ferret.Abstractions.Querying;
 using Ferret.Core.DependencyInjection;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -98,8 +99,7 @@ public sealed class XminHydrationTests
         await using var sp = services.BuildServiceProvider();
 
         using var scope = sp.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<XminContext>();
-        var engineSp = scope.ServiceProvider;
+        var search = scope.ServiceProvider.GetRequiredService<IFerretQueryService>();
 
         var query = new PagedQuery<XminDoc, Guid>
         {
@@ -109,7 +109,7 @@ public sealed class XminHydrationTests
         };
 
         // This used to throw: column s.xmin does not exist
-        var result = await context.SearchOffsetAsync<XminDoc, Guid>(engineSp, query);
+        var result = await search.SearchOffsetAsync<XminDoc, Guid>(query);
 
         result.Items.Should().NotBeEmpty("trigram search on 'ferret' should match both seeded rows");
         result.Items.Should().AllSatisfy(doc => doc.Body.Should().Contain("ferret"));

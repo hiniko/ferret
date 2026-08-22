@@ -174,8 +174,7 @@ public class DiagnosticsEndToEndTests
         sc.AddFerret(o =>
         {
             o.ScanAssembly(typeof(Widget).Assembly)
-                .UseTrigramSearch()
-                .UseDapperHydration();
+                .UseTrigramSearch();
             opts?.Invoke(o);
         });
         return sc.BuildServiceProvider().GetRequiredService<IFerretEngine>();
