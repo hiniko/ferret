@@ -131,8 +131,6 @@ Ferret.Abstractions.Models.CursorResult<T>.Items.get -> System.Collections.Gener
 Ferret.Abstractions.Models.CursorResult<T>.Items.init -> void
 Ferret.Abstractions.Models.CursorResult<T>.Limit.get -> int
 Ferret.Abstractions.Models.CursorResult<T>.Limit.init -> void
-Ferret.Abstractions.Models.CursorResult<T>.MatchInfo.get -> Ferret.Abstractions.Models.SearchMatchInfo?
-Ferret.Abstractions.Models.CursorResult<T>.MatchInfo.init -> void
 Ferret.Abstractions.Models.CursorResult<T>.NextCursor.get -> string?
 Ferret.Abstractions.Models.CursorResult<T>.NextCursor.init -> void
 Ferret.Abstractions.Models.CursorResult<T>.PrevCursor.get -> string?
@@ -158,6 +156,7 @@ Ferret.Abstractions.Models.FilterOperator.LessThan = 5 -> Ferret.Abstractions.Mo
 Ferret.Abstractions.Models.FilterOperator.LessThanOrEqual = 6 -> Ferret.Abstractions.Models.FilterOperator
 Ferret.Abstractions.Models.FilterOperator.NotEquals = 1 -> Ferret.Abstractions.Models.FilterOperator
 Ferret.Abstractions.Models.FilterOperator.NotNull = 9 -> Ferret.Abstractions.Models.FilterOperator
+Ferret.Abstractions.Models.Filters
 Ferret.Abstractions.Models.InvalidCursorException
 Ferret.Abstractions.Models.InvalidCursorException.InvalidCursorException(string! message) -> void
 Ferret.Abstractions.Models.MultiSearchEntityDefinition
@@ -211,14 +210,14 @@ Ferret.Abstractions.Models.OffsetResult<T>.Items.get -> System.Collections.Gener
 Ferret.Abstractions.Models.OffsetResult<T>.Items.init -> void
 Ferret.Abstractions.Models.OffsetResult<T>.Limit.get -> int
 Ferret.Abstractions.Models.OffsetResult<T>.Limit.init -> void
-Ferret.Abstractions.Models.OffsetResult<T>.MatchInfo.get -> Ferret.Abstractions.Models.SearchMatchInfo?
-Ferret.Abstractions.Models.OffsetResult<T>.MatchInfo.init -> void
 Ferret.Abstractions.Models.OffsetResult<T>.OffsetResult() -> void
 Ferret.Abstractions.Models.OffsetResult<T>.Page.get -> int
 Ferret.Abstractions.Models.OffsetResult<T>.Page.init -> void
 Ferret.Abstractions.Models.OffsetResult<T>.TotalCount.get -> int
 Ferret.Abstractions.Models.OffsetResult<T>.TotalCount.init -> void
 Ferret.Abstractions.Models.PagedQuery<T, TKey>
+Ferret.Abstractions.Models.PagedQuery<T, TKey>.AuthoritativeFilter.get -> System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Models.FilterClause!>!
+Ferret.Abstractions.Models.PagedQuery<T, TKey>.AuthoritativeFilter.init -> void
 Ferret.Abstractions.Models.PagedQuery<T, TKey>.Backend.get -> Ferret.Abstractions.Attributes.SearchBackend?
 Ferret.Abstractions.Models.PagedQuery<T, TKey>.Backend.init -> void
 Ferret.Abstractions.Models.PagedQuery<T, TKey>.CandidateKeys.get -> System.Collections.Generic.IReadOnlyList<TKey>?
@@ -229,8 +228,6 @@ Ferret.Abstractions.Models.PagedQuery<T, TKey>.CursorDirection.get -> Ferret.Abs
 Ferret.Abstractions.Models.PagedQuery<T, TKey>.CursorDirection.init -> void
 Ferret.Abstractions.Models.PagedQuery<T, TKey>.Filter.get -> System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Models.FilterClause!>!
 Ferret.Abstractions.Models.PagedQuery<T, TKey>.Filter.init -> void
-Ferret.Abstractions.Models.PagedQuery<T, TKey>.IncludeMatchInfo.get -> bool
-Ferret.Abstractions.Models.PagedQuery<T, TKey>.IncludeMatchInfo.init -> void
 Ferret.Abstractions.Models.PagedQuery<T, TKey>.Limit.get -> int
 Ferret.Abstractions.Models.PagedQuery<T, TKey>.Limit.init -> void
 Ferret.Abstractions.Models.PagedQuery<T, TKey>.Mode.get -> Ferret.Abstractions.Models.PaginationMode
@@ -249,16 +246,6 @@ Ferret.Abstractions.Models.PagedQuery<T, TKey>.Sort.init -> void
 Ferret.Abstractions.Models.PaginationMode
 Ferret.Abstractions.Models.PaginationMode.Cursor = 1 -> Ferret.Abstractions.Models.PaginationMode
 Ferret.Abstractions.Models.PaginationMode.Offset = 0 -> Ferret.Abstractions.Models.PaginationMode
-Ferret.Abstractions.Models.SearchMatchInfo
-Ferret.Abstractions.Models.SearchMatchInfo.<Clone>$() -> Ferret.Abstractions.Models.SearchMatchInfo!
-Ferret.Abstractions.Models.SearchMatchInfo.Equals(Ferret.Abstractions.Models.SearchMatchInfo? other) -> bool
-Ferret.Abstractions.Models.SearchMatchInfo.Field.get -> string!
-Ferret.Abstractions.Models.SearchMatchInfo.Field.init -> void
-Ferret.Abstractions.Models.SearchMatchInfo.MatchingChildId.get -> object?
-Ferret.Abstractions.Models.SearchMatchInfo.MatchingChildId.init -> void
-Ferret.Abstractions.Models.SearchMatchInfo.Score.get -> double
-Ferret.Abstractions.Models.SearchMatchInfo.Score.init -> void
-Ferret.Abstractions.Models.SearchMatchInfo.SearchMatchInfo() -> void
 Ferret.Abstractions.Models.SortClause
 Ferret.Abstractions.Models.SortClause.<Clone>$() -> Ferret.Abstractions.Models.SortClause!
 Ferret.Abstractions.Models.SortClause.Direction.get -> Ferret.Abstractions.Models.SortDirection
@@ -379,6 +366,8 @@ Ferret.Abstractions.Search.SearchContext.CandidateIdsParameterName.get -> string
 Ferret.Abstractions.Search.SearchContext.CandidateIdsParameterName.init -> void
 Ferret.Abstractions.Search.SearchContext.CandidateKeyParameterNames.get -> System.Collections.Generic.IReadOnlyList<string!>?
 Ferret.Abstractions.Search.SearchContext.CandidateKeyParameterNames.init -> void
+Ferret.Abstractions.Search.SearchContext.CandidatePredicateSql.get -> string?
+Ferret.Abstractions.Search.SearchContext.CandidatePredicateSql.init -> void
 Ferret.Abstractions.Search.SearchContext.Equals(Ferret.Abstractions.Search.SearchContext? other) -> bool
 Ferret.Abstractions.Search.SearchContext.HasCandidateIds.get -> bool
 Ferret.Abstractions.Search.SearchContext.HasCandidateIds.init -> void
@@ -497,9 +486,6 @@ override Ferret.Abstractions.Models.OffsetResult<T>.ToString() -> string!
 override Ferret.Abstractions.Models.PagedQuery<T, TKey>.Equals(object? obj) -> bool
 override Ferret.Abstractions.Models.PagedQuery<T, TKey>.GetHashCode() -> int
 override Ferret.Abstractions.Models.PagedQuery<T, TKey>.ToString() -> string!
-override Ferret.Abstractions.Models.SearchMatchInfo.Equals(object? obj) -> bool
-override Ferret.Abstractions.Models.SearchMatchInfo.GetHashCode() -> int
-override Ferret.Abstractions.Models.SearchMatchInfo.ToString() -> string!
 override Ferret.Abstractions.Models.SortClause.Equals(object? obj) -> bool
 override Ferret.Abstractions.Models.SortClause.GetHashCode() -> int
 override Ferret.Abstractions.Models.SortClause.ToString() -> string!
@@ -545,10 +531,18 @@ static Ferret.Abstractions.Models.CursorResult<T>.operator !=(Ferret.Abstraction
 static Ferret.Abstractions.Models.CursorResult<T>.operator ==(Ferret.Abstractions.Models.CursorResult<T>? left, Ferret.Abstractions.Models.CursorResult<T>? right) -> bool
 static Ferret.Abstractions.Models.FilterClause.operator !=(Ferret.Abstractions.Models.FilterClause? left, Ferret.Abstractions.Models.FilterClause? right) -> bool
 static Ferret.Abstractions.Models.FilterClause.operator ==(Ferret.Abstractions.Models.FilterClause? left, Ferret.Abstractions.Models.FilterClause? right) -> bool
+static Ferret.Abstractions.Models.Filters.Contains(string! field, string! value) -> Ferret.Abstractions.Models.FilterClause!
+static Ferret.Abstractions.Models.Filters.Eq(string! field, object? value) -> Ferret.Abstractions.Models.FilterClause!
+static Ferret.Abstractions.Models.Filters.Gt(string! field, object? value) -> Ferret.Abstractions.Models.FilterClause!
+static Ferret.Abstractions.Models.Filters.Gte(string! field, object? value) -> Ferret.Abstractions.Models.FilterClause!
+static Ferret.Abstractions.Models.Filters.In(string! field, params object?[]! values) -> Ferret.Abstractions.Models.FilterClause!
+static Ferret.Abstractions.Models.Filters.IsNull(string! field) -> Ferret.Abstractions.Models.FilterClause!
+static Ferret.Abstractions.Models.Filters.Lt(string! field, object? value) -> Ferret.Abstractions.Models.FilterClause!
+static Ferret.Abstractions.Models.Filters.Lte(string! field, object? value) -> Ferret.Abstractions.Models.FilterClause!
+static Ferret.Abstractions.Models.Filters.Neq(string! field, object? value) -> Ferret.Abstractions.Models.FilterClause!
+static Ferret.Abstractions.Models.Filters.NotNull(string! field) -> Ferret.Abstractions.Models.FilterClause!
 static Ferret.Abstractions.Models.OffsetResult<T>.operator !=(Ferret.Abstractions.Models.OffsetResult<T>? left, Ferret.Abstractions.Models.OffsetResult<T>? right) -> bool
 static Ferret.Abstractions.Models.OffsetResult<T>.operator ==(Ferret.Abstractions.Models.OffsetResult<T>? left, Ferret.Abstractions.Models.OffsetResult<T>? right) -> bool
-static Ferret.Abstractions.Models.SearchMatchInfo.operator !=(Ferret.Abstractions.Models.SearchMatchInfo? left, Ferret.Abstractions.Models.SearchMatchInfo? right) -> bool
-static Ferret.Abstractions.Models.SearchMatchInfo.operator ==(Ferret.Abstractions.Models.SearchMatchInfo? left, Ferret.Abstractions.Models.SearchMatchInfo? right) -> bool
 static Ferret.Abstractions.Models.SortClause.operator !=(Ferret.Abstractions.Models.SortClause? left, Ferret.Abstractions.Models.SortClause? right) -> bool
 static Ferret.Abstractions.Models.SortClause.operator ==(Ferret.Abstractions.Models.SortClause? left, Ferret.Abstractions.Models.SortClause? right) -> bool
 static Ferret.Abstractions.Querying.FerretQueryServiceMultiSearchExtensions.MultiSearchAsync(this Ferret.Abstractions.Querying.IFerretQueryService! service, System.Action<Ferret.Abstractions.Models.MultiSearchQueryBuilder!>! configure, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Ferret.Abstractions.Models.MultiSearchResult!>!

@@ -20,6 +20,7 @@ Ferret.AspNetCore.CursorApiQuery.Before.init -> void
 Ferret.AspNetCore.CursorApiQuery.CursorApiQuery() -> void
 Ferret.AspNetCore.CursorApiQuery.Equals(Ferret.AspNetCore.CursorApiQuery? other) -> bool
 Ferret.AspNetCore.CursorApiQuery.ToPagedQuery<T, TKey>(Ferret.Abstractions.Configuration.PaginationDefaults defaults) -> Ferret.Abstractions.Models.PagedQuery<T!, TKey>!
+Ferret.AspNetCore.CursorApiQuery.ToPagedQuery<T, TKey>(Ferret.Abstractions.Configuration.PaginationDefaults defaults, System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Models.FilterClause!>! authoritativeFilters) -> Ferret.Abstractions.Models.PagedQuery<T!, TKey>!
 Ferret.AspNetCore.DependencyInjection.FerretAspNetCoreExtensions
 Ferret.AspNetCore.FerretEndpointOptions
 Ferret.AspNetCore.FerretEndpointOptions.DefaultLimit.get -> int?
@@ -69,6 +70,7 @@ Ferret.AspNetCore.OffsetApiQuery.OffsetApiQuery() -> void
 Ferret.AspNetCore.OffsetApiQuery.Page.get -> int?
 Ferret.AspNetCore.OffsetApiQuery.Page.init -> void
 Ferret.AspNetCore.OffsetApiQuery.ToPagedQuery<T, TKey>(Ferret.Abstractions.Configuration.PaginationDefaults defaults) -> Ferret.Abstractions.Models.PagedQuery<T!, TKey>!
+Ferret.AspNetCore.OffsetApiQuery.ToPagedQuery<T, TKey>(Ferret.Abstractions.Configuration.PaginationDefaults defaults, System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Models.FilterClause!>! authoritativeFilters) -> Ferret.Abstractions.Models.PagedQuery<T!, TKey>!
 Ferret.AspNetCore.PaginationDefaultsResolver
 Ferret.AspNetCore.PaginationDefaultsResolver.PaginationDefaultsResolver(Microsoft.Extensions.Options.IOptions<Ferret.Abstractions.Configuration.PaginationOptions!>! options) -> void
 Ferret.AspNetCore.PaginationDefaultsResolver.Resolve(Microsoft.AspNetCore.Http.HttpContext? httpContext) -> Ferret.Abstractions.Configuration.PaginationDefaults
@@ -79,8 +81,6 @@ Ferret.AspNetCore.PaginationParameters.Filter.get -> System.Collections.Generic.
 Ferret.AspNetCore.PaginationParameters.Filter.init -> void
 Ferret.AspNetCore.PaginationParameters.Limit.get -> int?
 Ferret.AspNetCore.PaginationParameters.Limit.init -> void
-Ferret.AspNetCore.PaginationParameters.MatchInfo.get -> bool
-Ferret.AspNetCore.PaginationParameters.MatchInfo.init -> void
 Ferret.AspNetCore.PaginationParameters.PaginationParameters() -> void
 Ferret.AspNetCore.PaginationParameters.PaginationParameters(Ferret.AspNetCore.PaginationParameters! original) -> void
 Ferret.AspNetCore.PaginationParameters.Q.get -> string?
