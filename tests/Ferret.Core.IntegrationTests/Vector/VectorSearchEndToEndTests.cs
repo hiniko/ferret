@@ -64,6 +64,111 @@ public class VectorSearchEndToEndTests
         result.Items[0].Body.Should().Be(target, "the exact sentence's own embedding is the nearest neighbour to itself");
     }
 
+    [SearchableEntity(Table = "vdocs_filtered")]
+    public sealed class VDocFiltered : ISearchableEntity<Guid>
+    {
+        public Guid Id { get; init; }
+
+        [Searchable(Backend = SearchBackend.Vector, Group = "content", EmbeddingDimensions = 8)]
+        public string Body { get; init; } = "";
+
+        [Filterable]
+        public string Region { get; init; } = "";
+    }
+
+    [SkippableFact]
+    public async Task Filter_pushdown_restricts_vector_search_to_matching_region()
+    {
+        // Regression: filter predicates must join the vector sidecar to a base-table CTE
+        // (filterable columns like Region live on vdocs_filtered, not the sidecar) rather
+        // than materialising matching ids with a separate round trip.
+        var provider = new FakeEmbeddingProvider(8);
+
+        var docs = new (string Body, string Region)[]
+        {
+            ("The quick brown fox jumps over the lazy dog", "emea"),
+            ("A stitch in time saves nine", "apac"),
+            ("All that glitters is not gold", "emea"),
+        };
+
+        await using var conn = new NpgsqlConnection(_fx.ConnectionString);
+        await conn.OpenAsync();
+        var ids = await SeedFilteredAsync(conn, provider, docs);
+
+        await using var sp = BuildServices2(provider, efSearch: 40);
+        var engine = sp.GetRequiredService<IFerretEngine>();
+        var dialect = sp.GetRequiredService<ISqlDialect>();
+
+        var csb = new NpgsqlConnectionStringBuilder(_fx.ConnectionString) { PersistSecurityInfo = true };
+        await using var session = new DapperSession(
+            ct => Task.FromResult<DbConnection>(new NpgsqlConnection(csb.ConnectionString)),
+            dialect);
+
+        var target = docs[2].Body; // "All that glitters is not gold" — emea, index 2
+        var result = await engine.SearchOffsetAsync<VDocFiltered, Guid>(session,
+            new PagedQuery<VDocFiltered, Guid>
+            {
+                Mode = PaginationMode.Offset,
+                Search = target,
+                Limit = 10,
+                Filter = [new FilterClause { Field = "Region", Operator = FilterOperator.Equals, Value = "emea" }],
+            });
+
+        result.Items.Should().NotBeEmpty();
+        result.Items.Should().OnlyContain(d => d.Region == "emea");
+        result.Items[0].Body.Should().Be(target);
+
+        // The apac-only document must never appear regardless of vector proximity.
+        result.Items.Should().NotContain(d => d.Body == docs[1].Body);
+    }
+
+    private static ServiceProvider BuildServices2(FakeEmbeddingProvider provider, int efSearch)
+    {
+        var sc = new ServiceCollection();
+        sc.AddLogging();
+        sc.AddFerret(o => o.ScanAssembly(typeof(VDocFiltered).Assembly)
+            .UseVectorSearch(v => { v.UseEmbeddingProvider(_ => provider); v.EfSearch = efSearch; }));
+        return sc.BuildServiceProvider();
+    }
+
+    private static async Task<List<Guid>> SeedFilteredAsync(
+        NpgsqlConnection conn, FakeEmbeddingProvider provider, (string Body, string Region)[] docs)
+    {
+        var sidecar = VectorSidecarNaming.TableName("vdocs_filtered", new VectorOptions());
+        var col     = VectorSidecarNaming.ColumnName("content", new VectorOptions(), VectorSidecarNaming.CurrentVersion);
+        var idx     = VectorSidecarNaming.IndexName(sidecar, col);
+
+        await conn.ExecuteAsync($"""
+            DROP TABLE IF EXISTS "{sidecar}" CASCADE;
+            DROP TABLE IF EXISTS vdocs_filtered CASCADE;
+            CREATE TABLE vdocs_filtered (id uuid PRIMARY KEY, body text NOT NULL, region text NOT NULL);
+            {VectorDdlBuilder.CreateVersionRegistry(null)}
+            {VectorDdlBuilder.CreateSidecarTable(sidecar, null, "vdocs_filtered", null, "id", "uuid")}
+            {VectorDdlBuilder.AddGroupColumn(sidecar, null, col, provider.Dimensions)}
+            {VectorDdlBuilder.CreateGroupIndex(sidecar, null, idx, col, m: 16, efConstruction: 64)}
+            """);
+
+        await conn.ExecuteAsync(
+            "DELETE FROM ferret_vector_versions WHERE entity = @entity AND group_name = @group AND status = 'active'; " +
+            "INSERT INTO ferret_vector_versions (entity, group_name, model, dimensions, column_name, status) " +
+            "VALUES (@entity, @group, @model, @dims, @col, 'active')",
+            new { entity = "vdocs_filtered", group = "content", model = "fake", dims = provider.Dimensions, col });
+
+        var ids = new List<Guid>();
+        foreach (var (body, region) in docs)
+        {
+            var id = Guid.NewGuid();
+            ids.Add(id);
+            var vec = await provider.EmbedAsync(body, default);
+            var lit = "[" + string.Join(",", vec.Select(f => f.ToString(CultureInfo.InvariantCulture))) + "]";
+            await conn.ExecuteAsync(
+                $"INSERT INTO vdocs_filtered (id, body, region) VALUES (@id, @body, @region); " +
+                $"INSERT INTO \"{sidecar}\" (id, \"{col}\") VALUES (@id, @vec::vector);",
+                new { id, body, region, vec = lit });
+        }
+        return ids;
+    }
+
     [SkippableFact]
     public async Task Recall_changes_with_ef_search()
     {

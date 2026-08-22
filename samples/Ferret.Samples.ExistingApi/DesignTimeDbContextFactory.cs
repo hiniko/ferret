@@ -12,6 +12,12 @@ namespace Ferret.Example.ExistingApi;
 /// </summary>
 public sealed class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
 {
+    // Design-time tools do not read appsettings; honour the same env var the app uses so
+    // `dotnet ef` can target a non-default database.
+    private static string ConnectionString =>
+        Environment.GetEnvironmentVariable("ConnectionStrings__Postgres")
+        ?? "Host=localhost;Port=5433;Database=ferret_existing;Username=postgres;Password=ferret";
+
     public AppDbContext CreateDbContext(string[] args)
     {
         var services = new ServiceCollection();
@@ -21,7 +27,7 @@ public sealed class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<App
             .WithPaginationDefaults(defaultLimit: 25, maxLimit: 100));
 
         var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseNpgsql("Host=localhost;Port=5433;Database=ferret_existing;Username=postgres;Password=ferret")
+            .UseNpgsql(ConnectionString)
             .UseApplicationServiceProvider(services.BuildServiceProvider())
             .Options;
 

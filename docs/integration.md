@@ -145,68 +145,82 @@ public sealed class UsersController(IFerretQueryService search) : ControllerBase
 `OffsetResult<T>` carries `Items`, `TotalCount`, `Page`, `Limit`, `HasMore`, `HasPrev`.
 Project it into whatever envelope your API already returns.
 
-## 5. Keep your existing filtering rules — the candidate-keys pattern
+## 5. Keep your existing filtering rules
 
-This is the pattern most existing applications need, and it is worth understanding before
-you wire anything up.
-
-Real repositories have filtering that is not expressible as a `FilterClause`: soft-delete
-predicates, tenant scoping, permission checks, EF global query filters, joins across
-`Include`s. You cannot express those to Ferret, and you should not have to.
-
-Also: projecting entities with `Include`s directly through search duplicates rows, because
-the join fans out.
-
-The fix is to let each side do what it is good at — **EF decides which rows are eligible,
-Ferret ranks them**:
+Real applications have rules that must hold on every query and are not the caller's to decide:
+tenant scoping, soft delete, permission boundaries. Express them as **authoritative filters** and
+Ferret compiles them into the search query:
 
 ```csharp
-public async Task<Page<User>> SearchUsers(string term, int page, CancellationToken ct)
+var result = await search.SearchOffsetAsync<User, Guid>(new PagedQuery<User, Guid>
 {
-    // 1. YOUR existing rules, in plain EF. No Includes here — keys only.
-    var candidateIds = await _db.Users
-        .Where(u => !u.IsDeleted)
-        .Where(u => u.OrganisationId == _currentOrg)
-        .Select(u => u.Id)
-        .ToListAsync(ct);
-
-    // 2. Ferret ranks only those rows.
-    var ranked = await _search.SearchOffsetAsync<User, Guid>(new PagedQuery<User, Guid>
-    {
-        Search = term,
-        CandidateKeys = candidateIds,
-        Limit = 25,
-        Page = page,
-        RequestTotalCount = true,
-    }, ct);
-
-    // 3. Re-hydrate with YOUR Includes, then restore Ferret's ranking.
-    var ids = ranked.Items.Select(u => u.Id).ToList();
-    var hydrated = await _db.Users
-        .Include(u => u.Organisation)
-        .Where(u => ids.Contains(u.Id))
-        .ToListAsync(ct);
-
-    var byId = hydrated.ToDictionary(u => u.Id);
-    var ordered = ids.Select(id => byId[id]).ToList();   // rank order, not DB order
-
-    return new Page<User>(ordered, ranked.TotalCount, page);
-}
+    Search = term,
+    Limit = 25,
+    Page = page,
+    RequestTotalCount = true,
+    AuthoritativeFilter =
+    [
+        Filters.Eq(nameof(User.OrganisationId), currentOrg),
+        Filters.Eq(nameof(User.IsDeleted), false),
+    ],
+}, ct);
 ```
 
-Notes on this pattern:
+Two properties matter here:
 
-- **Step 3 must reorder.** `WHERE id IN (...)` returns rows in whatever order Postgres
-  chooses. Ferret's ranking is in `ranked.Items`; the dictionary lookup restores it.
-- **An empty `CandidateKeys` list short-circuits** to an empty result — it does not mean
-  "no restriction". Null means no restriction.
-- `CandidateKeys` intersects with any `Filter` clauses you also pass.
-- It is ignored when `Search` is not set.
-- For very large candidate sets, prefer expressing what you can as `[Filterable]` clauses
-  and reserve this for predicates that genuinely cannot be expressed.
+- **Pushed down.** The predicate is part of the search SQL, so Postgres applies it while
+  ranking. Nothing is pre-loaded and no key list crosses the wire.
+- **Authoritative.** Any caller clause on the same field is *replaced*, not combined. A hostile
+  `?filter=OrganisationId:eq:<other-org>` cannot widen the boundary.
 
-When your filtering *is* expressible declaratively, skip all this and use `[Filterable]`
-with `FilterClause` — see [aspnetcore.md](aspnetcore.md) for the query-string grammar.
+The properties must be `[Filterable]`. Ordinary `Filter` clauses — the ones your API binds from
+the query string — are merged on top, so callers can still narrow within the boundary you set.
+
+From a controller, the ASP.NET query types take them directly:
+
+```csharp
+var query = q.ToPagedQuery<User, Guid>(defaults,
+[
+    Filters.Eq(nameof(User.OrganisationId), currentOrg),
+]);
+```
+
+### Re-hydrating with Includes
+
+If the endpoint needs navigation properties, load them after ranking and **restore Ferret's
+order** — `WHERE id IN (...)` returns database order, not relevance order:
+
+```csharp
+var ids = result.Items.Select(u => u.Id).ToList();
+var hydrated = await _db.Users
+    .Include(u => u.Organisation)
+    .Where(u => ids.Contains(u.Id))
+    .ToListAsync(ct);
+
+var byId = hydrated.ToDictionary(u => u.Id);
+var ordered = ids.Where(byId.ContainsKey).Select(id => byId[id]).ToList();
+```
+
+Projecting `Include`s through the search itself would duplicate rows as the join fans out, which
+is why hydration is a separate step.
+
+### Predicates that cannot be expressed as filters
+
+`PagedQuery.CandidateKeys` accepts a pre-computed key list for rules with no `FilterClause`
+equivalent. It materialises those keys in your application and sends them to Postgres, so it
+costs a round trip and does not scale to large candidate sets — treat it as an escape hatch:
+
+```csharp
+var candidateIds = await _db.Users
+    .Where(SomePredicateOnlyEfCanExpress())
+    .Select(u => u.Id)
+    .ToListAsync(ct);
+
+// Empty list short-circuits to an empty result; null means no restriction.
+// Intersects with any Filter clauses you also pass.
+```
+
+Prefer `[Filterable]` and let the database do the work.
 
 ## 6. Running alongside an existing search implementation
 

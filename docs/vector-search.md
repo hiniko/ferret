@@ -72,3 +72,10 @@ incompatible vectors.
 v1 keeps a single active version per group. Zero-downtime backfill between versions (serve v1
 while building v2) is a planned addition — the registry + version-stamped columns are the
 foundation for it.
+
+## Filtering and vector search
+
+Combining a filter with vector search has a caveat that does not apply to trigram or full-text:
+a selective filter can return a short page, because the HNSW index is approximate and cannot see
+the filter. See [vector-filtering.md](vector-filtering.md) for why, what the wider ecosystem
+does, and what to do about it today.

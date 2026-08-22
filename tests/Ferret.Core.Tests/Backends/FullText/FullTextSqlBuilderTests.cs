@@ -140,6 +140,78 @@ public sealed class FullTextSqlBuilderTests
            .And.Contain(" AND ");
     }
 
+    [Fact]
+    public void CandidatePredicate_pushes_filter_into_candidates_ids_cte_without_materialising_keys()
+    {
+        var groups = new List<FullTextGroup>
+        {
+            new() { Name = "content", FullTextConfig = "english", Reindex = ReindexMode.Inline,
+                    Properties = [ new() { PropertyName = "Name", ColumnName = "name", Weight = FullTextWeightBucket.A } ] },
+        };
+        var ctx = new FullTextSqlContext
+        {
+            SourceTable = "products", IdColumn = "id", SearchTerm = "x",
+            Groups = groups, Limit = 10, Offset = 0,
+            CandidatePredicateSql = "e.\"sku\" = @f0",
+        };
+
+        var sql = new FullTextSqlBuilder(Dialect, Opts).BuildRanking(ctx).Sql;
+
+        // The predicate lives inside candidates_ids (a base-table select), not a separate
+        // filter query — proving this is a single round trip, not filter-then-fetch.
+        sql.Should().Contain("WITH candidates_ids AS (SELECT")
+           .And.Contain("FROM \"products\" e WHERE e.\"sku\" = @f0")
+           .And.Contain("INNER JOIN candidates_ids c ON")
+           .And.NotContain("unnest(");
+    }
+
+    [Fact]
+    public void CandidatePredicate_combines_with_CandidateIds_by_intersection()
+    {
+        var groups = new List<FullTextGroup>
+        {
+            new() { Name = "content", FullTextConfig = "english", Reindex = ReindexMode.Inline,
+                    Properties = [ new() { PropertyName = "Name", ColumnName = "name", Weight = FullTextWeightBucket.A } ] },
+        };
+        var ctx = new FullTextSqlContext
+        {
+            SourceTable = "products", IdColumn = "id", SearchTerm = "x",
+            Groups = groups, Limit = 10, Offset = 0,
+            CandidateIdsParameterName = "@candidate_ids",
+            CandidatePredicateSql = "e.\"sku\" = @f0",
+        };
+
+        var sql = new FullTextSqlBuilder(Dialect, Opts).BuildRanking(ctx).Sql;
+
+        sql.Should().Contain("FROM \"products\" e WHERE e.\"sku\" = @f0 AND e.\"id\" = ANY(@candidate_ids)");
+    }
+
+    [Fact]
+    public void CandidatePredicate_on_composite_key_projects_all_key_columns_even_without_candidate_array()
+    {
+        var groups = new List<FullTextGroup>
+        {
+            new() { Name = "content", FullTextConfig = "english", Reindex = ReindexMode.Inline,
+                    Properties = [ new() { PropertyName = "Name", ColumnName = "name", Weight = FullTextWeightBucket.A } ] },
+        };
+        var ctx = new FullTextSqlContext
+        {
+            SourceTable = "products", IdColumn = "tenant_id", SearchTerm = "x",
+            Groups = groups, Limit = 10, Offset = 0,
+            KeyColumns = ["tenant_id", "id"],
+            CandidatePredicateSql = "e.\"sku\" = @f0",
+        };
+
+        var sql = new FullTextSqlBuilder(Dialect, Opts).BuildRanking(ctx).Sql;
+
+        // Regression: a predicate-only (no candidate key array) composite-key CTE must still
+        // project every key column, and the join must match on all of them — not silently
+        // degrade to the single id column.
+        sql.Should().Contain("SELECT e.\"tenant_id\", e.\"id\" FROM \"products\" e WHERE e.\"sku\" = @f0")
+           .And.Contain("c.\"tenant_id\" = s.\"tenant_id\"")
+           .And.Contain("c.\"id\" = s.\"id\"");
+    }
+
     [Theory]
     [InlineData(FullTextParser.Websearch, "websearch_to_tsquery")]
     [InlineData(FullTextParser.Plain,     "plainto_tsquery")]

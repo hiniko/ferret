@@ -132,6 +132,7 @@ See [docs/advanced.md](docs/advanced.md) for custom connection factories and the
 - **[Full-text search](docs/full-text-search.md)** — groups, weights, hybrid.
 - **[Multisearch](docs/multisearch.md)** — grouped multi-entity search for cmd-K UIs.
 - **[Vector search & embeddings](docs/vector-search.md)** — connectors, version transitions.
+- **[Vector filtering](docs/vector-filtering.md)** — why filters + vector search need care, and what the ecosystem does about it.
 - **[ASP.NET Core](docs/aspnetcore.md)** — query shapes, `MapFerret`, legacy wire shape.
 - **[Lower-level APIs](docs/advanced.md)** — Dapper, `IFerretEngine`, bring-your-own session.
 

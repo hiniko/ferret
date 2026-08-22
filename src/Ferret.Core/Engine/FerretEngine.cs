@@ -48,6 +48,8 @@ internal sealed partial class FerretEngine : IFerretEngine
             throw new InvalidOperationException(
                 $"SearchOffsetAsync invoked with PagedQuery.Mode={query.Mode}; expected {PaginationMode.Offset}.");
 
+        query = ApplyAuthoritativeFilters(query);
+
         var model = _registry.Get<T>();
         var meta = EntityMetadata.From(model, session.Dialect);
         var limit = query.Limit;
@@ -92,6 +94,8 @@ internal sealed partial class FerretEngine : IFerretEngine
         if (query.Mode != PaginationMode.Cursor)
             throw new InvalidOperationException(
                 $"SearchCursorAsync invoked with PagedQuery.Mode={query.Mode}; expected {PaginationMode.Cursor}.");
+
+        query = ApplyAuthoritativeFilters(query);
 
         var model = _registry.Get<T>();
         var meta = EntityMetadata.From(model, session.Dialect);
@@ -559,9 +563,11 @@ internal sealed partial class FerretEngine : IFerretEngine
         ISearchBackend backend, EntityModel model, ISqlDialect dialect, string term,
         float[]? searchVector, int limit, int offset, bool hasCandidateIds,
         EntityMetadata meta, IReadOnlyList<string>? candidateKeyParameterNames,
-        string? resolvedVectorColumn, IReadOnlyList<string> searchFields)
+        string? resolvedVectorColumn, IReadOnlyList<string> searchFields,
+        SqlFragment? candidatePredicate)
     {
         var keyColumns = meta.IsComposite ? meta.Key.Select(k => k.ColumnName).ToList() : null;
+        var predicateSql = candidatePredicate?.Sql;
 
         if (backend is FullTextSearchBackend ft)
         {
@@ -577,6 +583,7 @@ internal sealed partial class FerretEngine : IFerretEngine
                 CandidateIdsParameterName = hasCandidateIds ? "@candidate_ids" : null,
                 KeyColumns = keyColumns,
                 CandidateKeyParameterNames = hasCandidateIds ? candidateKeyParameterNames : null,
+                CandidatePredicateSql = predicateSql,
             });
         }
 
@@ -595,6 +602,8 @@ internal sealed partial class FerretEngine : IFerretEngine
                 EfSearch = vb.Options.EfSearch,
                 CandidateIdsParameterName = hasCandidateIds ? "@candidate_ids" : null,
                 CandidateKeyParameterNames = hasCandidateIds ? candidateKeyParameterNames : null,
+                CandidatePredicateSql = predicateSql,
+                BaseTable = predicateSql is not null ? model.TableName : null,
             });
         }
 
@@ -611,6 +620,7 @@ internal sealed partial class FerretEngine : IFerretEngine
             CandidateKeyParameterNames = hasCandidateIds ? candidateKeyParameterNames : null,
             Limit = limit,
             Offset = offset,
+            CandidatePredicateSql = predicateSql,
         };
         return backend.BuildRankingQuery(ctx);
     }
@@ -801,25 +811,26 @@ internal sealed partial class FerretEngine : IFerretEngine
         var connection = await session.OpenConnectionAsync(ct);
 
         var candidateKeys = query.CandidateKeys?.ToList();
+
+        // Filter pushdown: compile Filter into a parameterised predicate (aliased against the
+        // base table as "e") and pass it through to the backend's candidates CTE instead of
+        // materialising matching keys with a separate round trip and shipping them back as an
+        // array. "f" is a dedicated parameter prefix so filter params cannot collide with a
+        // backend's own named params (@qvec, @candidate_ids, trigram's per-field @p{n}, ...).
+        SqlFragment? candidatePredicate = null;
         if (query.Filter.Count > 0)
         {
             var filterFragments = new List<SqlFragment>();
             var filterParamIndex = 0;
             foreach (var f in query.Filter)
             {
-                var frag = PagedSqlBuilder.CompileFilter(f, meta, filterParamIndex);
+                var frag = PagedSqlBuilder.CompileFilter(f, meta, filterParamIndex, tableAlias: "e", parameterPrefix: "f");
                 filterFragments.Add(frag);
                 filterParamIndex += frag.Parameters.Count;
             }
-            var keyColsSelect = string.Join(", ", meta.Key.Select(k => meta.Dialect.QuoteIdentifier(k.ColumnName)));
-            var filterSql = $"SELECT {keyColsSelect} FROM {meta.QuotedTable} WHERE " +
-                            string.Join(" AND ", filterFragments.Select(f => f.Sql));
-            var filterParams = filterFragments.SelectMany(f => f.Parameters).ToList();
-
-            var matched = await ExecuteIdReaderAsync<TKey>(
-                connection, "ferret.db.query.filter", filterSql, filterParams, meta.Key.Count, ct);
-            // External CandidateKeys and clause-derived candidates combine by intersection.
-            candidateKeys = candidateKeys is null ? matched : [.. candidateKeys.Intersect(matched)];
+            var predicateSql = string.Join(" AND ", filterFragments.Select(f => f.Sql));
+            var predicateParams = filterFragments.SelectMany(f => f.Parameters).ToList();
+            candidatePredicate = new SqlFragment(predicateSql, predicateParams);
             backendActivity?.SetTag(Tags.FilterCount, query.Filter.Count);
         }
 
@@ -854,11 +865,17 @@ internal sealed partial class FerretEngine : IFerretEngine
         var fragment = BuildSearchFragment(
             backend, model, session.Dialect, query.Search!.Trim(),
             searchVector, limit, offset, candidateKeys is not null,
-            meta, candidateKeyParameterNames, resolvedVectorColumn, query.SearchFields);
+            meta, candidateKeyParameterNames, resolvedVectorColumn, query.SearchFields,
+            candidatePredicate);
 
         var executionParams = fragment.Parameters.ToList();
         if (vectorBackend is not null && searchVector is not null)
             executionParams.Add(new KeyValuePair<string, object?>("qvec", FormatVector(searchVector)));
+        if (candidatePredicate is { } cp)
+        {
+            for (var i = 0; i < cp.Parameters.Count; i++)
+                executionParams.Add(new KeyValuePair<string, object?>($"f{i}", cp.Parameters[i]));
+        }
         if (candidateKeys is not null)
         {
             if (meta.IsComposite)
@@ -982,6 +999,31 @@ internal sealed partial class FerretEngine : IFerretEngine
             HasPrev = page > 0,
             MatchInfo = null,
         };
+    }
+
+    /// <summary>
+    /// Folds <see cref="PagedQuery{T,TKey}.AuthoritativeFilter"/> into <c>Filter</c> once, at the
+    /// entry point, so every downstream consumer (SQL builders, cursor fingerprint, diagnostics)
+    /// sees one already-merged list and cannot accidentally honour an un-enforced filter.
+    /// Authoritative clauses REPLACE any caller clause on the same field: a caller-supplied
+    /// tenant filter must not survive alongside the server's, or it could widen the result set.
+    /// </summary>
+    private static PagedQuery<T, TKey> ApplyAuthoritativeFilters<T, TKey>(PagedQuery<T, TKey> query)
+        where T : class
+        where TKey : notnull
+    {
+        if (query.AuthoritativeFilter.Count == 0) return query;
+
+        var enforced = query.AuthoritativeFilter
+            .Select(f => f.Field)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var merged = query.Filter
+            .Where(f => !enforced.Contains(f.Field))
+            .Concat(query.AuthoritativeFilter)
+            .ToList();
+
+        return query with { Filter = merged, AuthoritativeFilter = [] };
     }
 
     private async Task<List<TKey>> ExecuteIdReaderAsync<TKey>(
