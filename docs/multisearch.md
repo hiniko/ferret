@@ -93,6 +93,13 @@ SQL hybrid search uses) joined to the base table for the projected columns, exec
 together as a single `DbBatch` — one round-trip, one result set per group, native
 column types throughout.
 
+Hits are materialized by Ferret's own projection reader directly from that result
+set, in one batch — not hydrated through EF Core or Dapper. They are plain,
+partially-populated instances of your entity type: no EF change tracking, no
+lazy-loading proxies, no identity resolution. Treat them as read-only display data;
+callers who need a tracked entity should re-load it by key through their normal
+EF/Dapper path.
+
 ## v1 limits
 
 - Backends: trigram and fulltext arms only. A vector or hybrid-configured entity in

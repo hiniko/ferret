@@ -107,7 +107,9 @@ public sealed class VectorOptions
     /// Hard ceiling on the exact-scan path. The estimate comes from Postgres statistics and can be
     /// badly wrong when they are stale (measured 144x low right after a bulk insert), so a query
     /// routed to an exact scan is capped here: exceed it and Ferret falls back to the index path
-    /// and warns, rather than quietly scanning far more than intended.
+    /// and warns, rather than quietly scanning far more than intended. Enforced as a time budget
+    /// (a statement timeout on the exact-scan query) rather than a literal row-count comparison —
+    /// this value only labels the fallback warning, it is not counted against directly.
     /// </summary>
     public int MaxExactScanRows { get; set; } = 250_000;
 

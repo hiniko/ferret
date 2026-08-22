@@ -59,7 +59,7 @@ public Task<CursorResult<Product>> Stream(
 
 Field names in `filter` / `sort` are CLR property names (PascalCase). Filter operators: `eq`,
 `neq`, `contains`, `gt`, `gte`, `lt`, `lte`, `in` (comma-separated list, e.g.
-`filter=Category:in:tools,garden`).
+`filter=Category:in:tools,garden`), `isnull`, `notnull` (no value, e.g. `filter=DeletedAt:isnull`).
 
 ### Pagination defaults
 
@@ -105,8 +105,7 @@ would add an `IFerretQueryService` that builds a `DapperSession` per call, mirro
 |--------------|------------|---------|
 | `q`          | both       | Full-text / trigram search term |
 | `fields`     | both       | Comma-separated property names to search |
-| `match_info` | both       | `true` to include search match metadata |
-| `filter`     | both       | `Field:op:value`, repeatable. Ops: `eq`, `neq`, `contains`, `gt`, `gte`, `lt`, `lte`, `in` |
+| `filter`     | both       | `Field:op:value`, repeatable. Ops: `eq`, `neq`, `contains`, `gt`, `gte`, `lt`, `lte`, `in`, `isnull`, `notnull` (`isnull`/`notnull` take no value: `field:isnull`) |
 | `sort`       | both       | `Field` or `Field:asc` / `Field:desc`, repeatable |
 | `limit`      | both       | Page size; `400` if above the configured max |
 | `page`       | offset     | 1-based page number |
@@ -150,8 +149,8 @@ return new ProductListResponse
 };
 ```
 
-`OffsetResult<T>` exposes `Items`, `Limit`, `Page`, `TotalCount`, `HasMore`, `HasPrev`, and
-`MatchInfo`; `CursorResult<T>` swaps `Page`/`TotalCount` for `NextCursor`/`PrevCursor`. Neither
+`OffsetResult<T>` exposes `Items`, `Limit`, `Page`, `TotalCount`, `HasMore`, and `HasPrev`;
+`CursorResult<T>` swaps `Page`/`TotalCount` for `NextCursor`/`PrevCursor`. Neither
 `MapFerret` nor the query types are required for this — `OffsetApiQuery`/`CursorApiQuery` still
 save you writing the query-string parsing in `### Query-string grammar` above, even if the
 response shape is your own.

@@ -23,6 +23,19 @@ to Typesense / Meilisearch / Elastic for projects that already run PostgreSQL.
 - Attribute-driven entity discovery; pluggable naming strategy (snake_case / identity).
 - ASP.NET Core model binders + one-line `MapFerret` endpoints with OpenAPI.
 
+## Choosing a backend
+
+| Backend | Best for |
+| --- | --- |
+| Trigram (`pg_trgm`) | Typo-tolerant fuzzy matching on short fields — names, codes, SKUs. |
+| Full-text (`tsvector`) | Language-aware relevance ranking over longer prose. |
+| Vector (pgvector) | Semantic similarity via embeddings — "find things like this," not just matching words. |
+| Hybrid | Full-text and vector fused with weighted RRF, for lexical + semantic recall together. |
+
+Trigram and full-text can run standalone or side by side; vector and hybrid add embeddings on
+top. See [Full-text search](docs/full-text-search.md), [Vector search & embeddings](docs/vector-search.md),
+and [Vector filtering](docs/vector-filtering.md) for setup and trade-offs.
+
 ## Packages
 
 | Package | Purpose |
