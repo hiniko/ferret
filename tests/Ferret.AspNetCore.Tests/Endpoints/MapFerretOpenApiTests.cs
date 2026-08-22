@@ -46,7 +46,7 @@ public class MapFerretOpenApiTests
             .Select(p => p.GetProperty("name").GetString())
             .ToArray();
 
-        paramNames.Should().Contain(new[] { "q", "fields", "match_info", "filter", "sort", "limit" });
+        paramNames.Should().Contain(new[] { "q", "fields", "filter", "sort", "limit" });
         paramNames.Should().Contain("page");
         paramNames.Should().Contain("count");
     }

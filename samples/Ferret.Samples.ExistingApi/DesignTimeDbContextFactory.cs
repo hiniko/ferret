@@ -1,7 +1,6 @@
 using Ferret.Example.ExistingApi.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Ferret.Example.ExistingApi;
 
@@ -24,6 +23,7 @@ public sealed class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<App
         services.AddFerret(o => o
             .ScanAssembly(typeof(Ticket).Assembly)
             .UseTrigramSearch(t => t.MinimumSimilarity = 0.3)
+            .UseFullTextSearch(ft => ft.DefaultConfig = "english")
             .WithPaginationDefaults(defaultLimit: 25, maxLimit: 100));
 
         var options = new DbContextOptionsBuilder<AppDbContext>()

@@ -3,6 +3,7 @@ using Ferret.Core.Backends.FullText;
 using Ferret.Core.Backends.Hybrid;
 using Ferret.Core.Diagnostics;
 using Ferret.Core.Engine.MultiSearch;
+using Npgsql;
 using Tags = Ferret.Core.Diagnostics.FerretDiagnostics.Tags;
 
 namespace Ferret.Core.Engine;
@@ -207,30 +208,37 @@ internal sealed partial class FerretEngine
         }
 
         var groups = new List<MultiSearchGroup>(arms.Count);
-        await using var reader = await batch.ExecuteReaderAsync(ct);
-        for (var i = 0; i < arms.Count; i++)
+        try
         {
-            var arm = arms[i];
-            var slotCount = arm.Projection.ColumnNames.Count;
-            var hits = new List<object>();
-
-            while (await reader.ReadAsync(ct))
+            await using var reader = await batch.ExecuteReaderAsync(ct);
+            for (var i = 0; i < arms.Count; i++)
             {
-                var values = new object?[slotCount];
-                for (var s = 0; s < slotCount; s++)
+                var arm = arms[i];
+                var slotCount = arm.Projection.ColumnNames.Count;
+                var hits = new List<object>();
+
+                while (await reader.ReadAsync(ct))
                 {
-                    var raw = reader.GetValue(s);
-                    values[s] = raw is DBNull ? null : raw;
+                    var values = new object?[slotCount];
+                    for (var s = 0; s < slotCount; s++)
+                    {
+                        var raw = reader.GetValue(s);
+                        values[s] = raw is DBNull ? null : raw;
+                    }
+
+                    hits.Add(arm.Projection.Materializer(values));
                 }
 
-                hits.Add(arm.Projection.Materializer(values));
+                groups.Add(new MultiSearchGroup { EntityType = arm.Model.TableName, Hits = hits });
+                if (i < arms.Count - 1)
+                {
+                    await reader.NextResultAsync(ct);
+                }
             }
-
-            groups.Add(new MultiSearchGroup { EntityType = arm.Model.TableName, Hits = hits });
-            if (i < arms.Count - 1)
-            {
-                await reader.NextResultAsync(ct);
-            }
+        }
+        catch (PostgresException pgEx) when (IsMissingExtensionError(pgEx))
+        {
+            throw MissingExtensionException(pgEx);
         }
 
         return new MultiSearchResult { Groups = groups };

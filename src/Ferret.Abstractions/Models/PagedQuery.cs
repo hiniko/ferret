@@ -4,7 +4,7 @@ namespace Ferret.Abstractions.Models;
 
 /// <summary>
 /// Service-layer query parameters used by the engine and SQL builders. Carries
-/// pagination mode, search, sort, filter, and match-info flags. Constructed by the
+/// pagination mode, search, sort, and filter parameters. Constructed by the
 /// API-layer query DTOs (<c>OffsetApiQuery</c>, <c>CursorApiQuery</c>) and consumed
 /// by <c>IQueryEngine.SearchOffsetAsync</c> / <c>SearchCursorAsync</c>.
 /// </summary>
@@ -22,7 +22,6 @@ public sealed record PagedQuery<T, TKey>
     public string? Search { get; init; }
 
     public IReadOnlyList<string> SearchFields { get; init; } = [];
-    public bool IncludeMatchInfo { get; init; }
 
     public IReadOnlyList<SortClause> Sort { get; init; } = [];
     public IReadOnlyList<FilterClause> Filter { get; init; } = [];

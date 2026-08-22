@@ -43,14 +43,12 @@ public class OffsetApiQueryBindingTests
         {
             Q = "widge",
             Fields = ["Name"],
-            MatchInfo = true,
             Sort = [new SortClause { Field = "Name", Direction = SortDirection.Ascending }],
             Filter = [new FilterClause { Field = "Price", Operator = FilterOperator.LessThan, Value = "50" }],
         };
         var pq = q.ToPagedQuery<Widget, Guid>(new PaginationDefaults(25, 100));
         pq.Search.Should().Be("widge");
         pq.SearchFields.Should().Equal("Name");
-        pq.IncludeMatchInfo.Should().BeTrue();
         pq.Sort.Should().HaveCount(1);
         pq.Filter.Should().HaveCount(1);
     }

@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Ferret.Core.Sql;
 
-public static class PagedSqlBuilder
+internal static class PagedSqlBuilder
 {
     public static SqlFragment CompileFilter(
         FilterClause filter, EntityMetadata meta, int parameterIndex,

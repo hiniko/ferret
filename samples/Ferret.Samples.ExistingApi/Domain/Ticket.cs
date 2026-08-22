@@ -7,11 +7,11 @@ namespace Ferret.Example.ExistingApi.Domain;
 [SearchableEntity]                                    // <-- added for Ferret
 public sealed class Ticket : AuditedEntity
 {
-    [Searchable]                                      // <-- added for Ferret
+    [Searchable(Backend = SearchBackend.FullText, Group = "content", Weight = 2.0f)]  // <-- added for Ferret
     [Redacted]                                        // pre-existing, unrelated attribute
     public string Subject { get; set; } = "";
 
-    [Searchable(Weight = 0.5f)]                       // <-- added for Ferret
+    [Searchable(Backend = SearchBackend.FullText, Group = "content", Weight = 1.0f)]  // <-- added for Ferret
     public string Body { get; set; } = "";
 
     [Filterable, Sortable]                            // <-- added for Ferret
@@ -25,8 +25,10 @@ public sealed class Ticket : AuditedEntity
     public Organisation Organisation { get; set; } = null!;
 }
 
+[SearchableEntity]                                    // <-- added for Ferret: second multisearch arm
 public sealed class Organisation : AuditedEntity
 {
+    [Searchable]                                      // <-- added for Ferret
     public string Name { get; set; } = "";
 }
 

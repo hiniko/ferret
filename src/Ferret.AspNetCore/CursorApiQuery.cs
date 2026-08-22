@@ -1,4 +1,3 @@
-using Ferret.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ferret.AspNetCore;
@@ -40,7 +39,6 @@ public sealed record CursorApiQuery : PaginationParameters
             Limit = limit,
             Search = Q,
             SearchFields = Fields,
-            IncludeMatchInfo = MatchInfo,
             Sort = Sort,
             Filter = Filter,
             AuthoritativeFilter = authoritativeFilters,

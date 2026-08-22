@@ -17,7 +17,6 @@ public class QueryStringQueryBinderTests
         {
             ["q"] = "widge",
             ["fields"] = new StringValues(new[] { "Name", "Sku" }),
-            ["match_info"] = "true",
             ["limit"] = "50",
             ["page"] = "2",
             ["count"] = "false",
@@ -27,7 +26,6 @@ public class QueryStringQueryBinderTests
 
         result.Q.Should().Be("widge");
         result.Fields.Should().Equal("Name", "Sku");
-        result.MatchInfo.Should().BeTrue();
         result.Limit.Should().Be(50);
         result.Page.Should().Be(2);
         result.Count.Should().BeFalse();
@@ -61,7 +59,6 @@ public class QueryStringQueryBinderTests
 
         result.Q.Should().BeNull();
         result.Fields.Should().BeEmpty();
-        result.MatchInfo.Should().BeFalse();
         result.Limit.Should().BeNull();
         result.Page.Should().BeNull();
         result.Count.Should().BeTrue();

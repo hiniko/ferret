@@ -1,7 +1,7 @@
 namespace Ferret.Core.Sql;
 
 /// <summary>PostgreSQL implementation of <see cref="ISqlDialect"/>. The only dialect shipped in v1.</summary>
-public sealed class PostgresDialect : ISqlDialect
+internal sealed class PostgresDialect : ISqlDialect
 {
     public string QuoteIdentifier(string name) =>
         $"\"{name.Replace("\"", "\"\"")}\"";

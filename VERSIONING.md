@@ -23,8 +23,9 @@ surface under real use, without pretending the API is frozen.
 
 1. A soak period of real-world use (origin project + at least one new project) with **no
    API-breaking surprises**.
-2. `EntityFrameworkCore.ExtensibleMigrations` is published to NuGet (today `Ferret.Migrations`
-   references it as a sibling-repo project reference — a publish blocker).
+2. `EntityFrameworkCore.ExtensibleMigrations` is published to NuGet — resolved:
+   `Ferret.Migrations` consumes it as a pinned `PackageReference` (`0.0.1`, resolves from
+   nuget.org), not a sibling-repo project reference.
 3. The public API is frozen: every `PublicAPI.Unshipped.txt` entry promoted to
    `PublicAPI.Shipped.txt`.
 

@@ -1,7 +1,7 @@
 
 namespace Ferret.Core.Sql;
 
-public sealed class EntityMetadata
+internal sealed class EntityMetadata
 {
     public required string TableName { get; init; }
     public string? Schema { get; init; }

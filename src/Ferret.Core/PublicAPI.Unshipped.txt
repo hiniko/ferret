@@ -1,19 +1,1 @@
 #nullable enable
-Ferret.Core.Backends.Vector.HnswIterativeScan
-Ferret.Core.Backends.Vector.HnswIterativeScan.Off = 0 -> Ferret.Core.Backends.Vector.HnswIterativeScan
-Ferret.Core.Backends.Vector.HnswIterativeScan.RelaxedOrder = 2 -> Ferret.Core.Backends.Vector.HnswIterativeScan
-Ferret.Core.Backends.Vector.HnswIterativeScan.StrictOrder = 1 -> Ferret.Core.Backends.Vector.HnswIterativeScan
-Ferret.Core.Backends.Vector.VectorFilterStrategy
-Ferret.Core.Backends.Vector.VectorFilterStrategy.AlwaysExact = 1 -> Ferret.Core.Backends.Vector.VectorFilterStrategy
-Ferret.Core.Backends.Vector.VectorFilterStrategy.AlwaysIndex = 2 -> Ferret.Core.Backends.Vector.VectorFilterStrategy
-Ferret.Core.Backends.Vector.VectorFilterStrategy.Auto = 0 -> Ferret.Core.Backends.Vector.VectorFilterStrategy
-Ferret.Core.Backends.Vector.VectorOptions.ExactScanThreshold.get -> int
-Ferret.Core.Backends.Vector.VectorOptions.ExactScanThreshold.set -> void
-Ferret.Core.Backends.Vector.VectorOptions.FilterStrategy.get -> Ferret.Core.Backends.Vector.VectorFilterStrategy
-Ferret.Core.Backends.Vector.VectorOptions.FilterStrategy.set -> void
-Ferret.Core.Backends.Vector.VectorOptions.IterativeScan.get -> Ferret.Core.Backends.Vector.HnswIterativeScan
-Ferret.Core.Backends.Vector.VectorOptions.IterativeScan.set -> void
-Ferret.Core.Backends.Vector.VectorOptions.MaxExactScanRows.get -> int
-Ferret.Core.Backends.Vector.VectorOptions.MaxExactScanRows.set -> void
-Ferret.Core.Backends.Vector.VectorOptions.MaxScanTuples.get -> int
-Ferret.Core.Backends.Vector.VectorOptions.MaxScanTuples.set -> void

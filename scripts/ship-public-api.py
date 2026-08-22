@@ -78,7 +78,14 @@ def main():
         if check_only:
             continue
 
-        write_entries(shipped_path, sh_entries | un_entries, sh_header or un_header or True)
+        # *REMOVED*X lines mark a symbol X leaving the shipped surface. Promoting a
+        # removal means deleting the plain entry for X from Shipped — the *REMOVED*
+        # marker itself never belongs in Shipped.txt (RS0024 rejects that: Shipped
+        # is the "what's live" set, not a change log).
+        removed = {e[len("*REMOVED*"):] for e in un_entries if e.startswith("*REMOVED*")}
+        additions = un_entries - removed - {f"*REMOVED*{e}" for e in removed}
+        shipped_next = (sh_entries - removed) | additions
+        write_entries(shipped_path, shipped_next, sh_header or un_header or True)
         write_entries(unshipped_path, set(), un_header or True)
         print(f"  {name}: promoted {len(un_entries)} entries ({len(new)} new to Shipped)")
 

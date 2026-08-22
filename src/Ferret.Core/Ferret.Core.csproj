@@ -31,5 +31,7 @@
     <InternalsVisibleTo Include="Ferret.Core.IntegrationTests" />
     <InternalsVisibleTo Include="Ferret.Migrations" />
     <InternalsVisibleTo Include="Ferret.Migrations.Tests" />
+    <InternalsVisibleTo Include="Ferret.EntityFrameworkCore.Tests" />
+    <InternalsVisibleTo Include="Ferret.Hydration.Dapper.Tests" />
   </ItemGroup>
 </Project>

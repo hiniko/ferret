@@ -8,5 +8,4 @@ public sealed record CursorResult<T>
     public string? PrevCursor { get; init; }
     public bool HasMore { get; init; }
     public bool HasPrev { get; init; }
-    public SearchMatchInfo? MatchInfo { get; init; }
 }

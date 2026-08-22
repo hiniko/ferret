@@ -13,7 +13,6 @@ internal static class QueryStringQueryBinder
         {
             Q = String(query, "q"),
             Fields = StringList(query, "fields"),
-            MatchInfo = Bool(query, "match_info") ?? false,
             Limit = Int(query, "limit"),
             Sort = ClauseParsing.ParseSorts(Values(query, "sort")),
             Filter = ClauseParsing.ParseFilters(Values(query, "filter")),
@@ -30,7 +29,6 @@ internal static class QueryStringQueryBinder
         {
             Q = String(query, "q"),
             Fields = StringList(query, "fields"),
-            MatchInfo = Bool(query, "match_info") ?? false,
             Limit = Int(query, "limit"),
             Sort = ClauseParsing.ParseSorts(Values(query, "sort")),
             Filter = ClauseParsing.ParseFilters(Values(query, "filter")),

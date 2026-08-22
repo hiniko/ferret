@@ -14,9 +14,6 @@ public abstract record PaginationParameters
     [ModelBinder(Name = "fields", BinderType = typeof(StringListBinder))]
     public IReadOnlyList<string> Fields { get; init; } = [];
 
-    [ModelBinder(Name = "match_info")]
-    public bool MatchInfo { get; init; }
-
     [ModelBinder(Name = "sort", BinderType = typeof(SortClauseListBinder))]
     public IReadOnlyList<SortClause> Sort { get; init; } = [];
 

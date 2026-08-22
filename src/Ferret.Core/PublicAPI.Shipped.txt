@@ -86,7 +86,15 @@ Ferret.Core.Backends.Trigram.TrigramOptions.MaxDistance.get -> double
 Ferret.Core.Backends.Trigram.TrigramOptions.MinimumSimilarity.get -> double
 Ferret.Core.Backends.Trigram.TrigramOptions.MinimumSimilarity.set -> void
 Ferret.Core.Backends.Trigram.TrigramOptions.TrigramOptions() -> void
+Ferret.Core.Backends.Vector.HnswIterativeScan
+Ferret.Core.Backends.Vector.HnswIterativeScan.Off = 0 -> Ferret.Core.Backends.Vector.HnswIterativeScan
+Ferret.Core.Backends.Vector.HnswIterativeScan.RelaxedOrder = 2 -> Ferret.Core.Backends.Vector.HnswIterativeScan
+Ferret.Core.Backends.Vector.HnswIterativeScan.StrictOrder = 1 -> Ferret.Core.Backends.Vector.HnswIterativeScan
 Ferret.Core.Backends.Vector.VectorDdlBuilder
+Ferret.Core.Backends.Vector.VectorFilterStrategy
+Ferret.Core.Backends.Vector.VectorFilterStrategy.AlwaysExact = 1 -> Ferret.Core.Backends.Vector.VectorFilterStrategy
+Ferret.Core.Backends.Vector.VectorFilterStrategy.AlwaysIndex = 2 -> Ferret.Core.Backends.Vector.VectorFilterStrategy
+Ferret.Core.Backends.Vector.VectorFilterStrategy.Auto = 0 -> Ferret.Core.Backends.Vector.VectorFilterStrategy
 Ferret.Core.Backends.Vector.VectorOptions
 Ferret.Core.Backends.Vector.VectorOptions.AsPrimary.get -> bool
 Ferret.Core.Backends.Vector.VectorOptions.AsPrimary.set -> void
@@ -98,10 +106,20 @@ Ferret.Core.Backends.Vector.VectorOptions.ConcurrentBatchSize.get -> int
 Ferret.Core.Backends.Vector.VectorOptions.ConcurrentBatchSize.set -> void
 Ferret.Core.Backends.Vector.VectorOptions.EfSearch.get -> int
 Ferret.Core.Backends.Vector.VectorOptions.EfSearch.set -> void
+Ferret.Core.Backends.Vector.VectorOptions.ExactScanThreshold.get -> int
+Ferret.Core.Backends.Vector.VectorOptions.ExactScanThreshold.set -> void
+Ferret.Core.Backends.Vector.VectorOptions.FilterStrategy.get -> Ferret.Core.Backends.Vector.VectorFilterStrategy
+Ferret.Core.Backends.Vector.VectorOptions.FilterStrategy.set -> void
 Ferret.Core.Backends.Vector.VectorOptions.HnswEfConstruction.get -> int
 Ferret.Core.Backends.Vector.VectorOptions.HnswEfConstruction.set -> void
 Ferret.Core.Backends.Vector.VectorOptions.HnswM.get -> int
 Ferret.Core.Backends.Vector.VectorOptions.HnswM.set -> void
+Ferret.Core.Backends.Vector.VectorOptions.IterativeScan.get -> Ferret.Core.Backends.Vector.HnswIterativeScan
+Ferret.Core.Backends.Vector.VectorOptions.IterativeScan.set -> void
+Ferret.Core.Backends.Vector.VectorOptions.MaxExactScanRows.get -> int
+Ferret.Core.Backends.Vector.VectorOptions.MaxExactScanRows.set -> void
+Ferret.Core.Backends.Vector.VectorOptions.MaxScanTuples.get -> int
+Ferret.Core.Backends.Vector.VectorOptions.MaxScanTuples.set -> void
 Ferret.Core.Backends.Vector.VectorOptions.SidecarSchema.get -> string?
 Ferret.Core.Backends.Vector.VectorOptions.SidecarSchema.set -> void
 Ferret.Core.Backends.Vector.VectorOptions.SidecarSuffix.get -> string!
@@ -260,47 +278,6 @@ Ferret.Core.Engine.ReindexOptions.ReindexOptions() -> void
 Ferret.Core.Engine.ReindexOptions.Resolve(Ferret.Core.Backends.FullText.FullTextOptions! fullText) -> (int BatchSize, System.TimeSpan BatchDelay)
 Ferret.Core.Engine.ReindexOptions.StartAfterId.get -> string?
 Ferret.Core.Engine.ReindexOptions.StartAfterId.set -> void
-Ferret.Core.Sql.EntityMetadata
-Ferret.Core.Sql.EntityMetadata.ClrTypeByPropertyName.get -> System.Collections.Generic.IReadOnlyDictionary<string!, System.Type!>!
-Ferret.Core.Sql.EntityMetadata.ClrTypeByPropertyName.init -> void
-Ferret.Core.Sql.EntityMetadata.ColumnByPropertyName.get -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!
-Ferret.Core.Sql.EntityMetadata.ColumnByPropertyName.init -> void
-Ferret.Core.Sql.EntityMetadata.Dialect.get -> Ferret.Abstractions.Sql.ISqlDialect!
-Ferret.Core.Sql.EntityMetadata.Dialect.init -> void
-Ferret.Core.Sql.EntityMetadata.EntityMetadata() -> void
-Ferret.Core.Sql.EntityMetadata.Filterable.get -> System.Collections.Generic.IReadOnlyDictionary<string!, Ferret.Abstractions.Attributes.FilterableAttribute!>!
-Ferret.Core.Sql.EntityMetadata.Filterable.init -> void
-Ferret.Core.Sql.EntityMetadata.IdColumnName.get -> string!
-Ferret.Core.Sql.EntityMetadata.IsComposite.get -> bool
-Ferret.Core.Sql.EntityMetadata.Key.get -> System.Collections.Generic.IReadOnlyList<Ferret.Core.Engine.KeyPart!>!
-Ferret.Core.Sql.EntityMetadata.Key.init -> void
-Ferret.Core.Sql.EntityMetadata.KeyPropertyName.get -> string!
-Ferret.Core.Sql.EntityMetadata.QuotedTable.get -> string!
-Ferret.Core.Sql.EntityMetadata.QuotedTable.init -> void
-Ferret.Core.Sql.EntityMetadata.Schema.get -> string?
-Ferret.Core.Sql.EntityMetadata.Schema.init -> void
-Ferret.Core.Sql.EntityMetadata.Sortable.get -> System.Collections.Generic.IReadOnlySet<string!>!
-Ferret.Core.Sql.EntityMetadata.Sortable.init -> void
-Ferret.Core.Sql.EntityMetadata.TableName.get -> string!
-Ferret.Core.Sql.EntityMetadata.TableName.init -> void
-Ferret.Core.Sql.PagedSqlBuilder
-Ferret.Core.Sql.PostgresDialect
-Ferret.Core.Sql.PostgresDialect.ArrayParameter(string! parameterName) -> string!
-Ferret.Core.Sql.PostgresDialect.CountOverWindow() -> string!
-Ferret.Core.Sql.PostgresDialect.PagingClause(int limit, int offset) -> string!
-Ferret.Core.Sql.PostgresDialect.PostgresDialect() -> void
-Ferret.Core.Sql.PostgresDialect.QuoteIdentifier(string! name) -> string!
-Ferret.Core.Sql.SqlFragment
-Ferret.Core.Sql.SqlFragment.Deconstruct(out string! Sql, out System.Collections.Generic.IReadOnlyList<object?>! Parameters, out int ParameterIndexBase) -> void
-Ferret.Core.Sql.SqlFragment.Equals(Ferret.Core.Sql.SqlFragment other) -> bool
-Ferret.Core.Sql.SqlFragment.ParameterIndexBase.get -> int
-Ferret.Core.Sql.SqlFragment.ParameterIndexBase.init -> void
-Ferret.Core.Sql.SqlFragment.Parameters.get -> System.Collections.Generic.IReadOnlyList<object?>!
-Ferret.Core.Sql.SqlFragment.Parameters.init -> void
-Ferret.Core.Sql.SqlFragment.Sql.get -> string!
-Ferret.Core.Sql.SqlFragment.Sql.init -> void
-Ferret.Core.Sql.SqlFragment.SqlFragment() -> void
-Ferret.Core.Sql.SqlFragment.SqlFragment(string! Sql, System.Collections.Generic.IReadOnlyList<object?>! Parameters, int ParameterIndexBase = 0) -> void
 const Ferret.Core.Backends.FullText.ComposedTextSource.OwnerAlias = "e" -> string!
 const Ferret.Core.Backends.FullText.FullTextDdlBuilder.ReindexJobsTable = "ferret_reindex_jobs" -> string!
 const Ferret.Core.Backends.Vector.VectorDdlBuilder.VersionRegistryTable = "ferret_vector_versions" -> string!
@@ -324,7 +301,6 @@ override Ferret.Core.Engine.Cursor.CursorPayload.ToString() -> string!
 override Ferret.Core.Engine.KeyPart.Equals(object? obj) -> bool
 override Ferret.Core.Engine.KeyPart.GetHashCode() -> int
 override Ferret.Core.Engine.KeyPart.ToString() -> string!
-override Ferret.Core.Sql.SqlFragment.GetHashCode() -> int
 static Ferret.Core.Backends.FullText.ComposedColumn.operator !=(Ferret.Core.Backends.FullText.ComposedColumn? left, Ferret.Core.Backends.FullText.ComposedColumn? right) -> bool
 static Ferret.Core.Backends.FullText.ComposedColumn.operator ==(Ferret.Core.Backends.FullText.ComposedColumn? left, Ferret.Core.Backends.FullText.ComposedColumn? right) -> bool
 static Ferret.Core.Backends.FullText.ComposedJoin.operator !=(Ferret.Core.Backends.FullText.ComposedJoin? left, Ferret.Core.Backends.FullText.ComposedJoin? right) -> bool
@@ -389,14 +365,4 @@ static Ferret.Core.Engine.EntityRegistry.Build(System.Collections.Generic.IEnume
 static Ferret.Core.Engine.FerretEngineMultiSearchExtensions.MultiSearchAsync(this Ferret.Core.Engine.IFerretEngine! engine, Ferret.Abstractions.Session.IFerretSession! session, System.Action<Ferret.Abstractions.Models.MultiSearchQueryBuilder!>! configure, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Ferret.Abstractions.Models.MultiSearchResult!>!
 static Ferret.Core.Engine.KeyPart.operator !=(Ferret.Core.Engine.KeyPart? left, Ferret.Core.Engine.KeyPart? right) -> bool
 static Ferret.Core.Engine.KeyPart.operator ==(Ferret.Core.Engine.KeyPart? left, Ferret.Core.Engine.KeyPart? right) -> bool
-static Ferret.Core.Sql.EntityMetadata.From(Ferret.Core.Engine.EntityModel! model, Ferret.Abstractions.Sql.ISqlDialect! dialect) -> Ferret.Core.Sql.EntityMetadata!
-static Ferret.Core.Sql.PagedSqlBuilder.BuildCursorPredicate(Ferret.Core.Sql.EntityMetadata! meta, System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Models.SortClause!>! sortWithTiebreaker, Ferret.Core.Engine.Cursor.CursorPayload! cursor, Ferret.Abstractions.Models.CursorDirection direction, int parameterIndex) -> Ferret.Core.Sql.SqlFragment
-static Ferret.Core.Sql.PagedSqlBuilder.BuildSelectIdsAndCount(Ferret.Core.Sql.EntityMetadata! meta, System.Collections.Generic.IReadOnlyList<Ferret.Core.Sql.SqlFragment>! filterFragments, System.Collections.Generic.IReadOnlyList<Ferret.Core.Sql.SqlFragment>! sortFragments, int page, int pageSize, object![]? candidateIds) -> Ferret.Core.Sql.SqlFragment
-static Ferret.Core.Sql.PagedSqlBuilder.CompileFilter(Ferret.Abstractions.Models.FilterClause! filter, Ferret.Core.Sql.EntityMetadata! meta, int parameterIndex, string? tableAlias = null, string! parameterPrefix = "p") -> Ferret.Core.Sql.SqlFragment
-static Ferret.Core.Sql.PagedSqlBuilder.CompileSort(Ferret.Abstractions.Models.SortClause! sort, Ferret.Core.Sql.EntityMetadata! meta) -> Ferret.Core.Sql.SqlFragment
-static Ferret.Core.Sql.PagedSqlBuilder.EnsureTiebreaker(Ferret.Core.Sql.EntityMetadata! meta, System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Models.SortClause!>! sort) -> System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Models.SortClause!>!
-static Ferret.Core.Sql.SqlFragment.operator !=(Ferret.Core.Sql.SqlFragment left, Ferret.Core.Sql.SqlFragment right) -> bool
-static Ferret.Core.Sql.SqlFragment.operator ==(Ferret.Core.Sql.SqlFragment left, Ferret.Core.Sql.SqlFragment right) -> bool
 static readonly Ferret.Core.Diagnostics.FerretDiagnostics.ActivitySource -> System.Diagnostics.ActivitySource!
-~override Ferret.Core.Sql.SqlFragment.Equals(object obj) -> bool
-~override Ferret.Core.Sql.SqlFragment.ToString() -> string

@@ -25,8 +25,14 @@ public class VectorSqlBuilderTests
             CandidateKeyParameterNames = null,
         });
 
-        frag.Sql.Should().Contain("COUNT(*) OVER() AS total_count");
+        // total_count is a true count over the full (unbounded) candidate set, not a window over
+        // the already-LIMIT-bounded KNN result — see docs/vector-filtering.md and
+        // VectorOffsetPagingTests. The scalar subquery form keeps the ranked-rows subquery's
+        // ORDER BY ... LIMIT untouched so the HNSW index scan is still eligible for it.
+        frag.Sql.Should().Contain("SELECT COUNT(*) FROM \"products_vec\" s WHERE");
+        frag.Sql.Should().Contain("AS total_count");
         frag.Sql.Should().Contain("<=> (@qvec)::vector");
         frag.Sql.Should().Contain("ORDER BY");
+        frag.Sql.Should().Contain("LIMIT 10 OFFSET 0");
     }
 }

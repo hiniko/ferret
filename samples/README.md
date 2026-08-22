@@ -9,7 +9,7 @@ application that already exists.
 | --- | --- |
 | `Ferret.Samples.Basic` | Offset paging; `OffsetApiQuery` + `OffsetResult<T>` |
 | `Ferret.Samples.Cursor` | Cursor paging; `CursorApiQuery` + `CursorResult<T>` |
-| `Ferret.Samples.ExistingApi` | Ferret added to an existing DbContext, controller and DTO; the candidate-keys pattern |
+| `Ferret.Samples.ExistingApi` | Ferret added to an existing DbContext, controller and DTO; the candidate-keys pattern; full-text search and a multisearch endpoint |
 
 All three inject `IFerretQueryService` and call `SearchOffsetAsync` / `SearchCursorAsync` —
 the blessed path. Each sample is self-contained: entity, DI wiring, controller and seeder

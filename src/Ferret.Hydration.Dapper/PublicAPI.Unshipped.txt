@@ -1,9 +1,1 @@
 #nullable enable
-Ferret.Hydration.Dapper.DependencyInjection.DapperServiceCollectionExtensions
-Ferret.Hydration.Dapper.Querying.DapperQueryService
-Ferret.Hydration.Dapper.Querying.DapperQueryService.DapperQueryService(System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task<System.Data.Common.DbConnection!>!>! connectionFactory, Ferret.Core.Engine.IFerretEngine! engine, Ferret.Abstractions.Sql.ISqlDialect! dialect) -> void
-Ferret.Hydration.Dapper.Querying.DapperQueryService.MultiSearchAsync(Ferret.Abstractions.Models.MultiSearchQuery! query, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Ferret.Abstractions.Models.MultiSearchResult!>!
-Ferret.Hydration.Dapper.Querying.DapperQueryService.SearchCursorAsync<T, TKey>(Ferret.Abstractions.Models.PagedQuery<T!, TKey>! query, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Ferret.Abstractions.Models.CursorResult<T!>!>!
-Ferret.Hydration.Dapper.Querying.DapperQueryService.SearchOffsetAsync<T, TKey>(Ferret.Abstractions.Models.PagedQuery<T!, TKey>! query, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Ferret.Abstractions.Models.OffsetResult<T!>!>!
-static Ferret.Hydration.Dapper.DependencyInjection.DapperServiceCollectionExtensions.AddFerretDapper(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
-static Ferret.Hydration.Dapper.DependencyInjection.DapperServiceCollectionExtensions.AddFerretDapper(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, System.Func<System.IServiceProvider!, System.Threading.CancellationToken, System.Threading.Tasks.Task<System.Data.Common.DbConnection!>!>! connectionFactory) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!

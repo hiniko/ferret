@@ -41,7 +41,8 @@ namespace Ferret.Example.ExistingApi.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("name");
+                        .HasColumnName("name")
+                        .HasAnnotation("Ferret:SearchableIndex:v1", "{\"IndexName\":\"ix_organisations_name_gist_trgm\",\"TableName\":\"organisations\",\"ColumnName\":\"name\",\"IndexSql\":\"CREATE INDEX CONCURRENTLY IF NOT EXISTS \\u0022ix_organisations_name_gist_trgm\\u0022 ON \\u0022organisations\\u0022 USING gist ((\\u0022name\\u0022::text) gist_trgm_ops);\",\"RequiredExtensions\":[\"pg_trgm\"]}");
 
                     b.HasKey("Id");
 
@@ -58,8 +59,7 @@ namespace Ferret.Example.ExistingApi.Migrations
                     b.Property<string>("Body")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("body")
-                        .HasAnnotation("Ferret:SearchableIndex:v1", "{\"IndexName\":\"ix_tickets_body_gist_trgm\",\"TableName\":\"tickets\",\"ColumnName\":\"body\",\"IndexSql\":\"CREATE INDEX CONCURRENTLY IF NOT EXISTS \\u0022ix_tickets_body_gist_trgm\\u0022 ON \\u0022tickets\\u0022 USING gist ((\\u0022body\\u0022::text) gist_trgm_ops);\",\"RequiredExtensions\":[\"pg_trgm\"]}");
+                        .HasColumnName("body");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -81,14 +81,15 @@ namespace Ferret.Example.ExistingApi.Migrations
                     b.Property<string>("Subject")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("subject")
-                        .HasAnnotation("Ferret:SearchableIndex:v1", "{\"IndexName\":\"ix_tickets_subject_gist_trgm\",\"TableName\":\"tickets\",\"ColumnName\":\"subject\",\"IndexSql\":\"CREATE INDEX CONCURRENTLY IF NOT EXISTS \\u0022ix_tickets_subject_gist_trgm\\u0022 ON \\u0022tickets\\u0022 USING gist ((\\u0022subject\\u0022::text) gist_trgm_ops);\",\"RequiredExtensions\":[\"pg_trgm\"]}");
+                        .HasColumnName("subject");
 
                     b.HasKey("Id");
 
                     b.HasIndex("OrganisationId");
 
                     b.ToTable("tickets", (string)null);
+
+                    b.HasAnnotation("Ferret:FullText:Groups:v1", "{\"SidecarTable\":\"tickets_search\",\"SidecarSchema\":null,\"SourceTable\":\"tickets\",\"SourceSchema\":null,\"IdColumn\":\"id\",\"IdColumnType\":\"uuid\",\"ColumnSuffix\":\"_tsv\",\"KeyParts\":[{\"ColumnName\":\"id\",\"ColumnType\":\"uuid\"}],\"Groups\":[{\"Name\":\"content\",\"FullTextConfig\":\"english\",\"Reindex\":0,\"PreviousGroup\":null,\"Properties\":[{\"PropertyName\":\"Subject\",\"ColumnName\":\"subject\",\"Weight\":0,\"FullTextConfigOverride\":null,\"Join\":null},{\"PropertyName\":\"Body\",\"ColumnName\":\"body\",\"Weight\":1,\"FullTextConfigOverride\":null,\"Join\":null}]}]}");
                 });
 
             modelBuilder.Entity("Ferret.Example.ExistingApi.Domain.Ticket", b =>
@@ -102,8 +103,8 @@ namespace Ferret.Example.ExistingApi.Migrations
                     b.Navigation("Organisation");
                 });
             modelBuilder.HasAnnotation("Ferret:RequiredExtensions:v1", """["pg_trgm"]""");
-            modelBuilder.Entity("Ferret.Example.ExistingApi.Domain.Ticket", b => b.Property<string>("Body").HasAnnotation("Ferret:SearchableIndex:v1", """{"IndexName":"ix_tickets_body_gist_trgm","TableName":"tickets","ColumnName":"body","IndexSql":"CREATE INDEX CONCURRENTLY IF NOT EXISTS \u0022ix_tickets_body_gist_trgm\u0022 ON \u0022tickets\u0022 USING gist ((\u0022body\u0022::text) gist_trgm_ops);","RequiredExtensions":["pg_trgm"]}"""));
-            modelBuilder.Entity("Ferret.Example.ExistingApi.Domain.Ticket", b => b.Property<string>("Subject").HasAnnotation("Ferret:SearchableIndex:v1", """{"IndexName":"ix_tickets_subject_gist_trgm","TableName":"tickets","ColumnName":"subject","IndexSql":"CREATE INDEX CONCURRENTLY IF NOT EXISTS \u0022ix_tickets_subject_gist_trgm\u0022 ON \u0022tickets\u0022 USING gist ((\u0022subject\u0022::text) gist_trgm_ops);","RequiredExtensions":["pg_trgm"]}"""));
+            modelBuilder.Entity("Ferret.Example.ExistingApi.Domain.Organisation", b => b.Property<string>("Name").HasAnnotation("Ferret:SearchableIndex:v1", """{"IndexName":"ix_organisations_name_gist_trgm","TableName":"organisations","ColumnName":"name","IndexSql":"CREATE INDEX CONCURRENTLY IF NOT EXISTS \u0022ix_organisations_name_gist_trgm\u0022 ON \u0022organisations\u0022 USING gist ((\u0022name\u0022::text) gist_trgm_ops);","RequiredExtensions":["pg_trgm"]}"""));
+            modelBuilder.Entity("Ferret.Example.ExistingApi.Domain.Ticket", b => b.HasAnnotation("Ferret:FullText:Groups:v1", """{"SidecarTable":"tickets_search","SidecarSchema":null,"SourceTable":"tickets","SourceSchema":null,"IdColumn":"id","IdColumnType":"uuid","ColumnSuffix":"_tsv","KeyParts":[{"ColumnName":"id","ColumnType":"uuid"}],"Groups":[{"Name":"content","FullTextConfig":"english","Reindex":0,"PreviousGroup":null,"Properties":[{"PropertyName":"Subject","ColumnName":"subject","Weight":0,"FullTextConfigOverride":null,"Join":null},{"PropertyName":"Body","ColumnName":"body","Weight":1,"FullTextConfigOverride":null,"Join":null}]}]}"""));
 #pragma warning restore 612, 618
         }
     }

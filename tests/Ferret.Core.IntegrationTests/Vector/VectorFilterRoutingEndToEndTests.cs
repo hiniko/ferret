@@ -85,12 +85,18 @@ public class VectorFilterRoutingEndToEndTests
     }
 
     [SkippableFact]
-    public async Task AlwaysIndex_strategy_reproduces_the_short_page_bug()
+    public async Task AlwaysIndex_strategy_returns_full_page_now_that_offset_paging_counts_the_true_total()
     {
-        // Proves the new live gate actually exercises the pre-fix code path: forcing the old
-        // "always HNSW" behaviour on the same 50k-row/1%-selective dataset reproduces the bug
-        // this change fixes. This is the "fails before, passes after" evidence — AlwaysIndex is
-        // exactly today's (pre-routing) behaviour.
+        // Historically this test forced "always HNSW" on a 50k-row/1%-selective dataset to prove
+        // the short-page bug (HNSW ranks then the WHERE clause truncates the page). Fixing vector
+        // offset-paging TotalCount/HasMore (see VectorOffsetPagingTests) means the ranking query
+        // must always evaluate the true filtered candidate set for total_count, not just an
+        // ef_search-bounded window — so even under AlwaysIndex, Postgres no longer has a cheap
+        // "just walk the HNSW graph and stop early" plan available once a filter is present, and
+        // falls back to a full (but exact) scan + sort. Byproduct: AlwaysIndex + a filter now also
+        // returns the full page on offset paging, same as the Auto/AlwaysExact routes below.
+        // AlwaysIndex is no longer distinguishable from AlwaysExact for offset-paged filtered
+        // vector search — the routing knob's effect is now confined to the (untouched) cursor path.
         var provider = new FakeEmbeddingProvider(Dimensions);
 
         await using var conn = new NpgsqlConnection(_fx.ConnectionString);
@@ -116,9 +122,10 @@ public class VectorFilterRoutingEndToEndTests
                 Filter = [new FilterClause { Field = "Region", Operator = FilterOperator.Equals, Value = "emea" }],
             });
 
-        result.Items.Count.Should().BeLessThan(limit,
-            "AlwaysIndex reproduces the pre-fix behaviour: HNSW cannot see the WHERE clause, so a " +
-            "~1% selective filter over {0} rows returns far fewer than the requested {1}", RowCount, limit);
+        result.Items.Should().HaveCount(limit,
+            "offset paging now always evaluates the true filtered candidate set for total_count, so " +
+            "even AlwaysIndex returns the full requested page over a ~1% selective filter on {0} rows " +
+            "(see docs/vector-filtering.md)", RowCount);
     }
 
     [SkippableFact]
