@@ -16,6 +16,15 @@ internal sealed record FullTextSqlContext
     public IReadOnlyList<string>? KeyColumns { get; init; }
     public IReadOnlyList<string>? CandidateKeyParameterNames { get; init; }
     public string? SidecarSchema { get; init; }
+
+    /// <summary>
+    /// Parameterised SQL predicate (aliased against the base table as <c>e</c>) compiled from
+    /// <see cref="Ferret.Abstractions.Models.PagedQuery{T,TKey}.Filter"/>. When set, the
+    /// candidates_ids CTE selects directly from the base table with this predicate instead of
+    /// (or, combined with <see cref="CandidateIdsParameterName"/>, in addition to) unnesting a
+    /// materialised key array.
+    /// </summary>
+    public string? CandidatePredicateSql { get; init; }
 }
 
 internal sealed class FullTextSqlBuilder
@@ -59,11 +68,17 @@ internal sealed class FullTextSqlBuilder
             .Select((c, i) => (Config: c, Alias: $"q_{i}"))
             .ToDictionary(t => t.Config, t => t.Alias);
 
-        var hasCandidates = !string.IsNullOrEmpty(ctx.CandidateIdsParameterName);
+        var hasCandidateIds = !string.IsNullOrEmpty(ctx.CandidateIdsParameterName);
+        var hasPredicate = ctx.CandidatePredicateSql is not null;
+        var hasCandidates = hasCandidateIds || hasPredicate;
         var composite = ctx.KeyColumns is { Count: > 1 };
-        var compositeCandidates = composite
-            && hasCandidates
+        var compositeCandidateArray = composite
+            && hasCandidateIds
             && ctx.CandidateKeyParameterNames is { Count: > 1 };
+        // The candidates_ids CTE always projects the real (N-column) key when the entity is
+        // composite and either a predicate or a composite key array feeds it — the join must
+        // match that shape regardless of which source populated it.
+        var candidatesIdsIsComposite = composite && (hasPredicate || compositeCandidateArray);
 
         // Output key projection: single column → "id"; composite → the N real key columns.
         var keyCols = composite ? ctx.KeyColumns! : new[] { ctx.IdColumn };
@@ -78,7 +93,7 @@ internal sealed class FullTextSqlBuilder
         if (hasCandidates)
         {
             sb.Append("WITH candidates_ids AS (")
-              .Append(BuildCandidatesSelect(ctx, compositeCandidates))
+              .Append(BuildCandidatesSelect(ctx, composite, compositeCandidateArray, hasCandidateIds))
               .AppendLine("),");
             sb.AppendLine("candidates AS (");
         }
@@ -94,7 +109,7 @@ internal sealed class FullTextSqlBuilder
         sb.Append("    FROM ").Append(sidecarQ).AppendLine(" s");
         if (hasCandidates)
         {
-            sb.Append("    INNER JOIN candidates_ids c ON ").Append(BuildCandidateJoin(ctx, compositeCandidates, idQuoted)).AppendLine();
+            sb.Append("    INNER JOIN candidates_ids c ON ").Append(BuildCandidateJoin(ctx, candidatesIdsIsComposite, idQuoted)).AppendLine();
         }
         foreach (var (cfg, alias) in configAliases)
         {
@@ -217,24 +232,42 @@ internal sealed class FullTextSqlBuilder
         }
     }
 
-    private string BuildCandidatesSelect(FullTextSqlContext ctx, bool composite)
+    private string BuildCandidatesSelect(
+        FullTextSqlContext ctx, bool entityComposite, bool arrayComposite, bool hasCandidateIds)
     {
-        if (!composite)
+        // Filter pushdown: a predicate selects straight from the base table instead of
+        // (or, combined with a key array, in addition to) unnesting a materialised array.
+        // Uses entityComposite (the real key shape), not arrayComposite (whether a *key array*
+        // happens to be present) — a composite entity's predicate select always needs every
+        // key column projected, even when there is no candidate array at all.
+        if (ctx.CandidatePredicateSql is { } predicate)
+        {
+            var keyCols = entityComposite ? ctx.KeyColumns! : new[] { ctx.IdColumn };
+            var keyProjection = string.Join(", ", keyCols.Select(c => $"e.{_dialect.QuoteIdentifier(c)}"));
+            var where = predicate;
+            if (hasCandidateIds)
+                where += arrayComposite
+                    ? $" AND {BuildCompositeKeyMembership(ctx, "e")}"
+                    : $" AND e.{_dialect.QuoteIdentifier(ctx.IdColumn)} = ANY({ctx.CandidateIdsParameterName})";
+            return $"SELECT {keyProjection} FROM {_dialect.QuoteIdentifier(ctx.SourceTable)} e WHERE {where}";
+        }
+
+        if (!arrayComposite)
         {
             return $"SELECT unnest({ctx.CandidateIdsParameterName}) AS id";
         }
 
-        var keyCols = ctx.KeyColumns!;
+        var candKeyCols = ctx.KeyColumns!;
         var paramNames = ctx.CandidateKeyParameterNames!;
         var sb = new StringBuilder("SELECT ");
-        for (var i = 0; i < keyCols.Count; i++)
+        for (var i = 0; i < candKeyCols.Count; i++)
         {
             if (i > 0) sb.Append(", ");
             sb.Append("u").Append(i).Append(".k").Append(i)
-              .Append(" AS ").Append(_dialect.QuoteIdentifier(keyCols[i]));
+              .Append(" AS ").Append(_dialect.QuoteIdentifier(candKeyCols[i]));
         }
         sb.Append(" FROM ");
-        for (var i = 0; i < keyCols.Count; i++)
+        for (var i = 0; i < candKeyCols.Count; i++)
         {
             if (i == 0)
             {
@@ -246,6 +279,35 @@ internal sealed class FullTextSqlBuilder
                   .Append("(k").Append(i).Append(", ord) USING (ord)");
             }
         }
+        return sb.ToString();
+    }
+
+    /// <summary>
+    /// Composite-key membership test against the candidate key arrays, evaluated row-wise via
+    /// <c>WITH ORDINALITY</c>-zipped unnest, expressed as an <c>IN</c> predicate so it can be
+    /// ANDed onto a base-table filter select.
+    /// </summary>
+    private string BuildCompositeKeyMembership(FullTextSqlContext ctx, string alias)
+    {
+        var keyCols = ctx.KeyColumns!;
+        var paramNames = ctx.CandidateKeyParameterNames!;
+        var lhs = string.Join(", ", keyCols.Select(c => $"{alias}.{_dialect.QuoteIdentifier(c)}"));
+        var sb = new StringBuilder("(").Append(lhs).Append(") IN (SELECT ");
+        for (var i = 0; i < keyCols.Count; i++)
+        {
+            if (i > 0) sb.Append(", ");
+            sb.Append("u").Append(i).Append(".k").Append(i);
+        }
+        sb.Append(" FROM ");
+        for (var i = 0; i < keyCols.Count; i++)
+        {
+            if (i == 0)
+                sb.Append("unnest(").Append(paramNames[i]).Append(") WITH ORDINALITY AS u0(k0, ord)");
+            else
+                sb.Append(" JOIN unnest(").Append(paramNames[i]).Append(") WITH ORDINALITY AS u").Append(i)
+                  .Append("(k").Append(i).Append(", ord) USING (ord)");
+        }
+        sb.Append(')');
         return sb.ToString();
     }
 

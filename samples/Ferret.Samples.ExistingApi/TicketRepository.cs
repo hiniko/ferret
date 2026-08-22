@@ -28,40 +28,38 @@ public sealed class TicketRepository(AppDbContext db, IFerretQueryService search
     }
 
     /// <summary>
-    /// Search, using the candidate-keys pattern.
+    /// Search with server-enforced scoping.
     ///
-    /// The pre-existing rules here — tenant scoping and the soft-delete global query
-    /// filter — cannot be expressed to Ferret as FilterClauses. And projecting an
-    /// Include through search duplicates rows when the join fans out.
+    /// Tenant scoping and soft delete are expressed as authoritative filters, so they are
+    /// compiled into the search query and applied by Postgres. Nothing is pre-loaded: no list
+    /// of candidate ids crosses the wire, and the work stays in the database where the indexes
+    /// are.
     ///
-    /// So EF decides which rows are eligible; Ferret ranks them.
+    /// "Authoritative" means a caller-supplied filter on the same field is REPLACED, not
+    /// combined — a request cannot widen the tenant boundary by filtering on it itself.
     /// </summary>
     public async Task<ApiPage<Ticket>> Search(
         Guid organisationId, string term, int page, int perPage, CancellationToken ct)
     {
-        // 1. Existing rules, in plain EF. Keys only — no Includes, no duplication.
-        //    The global query filter applies here, so soft-deleted rows never appear.
-        var candidateIds = await db.Tickets
-            .Where(t => t.OrganisationId == organisationId)
-            .Select(t => t.Id)
-            .ToListAsync(ct);
-
-        if (candidateIds.Count == 0)
-            return new ApiPage<Ticket>([], 0, page, perPage);
-
-        // 2. Ferret ranks only those rows.
         var ranked = await search.SearchOffsetAsync<Ticket, Guid>(new PagedQuery<Ticket, Guid>
         {
             Search = term,
-            CandidateKeys = candidateIds,
             Limit = perPage,
             Page = page,
             RequestTotalCount = true,
+            AuthoritativeFilter =
+            [
+                Filters.Eq(nameof(Ticket.OrganisationId), organisationId),
+                Filters.Eq(nameof(Ticket.IsDeleted), false),
+            ],
         }, ct);
 
-        // 3. Re-hydrate with the Includes this endpoint needs, then restore rank order.
-        //    "WHERE id IN (...)" comes back in database order, not relevance order.
+        // Ferret returns ranked entities. Re-hydrate with the Includes this endpoint needs,
+        // then restore rank order — "WHERE id IN (...)" comes back in database order.
         var ids = ranked.Items.Select(t => t.Id).ToList();
+        if (ids.Count == 0)
+            return new ApiPage<Ticket>([], ranked.TotalCount, page, perPage);
+
         var hydrated = await db.Tickets
             .Include(t => t.Organisation)
             .Where(t => ids.Contains(t.Id))

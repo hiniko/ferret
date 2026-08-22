@@ -17,7 +17,9 @@ public sealed class Ticket : AuditedEntity
     [Filterable, Sortable]                            // <-- added for Ferret
     public string Status { get; set; } = "open";
 
-    // Not searchable, not filterable — Ferret ignores it entirely.
+    // Filterable so the server can enforce tenant scoping in the database rather than
+    // pre-loading candidate ids. Clients cannot override it — see TicketRepository.Search.
+    [Filterable]
     public Guid OrganisationId { get; set; }
 
     public Organisation Organisation { get; set; } = null!;

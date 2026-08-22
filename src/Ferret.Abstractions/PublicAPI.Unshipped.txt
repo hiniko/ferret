@@ -1,1 +1,16 @@
 #nullable enable
+Ferret.Abstractions.Search.SearchContext.CandidatePredicateSql.get -> string?
+Ferret.Abstractions.Search.SearchContext.CandidatePredicateSql.init -> void
+Ferret.Abstractions.Models.PagedQuery<T, TKey>.AuthoritativeFilter.get -> System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Models.FilterClause!>!
+Ferret.Abstractions.Models.PagedQuery<T, TKey>.AuthoritativeFilter.init -> void
+static Ferret.Abstractions.Models.Filters.Eq(string! field, object? value) -> Ferret.Abstractions.Models.FilterClause!
+Ferret.Abstractions.Models.Filters
+static Ferret.Abstractions.Models.Filters.Contains(string! field, string! value) -> Ferret.Abstractions.Models.FilterClause!
+static Ferret.Abstractions.Models.Filters.In(string! field, params object?[]! values) -> Ferret.Abstractions.Models.FilterClause!
+static Ferret.Abstractions.Models.Filters.Neq(string! field, object? value) -> Ferret.Abstractions.Models.FilterClause!
+static Ferret.Abstractions.Models.Filters.NotNull(string! field) -> Ferret.Abstractions.Models.FilterClause!
+static Ferret.Abstractions.Models.Filters.Lte(string! field, object? value) -> Ferret.Abstractions.Models.FilterClause!
+static Ferret.Abstractions.Models.Filters.Gt(string! field, object? value) -> Ferret.Abstractions.Models.FilterClause!
+static Ferret.Abstractions.Models.Filters.IsNull(string! field) -> Ferret.Abstractions.Models.FilterClause!
+static Ferret.Abstractions.Models.Filters.Lt(string! field, object? value) -> Ferret.Abstractions.Models.FilterClause!
+static Ferret.Abstractions.Models.Filters.Gte(string! field, object? value) -> Ferret.Abstractions.Models.FilterClause!

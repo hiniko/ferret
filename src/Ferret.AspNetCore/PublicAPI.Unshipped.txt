@@ -1,1 +1,3 @@
 #nullable enable
+Ferret.AspNetCore.CursorApiQuery.ToPagedQuery<T, TKey>(Ferret.Abstractions.Configuration.PaginationDefaults defaults, System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Models.FilterClause!>! authoritativeFilters) -> Ferret.Abstractions.Models.PagedQuery<T!, TKey>!
+Ferret.AspNetCore.OffsetApiQuery.ToPagedQuery<T, TKey>(Ferret.Abstractions.Configuration.PaginationDefaults defaults, System.Collections.Generic.IReadOnlyList<Ferret.Abstractions.Models.FilterClause!>! authoritativeFilters) -> Ferret.Abstractions.Models.PagedQuery<T!, TKey>!

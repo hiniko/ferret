@@ -1,3 +1,5 @@
+using Ferret.Abstractions.Attributes;
+
 namespace Ferret.Example.ExistingApi.Domain;
 
 /// <summary>
@@ -8,5 +10,7 @@ public abstract class AuditedEntity
 {
     public Guid Id { get; init; }
     public DateTime CreatedAt { get; init; }
+    // Filterable so soft-delete is enforced inside the search query.
+    [Filterable]
     public bool IsDeleted { get; set; }
 }

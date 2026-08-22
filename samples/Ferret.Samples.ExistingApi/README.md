@@ -39,26 +39,43 @@ keeps its own `?q=`/`?page=`/`?perPage=` parameters rather than adopting Ferret'
 query-string grammar — the realistic choice when an API contract already exists. See
 [docs/aspnetcore.md](../../docs/aspnetcore.md) if you do want the binding.
 
-## The candidate-keys pattern
+## Server-enforced filters
 
-`TicketRepository.Search` is the part worth reading. Two pre-existing rules cannot be
-expressed to Ferret as `FilterClause`es:
+`TicketRepository.Search` is the part worth reading. Two rules must hold on every query, and
+neither is the caller's to decide:
 
-- **tenant scoping** — `WHERE organisation_id = @org`
-- **soft delete** — an EF *global query filter*, invisible outside EF
+- **tenant scoping** — a request must only ever see its own organisation's tickets
+- **soft delete** — deleted rows must never appear
 
-And projecting `Include(t => t.Organisation)` through search would duplicate rows as the
-join fans out.
+Both are expressed as *authoritative* filters:
 
-So EF decides which rows are eligible and Ferret ranks them:
+```csharp
+AuthoritativeFilter =
+[
+    Filters.Eq(nameof(Ticket.OrganisationId), organisationId),
+    Filters.Eq(nameof(Ticket.IsDeleted), false),
+],
+```
 
-1. Plain EF query for candidate **IDs only** — no `Include`s. The global query filter
-   applies here, so soft-deleted rows never enter the candidate set.
-2. `PagedQuery.CandidateKeys = candidateIds` — Ferret ranks only those rows.
-3. Re-hydrate with the `Include`s the endpoint needs, then **restore Ferret's ordering** —
-   `WHERE id IN (...)` returns database order, not relevance order.
+Two things make this different from an ordinary `Filter`:
 
-Step 3's reorder is easy to forget and produces subtly wrong results rather than errors.
+1. **It is compiled into the search query.** Postgres applies it while ranking — nothing is
+   pre-loaded, and no list of ids crosses the wire. The work stays where the indexes are.
+2. **It is authoritative.** A caller clause on the same field is *replaced*, not combined, so a
+   request cannot widen the boundary by filtering on `OrganisationId` itself.
+
+The properties must be `[Filterable]` for this to work — see `Ticket.OrganisationId` and
+`AuditedEntity.IsDeleted`.
+
+After ranking, the repository re-hydrates with the `Include`s the endpoint needs and **restores
+Ferret's ordering** — `WHERE id IN (...)` returns database order, not relevance order. That
+reorder is easy to forget and produces subtly wrong results rather than errors.
+
+### When you genuinely cannot express a rule as a filter
+
+`PagedQuery.CandidateKeys` takes a pre-computed key list for predicates that have no
+`FilterClause` equivalent. It materialises those keys in your application, so treat it as an
+escape hatch rather than a default — see [docs/advanced.md](../../docs/advanced.md).
 
 ## Run
 
@@ -84,7 +101,7 @@ ORG_B=bbbbbbbb-0000-0000-0000-000000000002
 # Plain listing — the path that existed before Ferret
 curl "localhost:5199/tickets?organisationId=$ORG_A&perPage=3"
 
-# Search — routes through the candidate-keys path
+# Search — tenant + soft-delete enforced inside the query
 curl "localhost:5199/tickets?organisationId=$ORG_A&q=printer"
 
 # Typo tolerance: 'pinter' still matches "Printer jams on duplex"

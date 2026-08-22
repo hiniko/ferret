@@ -28,6 +28,14 @@ public sealed record PagedQuery<T, TKey>
     public IReadOnlyList<FilterClause> Filter { get; init; } = [];
 
     /// <summary>
+    /// Server-enforced filters. Applied on top of <see cref="Filter"/> and authoritative: any
+    /// clause in <see cref="Filter"/> targeting the same field is REPLACED, not combined. Use for
+    /// restrictions a caller must not be able to widen or escape — tenant scoping, soft-delete,
+    /// permission boundaries — so a hostile <c>?filter=TenantId:eq:other</c> cannot take effect.
+    /// </summary>
+    public IReadOnlyList<FilterClause> AuthoritativeFilter { get; init; } = [];
+
+    /// <summary>
     /// Opaque cursor token consumed when <see cref="Mode"/> is <see cref="PaginationMode.Cursor"/>.
     /// Null on the first cursor-mode request and in offset mode.
     /// </summary>

@@ -1,4 +1,5 @@
 using Ferret.Abstractions;
+using Ferret.Core.Sql;
 using FluentAssertions;
 using VerifyXunit;
 using Xunit;
@@ -12,7 +13,7 @@ public class TrigramSqlBuilderTests
     {
         public Guid Id { get; init; }
         [Searchable] public string Name { get; init; } = "";
-        [Searchable(Weight = 2.0f)] public string Sku { get; init; } = "";
+        [Searchable(Weight = 2.0f)] [Filterable] public string Sku { get; init; } = "";
     }
 
     private static EntityModel Model() => EntityRegistry
@@ -148,6 +149,64 @@ public class TrigramSqlBuilderTests
         fragment.Sql.Should().Contain("LIMIT 2").And.Contain("OFFSET 10");
         fragment.Sql.Should().NotContain(int.MaxValue.ToString(),
             "an unbounded LIMIT means the caller's page size is silently ignored");
+    }
+
+    [Fact]
+    public void CandidatePredicate_pushes_filter_into_candidates_cte_without_materialising_keys()
+    {
+        var model = Model();
+        var meta = EntityMetadata.From(model, new PostgresDialect());
+        var predicate = PagedSqlBuilder.CompileFilter(
+            new() { Field = "Sku", Operator = FilterOperator.Equals, Value = "BLUE-001" },
+            meta, parameterIndex: 0, tableAlias: "e", parameterPrefix: "f");
+
+        var b = new TrigramSqlBuilder(new PostgresDialect(), new TrigramOptions());
+        var ctx = new SearchContext
+        {
+            Properties = model.SearchableProperties,
+            SearchTerm = "blue",
+            IdColumn = model.KeyColumnName,
+            QuotedTable = model.QuotedTable(new PostgresDialect()),
+            HasCandidateIds = false,
+            CandidatePredicateSql = predicate.Sql,
+        };
+
+        var sql = b.BuildRanking(ctx, limit: 25, offset: 0).Sql;
+
+        // The predicate lives inside the candidates CTE (base-table select), not a WHERE tacked
+        // onto the final result — and there is no unnest/array-materialisation of a candidate_ids
+        // parameter anywhere, proving this is a single round trip rather than filter-then-fetch.
+        sql.Should().Contain("WITH candidates AS (SELECT")
+           .And.Contain("FROM \"products\" e WHERE e.\"sku\" = @f0")
+           .And.Contain("INNER JOIN candidates cnd")
+           .And.NotContain("candidate_ids")
+           .And.NotContain("unnest(");
+    }
+
+    [Fact]
+    public void CandidatePredicate_combines_with_CandidateKeys_by_intersection()
+    {
+        var model = Model();
+        var meta = EntityMetadata.From(model, new PostgresDialect());
+        var predicate = PagedSqlBuilder.CompileFilter(
+            new() { Field = "Sku", Operator = FilterOperator.Equals, Value = "BLUE-001" },
+            meta, parameterIndex: 0, tableAlias: "e", parameterPrefix: "f");
+
+        var b = new TrigramSqlBuilder(new PostgresDialect(), new TrigramOptions());
+        var ctx = new SearchContext
+        {
+            Properties = model.SearchableProperties,
+            SearchTerm = "blue",
+            IdColumn = model.KeyColumnName,
+            QuotedTable = model.QuotedTable(new PostgresDialect()),
+            HasCandidateIds = true,
+            CandidatePredicateSql = predicate.Sql,
+        };
+
+        var sql = b.BuildRanking(ctx, limit: 25, offset: 0).Sql;
+
+        // Both restrictions apply to the same base-table select: filter predicate AND array membership.
+        sql.Should().Contain("FROM \"products\" e WHERE e.\"sku\" = @f0 AND e.\"id\" = ANY(@candidate_ids)");
     }
 
     [Fact]

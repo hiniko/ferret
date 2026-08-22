@@ -39,7 +39,9 @@ internal sealed class TrigramSqlBuilder
         var maxDistance = _options.MaxDistance.ToString("F2", CultureInfo.InvariantCulture);
 
         // Bug fix #2/#3: candidate IDs flow via parameter; no whole-table ID materialisation when null.
-        if (ctx.HasCandidateIds)
+        // Filter pushdown: a compiled Filter predicate also routes through this CTE, so it must
+        // gate the same as candidate ids.
+        if (ctx.HasCandidateIds || ctx.CandidatePredicateSql is not null)
         {
             sql.AppendLine($"WITH candidates AS ({BuildCandidatesSelect(ctx, idCol)}),");
             sql.AppendLine("field_matches AS (");
@@ -134,7 +136,7 @@ internal sealed class TrigramSqlBuilder
             var col = _dialect.QuoteIdentifier(colName);
             sql.AppendLine($"  SELECT {eKeyProjection}, {paramName} <<-> (e.{col})::text AS distance");
             sql.AppendLine($"  FROM {ctx.QuotedTable} e");
-            if (ctx.HasCandidateIds)
+            if (ctx.HasCandidateIds || ctx.CandidatePredicateSql is not null)
             {
                 sql.AppendLine($"  INNER JOIN candidates cnd ON {BuildCandidateJoin(ctx, idCol)}");
             }
@@ -151,7 +153,7 @@ internal sealed class TrigramSqlBuilder
 
         sql.AppendLine($"  SELECT e.{idCol}, MIN({paramName} <<-> ({leafAlias}.{leafCol})::text) AS distance");
         sql.AppendLine($"  FROM {ctx.QuotedTable} e");
-        if (ctx.HasCandidateIds)
+        if (ctx.HasCandidateIds || ctx.CandidatePredicateSql is not null)
         {
             sql.AppendLine($"  INNER JOIN candidates cnd ON cnd.{idCol} = e.{idCol}");
         }
@@ -194,8 +196,32 @@ internal sealed class TrigramSqlBuilder
     private bool IsComposite(SearchContext ctx) =>
         ctx.KeyColumns is { Count: > 1 } && ctx.CandidateKeyParameterNames is { Count: > 1 };
 
+    /// <summary>
+    /// True when the <c>candidates</c> CTE actually projects every key column — i.e. the
+    /// entity is composite AND either a composite key array or a filter predicate populates
+    /// it (a predicate-only CTE always selects the full key; <see cref="IsComposite"/> alone
+    /// misses that case since it only recognises the key-array shape).
+    /// </summary>
+    private static bool CandidatesCteIsComposite(SearchContext ctx, bool isComposite) =>
+        ctx.KeyColumns is { Count: > 1 } && (isComposite || ctx.CandidatePredicateSql is not null);
+
     private string BuildCandidatesSelect(SearchContext ctx, string idCol)
     {
+        // Filter pushdown: a predicate selects straight from the base table instead of
+        // (or, combined with a key array, in addition to) unnesting a materialised array.
+        if (ctx.CandidatePredicateSql is { } predicate)
+        {
+            var keyProjection = ctx.KeyColumns is { Count: > 1 }
+                ? string.Join(", ", ctx.KeyColumns.Select(c => $"e.{_dialect.QuoteIdentifier(c)}"))
+                : $"e.{idCol}";
+            var where = predicate;
+            if (ctx.HasCandidateIds)
+                where += IsComposite(ctx)
+                    ? $" AND {BuildCompositeKeyMembership(ctx, "e")}"
+                    : $" AND e.{idCol} = ANY({ctx.CandidateIdsParameterName})";
+            return $"SELECT {keyProjection} FROM {ctx.QuotedTable} e WHERE {where}";
+        }
+
         if (!IsComposite(ctx))
         {
             return $"SELECT unnest({ctx.CandidateIdsParameterName}) AS {idCol}";
@@ -226,9 +252,38 @@ internal sealed class TrigramSqlBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Composite-key membership test against the candidate key arrays, evaluated row-wise via
+    /// <c>WITH ORDINALITY</c>-zipped unnest — the same shape the key-only candidates path uses,
+    /// expressed as an <c>IN</c> predicate so it can be ANDed onto a base-table filter select.
+    /// </summary>
+    private string BuildCompositeKeyMembership(SearchContext ctx, string alias)
+    {
+        var keyCols = ctx.KeyColumns!;
+        var paramNames = ctx.CandidateKeyParameterNames!;
+        var lhs = string.Join(", ", keyCols.Select(c => $"{alias}.{_dialect.QuoteIdentifier(c)}"));
+        var sb = new StringBuilder("(").Append(lhs).Append(") IN (SELECT ");
+        for (var i = 0; i < keyCols.Count; i++)
+        {
+            if (i > 0) sb.Append(", ");
+            sb.Append("u").Append(i).Append(".k").Append(i);
+        }
+        sb.Append(" FROM ");
+        for (var i = 0; i < keyCols.Count; i++)
+        {
+            if (i == 0)
+                sb.Append("unnest(").Append(paramNames[i]).Append(") WITH ORDINALITY AS u0(k0, ord)");
+            else
+                sb.Append(" JOIN unnest(").Append(paramNames[i]).Append(") WITH ORDINALITY AS u").Append(i)
+                  .Append("(k").Append(i).Append(", ord) USING (ord)");
+        }
+        sb.Append(')');
+        return sb.ToString();
+    }
+
     private string BuildCandidateJoin(SearchContext ctx, string idCol)
     {
-        if (!IsComposite(ctx))
+        if (!CandidatesCteIsComposite(ctx, IsComposite(ctx)))
         {
             return $"cnd.{idCol} = e.{idCol}";
         }
