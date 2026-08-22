@@ -24,8 +24,13 @@ internal sealed partial class FerretEngine : IFerretEngine
     private readonly HybridOptions? _hybridOptions;
     private readonly System.Collections.Concurrent.ConcurrentDictionary<(string Entity, string Group), string> _activeVectorColumns = new();
 
-    // logger is optional: Ferret must work in a container that never called AddLogging().
-    // Supply one to get slow-query warnings, statement logging and query-failure detail.
+    // MaxExactScanRows is a safety // valve for pathological mis-routes, not a latency SLO.
+    // Measured exact scans stay in the tens of milliseconds even at hundreds of thousands of rows (see spec),
+    // so this only ever fires when the real filtered set is wildly larger than MaxExactScanRows expects.
+    // Pre-counting or probing was rejected: measured slower than just running the scan (see
+    // spec). Internal + settable so tests can force the fallback path deterministically.
+    internal static int ExactScanStatementTimeoutMs { get; set; } = 5_000;
+
     public FerretEngine(
         EntityRegistry registry,
         IEnumerable<ISearchBackend> backends,
@@ -261,7 +266,6 @@ internal sealed partial class FerretEngine : IFerretEngine
             PrevCursor = prevCursor,
             HasMore = hasMore,
             HasPrev = hasPrev,
-            MatchInfo = null,
         };
     }
 
@@ -357,7 +361,6 @@ internal sealed partial class FerretEngine : IFerretEngine
                 PrevCursor = null,
                 HasMore = false,
                 HasPrev = false,
-                MatchInfo = null,
             };
         }
 
@@ -402,7 +405,6 @@ internal sealed partial class FerretEngine : IFerretEngine
             PrevCursor = prevCursor,
             HasMore = hasMore,
             HasPrev = hasPrev,
-            MatchInfo = null,
         };
     }
 
@@ -474,7 +476,6 @@ internal sealed partial class FerretEngine : IFerretEngine
                 TotalCount = totalCount,
                 HasMore = false,
                 HasPrev = page > 0,
-                MatchInfo = null,
             };
         }
 
@@ -487,7 +488,6 @@ internal sealed partial class FerretEngine : IFerretEngine
             TotalCount = totalCount,
             HasMore = totalCount > (page + 1) * limit,
             HasPrev = page > 0,
-            MatchInfo = null,
         };
     }
 
@@ -847,7 +847,6 @@ internal sealed partial class FerretEngine : IFerretEngine
                 TotalCount = 0,
                 HasMore = false,
                 HasPrev = page > 0,
-                MatchInfo = null,
             };
         }
 
@@ -923,7 +922,6 @@ internal sealed partial class FerretEngine : IFerretEngine
                 TotalCount = totalCount,
                 HasMore = false,
                 HasPrev = page > 0,
-                MatchInfo = null,
             };
         }
 
@@ -936,7 +934,6 @@ internal sealed partial class FerretEngine : IFerretEngine
             TotalCount = totalCount,
             HasMore = totalCount > (page + 1) * limit,
             HasPrev = page > 0,
-            MatchInfo = null,
         };
     }
 
@@ -964,17 +961,9 @@ internal sealed partial class FerretEngine : IFerretEngine
 
         if (useExactScan)
         {
-            // ponytail: a fixed generous budget, not a public knob — MaxExactScanRows is a
-            // safety valve for pathological mis-routes, not a latency SLO. Measured exact scans
-            // stay in the tens of milliseconds even at hundreds of thousands of rows (see
-            // spec), so this only ever fires when the real filtered set is wildly larger than
-            // MaxExactScanRows expects. Pre-counting or probing was rejected: measured slower
-            // than just running the scan (see spec).
-            const int exactScanStatementTimeoutMs = 5_000;
-
             var (ids, total, timedOut) = await ExecuteExactScanAsync<TKey>(
                 connection, "ferret.db.query.search", sql, executionParams, meta.Key.Count, ct,
-                exactScanStatementTimeoutMs);
+                ExactScanStatementTimeoutMs);
             if (!timedOut)
                 return (ids, total);
 
@@ -1091,7 +1080,6 @@ internal sealed partial class FerretEngine : IFerretEngine
                 TotalCount = totalCount,
                 HasMore = false,
                 HasPrev = page > 0,
-                MatchInfo = null,
             };
         }
 
@@ -1104,7 +1092,6 @@ internal sealed partial class FerretEngine : IFerretEngine
             TotalCount = totalCount,
             HasMore = totalCount > (page + 1) * limit,
             HasPrev = page > 0,
-            MatchInfo = null,
         };
     }
 
@@ -1149,9 +1136,16 @@ internal sealed partial class FerretEngine : IFerretEngine
             command.AddParameter($"@p{i}", parameters[i]);
 
         var ids = new List<TKey>();
-        await using var reader = await command.ExecuteReaderAsync(ct);
-        while (await reader.ReadAsync(ct))
-            ids.Add(ReadKey<TKey>(reader, keyCount));
+        try
+        {
+            await using var reader = await command.ExecuteReaderAsync(ct);
+            while (await reader.ReadAsync(ct))
+                ids.Add(ReadKey<TKey>(reader, keyCount));
+        }
+        catch (PostgresException pgEx) when (IsMissingExtensionError(pgEx))
+        {
+            throw MissingExtensionException(pgEx);
+        }
         activity?.SetTag(Tags.RowCount, ids.Count);
         return ids;
     }
@@ -1174,11 +1168,18 @@ internal sealed partial class FerretEngine : IFerretEngine
         var ids = new List<TKey>();
         var total = 0;
         var countColumn = keyCount;
-        await using var reader = await command.ExecuteReaderAsync(ct);
-        while (await reader.ReadAsync(ct))
+        try
         {
-            ids.Add(ReadKey<TKey>(reader, keyCount));
-            if (total == 0) total = reader.GetInt32(countColumn);
+            await using var reader = await command.ExecuteReaderAsync(ct);
+            while (await reader.ReadAsync(ct))
+            {
+                ids.Add(ReadKey<TKey>(reader, keyCount));
+                if (total == 0) total = reader.GetInt32(countColumn);
+            }
+        }
+        catch (PostgresException pgEx) when (IsMissingExtensionError(pgEx))
+        {
+            throw MissingExtensionException(pgEx);
         }
         activity?.SetTag(Tags.RowCount, ids.Count);
         activity?.SetTag(Tags.TotalCount, total);
@@ -1297,6 +1298,11 @@ internal sealed partial class FerretEngine : IFerretEngine
             if (tx is not null) await tx.CommitAsync(ct);
             return (ids, total);
         }
+        catch (PostgresException pgEx) when (IsMissingExtensionError(pgEx))
+        {
+            if (tx is not null) await tx.RollbackAsync(ct);
+            throw MissingExtensionException(pgEx);
+        }
         catch
         {
             if (tx is not null) await tx.RollbackAsync(ct);
@@ -1310,6 +1316,25 @@ internal sealed partial class FerretEngine : IFerretEngine
 
     private static string FormatVector(float[] vector) =>
         "[" + string.Join(",", vector.Select(f => f.ToString(CultureInfo.InvariantCulture))) + "]";
+
+    /// <summary>
+    /// Turns a missing-extension <see cref="PostgresException"/> (undefined_function
+    /// 42883 for <c>similarity()</c>/<c>&lt;=&gt;</c>/<c>%</c>, or undefined_object 42704)
+    /// into an actionable <see cref="InvalidOperationException"/>. The common retrofit
+    /// failure is querying before pg_trgm/vector is installed; the raw Postgres error
+    /// doesn't say that. Does not attempt to identify which extension — the same SQL
+    /// state covers both, and naming both is cheap and correct either way.
+    /// </summary>
+    private static bool IsMissingExtensionError(PostgresException pgEx) =>
+        pgEx.SqlState is PostgresErrorCodes.UndefinedFunction or PostgresErrorCodes.UndefinedObject;
+
+    private static InvalidOperationException MissingExtensionException(PostgresException pgEx) =>
+        new(
+            "Ferret: the query failed because a required PostgreSQL extension is missing " +
+            "(pg_trgm for trigram search, vector for vector search). Apply the Ferret " +
+            "migration for this entity, or run CREATE EXTENSION manually. See " +
+            $"docs/migrations.md. Original error: {pgEx.MessageText}",
+            pgEx);
 
     private static TKey ReadKey<TKey>(DbDataReader reader, int keyCount)
         where TKey : notnull
