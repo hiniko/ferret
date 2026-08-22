@@ -1,3 +1,4 @@
+using Ferret.Abstractions.Querying;
 using Ferret.Core.DependencyInjection;
 using Ferret.EntityFrameworkCore;
 using FluentAssertions;
@@ -146,8 +147,7 @@ public sealed class OwnedTypeHydrationTests
         await using var sp = services.BuildServiceProvider();
 
         using var scope = sp.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<OwnedDocContext>();
-        var engineSp = scope.ServiceProvider;
+        var search = scope.ServiceProvider.GetRequiredService<IFerretQueryService>();
 
         var query = new PagedQuery<OwnedDoc, Guid>
         {
@@ -156,7 +156,7 @@ public sealed class OwnedTypeHydrationTests
             Limit = 25,
         };
 
-        var result = await context.SearchOffsetAsync<OwnedDoc, Guid>(engineSp, query);
+        var result = await search.SearchOffsetAsync<OwnedDoc, Guid>(query);
 
         result.Items.Should().NotBeEmpty("trigram search on 'ferret' should match both seeded rows");
         result.Items.Should().AllSatisfy(doc =>

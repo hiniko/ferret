@@ -1,1 +1,3 @@
 #nullable enable
+static Ferret.Migrations.Annotations.FerretMigrationsModelBuilderExtensions.UseFerretSearchableAnnotations(this Microsoft.EntityFrameworkCore.ModelBuilder! modelBuilder, Microsoft.EntityFrameworkCore.DbContext! context, System.Reflection.Assembly! entityAssembly) -> Microsoft.EntityFrameworkCore.ModelBuilder!
+static Ferret.Migrations.Annotations.FerretMigrationsModelBuilderExtensions.UseFerretSearchableAnnotations(this Microsoft.EntityFrameworkCore.ModelBuilder! modelBuilder, System.IServiceProvider! services, System.Reflection.Assembly! entityAssembly) -> Microsoft.EntityFrameworkCore.ModelBuilder!

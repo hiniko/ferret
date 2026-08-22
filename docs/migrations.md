@@ -16,7 +16,8 @@ dotnet add package Ferret.Migrations
 
 ## Wire it up
 
-Add the annotation hook to `OnModelCreating`:
+Add the annotation hook to `OnModelCreating`. If your solution has entities in more than one
+assembly, call it once per assembly:
 
 ```csharp
 protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -24,8 +25,30 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
     base.OnModelCreating(modelBuilder);
     // … your usual entity configuration …
     modelBuilder.UseFerretSearchableAnnotations(typeof(Product).Assembly);
+    modelBuilder.UseFerretSearchableAnnotations(typeof(Article).Assembly);
 }
 ```
+
+This form uses **default** `TrigramOptions`/`FullTextOptions`/`VectorOptions`, which is
+correct as long as your app also uses defaults. It is the right choice for most apps, and
+the one the samples use.
+
+> **Non-default options need the DI-aware overload.** If you configure options — say
+> `UseFullTextSearch(ft => ft.DefaultConfig = "spanish")` or a custom `SidecarSuffix` — the
+> call above still generates DDL for the **defaults**: an index built for `english` while
+> queries ask for `spanish`. Wrong index, empty results, no error. Pass the service provider
+> that `AddFerret(...)` populated so Ferret reads the real configuration:
+>
+> ```csharp
+> // `services` is the IServiceProvider your app built.
+> modelBuilder.UseFerretSearchableAnnotations(services, typeof(Article).Assembly);
+> ```
+>
+> There is also a `(DbContext, Assembly)` overload that pulls the provider off the context.
+> Be aware it makes `dotnet ef` resolve the application service provider, which boots your
+> `Program.cs` — if that starts hosted services or a web server, migration commands can hang.
+> Prefer the explicit `(IServiceProvider, Assembly)` form, or a design-time factory that
+> supplies a provider without booting the app.
 
 Wire the design-time services — create `<YourProjectRoot>/MigrationsDesignTimeServices.cs`:
 

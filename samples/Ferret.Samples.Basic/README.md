@@ -9,7 +9,7 @@ using the offset-based `OffsetApiQuery` binder.
 # from repo root
 cd samples
 docker compose up -d
-cd Ferret.Example.Basic
+cd Ferret.Samples.Basic
 dotnet run
 ```
 
@@ -48,8 +48,8 @@ GET /products?filter=Name:contains:widget&sort=CreatedAt:desc&page=1&limit=10
 
 ## Notes
 
-- The library extension `dbContext.SearchAsync<>` resolves `IFerretEngine` from EF's
-  internal service provider, which doesn't see services registered via `AddFerret(...)`
-  on the application provider. This sample injects `IFerretEngine` + `ISqlDialect` into
-  the controller and constructs `EntityFrameworkSession` directly.
+- The controller injects `IFerretQueryService` and calls `SearchOffsetAsync` — the
+  blessed path. `AddFerretEntityFrameworkCore<AppDbContext>()` registers it; nothing
+  needs to construct a session by hand. See `docs/advanced.md` for the lower-level
+  engine + session API.
 - Database state is shared with the Cursor sample. Run one at a time.

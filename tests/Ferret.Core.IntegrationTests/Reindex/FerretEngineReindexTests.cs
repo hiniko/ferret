@@ -41,8 +41,7 @@ public class FerretEngineReindexTests
         sc.AddLogging();
         sc.AddFerret(opts => opts
             .ScanAssembly(typeof(ReindexDoc).Assembly)
-            .UseFullTextSearch(ft => ft.DefaultConfig = "english")
-            .UseDapperHydration());
+            .UseFullTextSearch(ft => ft.DefaultConfig = "english"));
         await using var sp = sc.BuildServiceProvider();
 
         var engine = sp.GetRequiredService<IFerretEngine>();
@@ -83,8 +82,7 @@ public class FerretEngineReindexTests
         sc.AddLogging();
         sc.AddFerret(opts => opts
             .ScanAssembly(typeof(ReindexDoc).Assembly)
-            .UseFullTextSearch(ft => ft.DefaultConfig = "english")
-            .UseDapperHydration());
+            .UseFullTextSearch(ft => ft.DefaultConfig = "english"));
         await using var sp = sc.BuildServiceProvider();
 
         var engine = sp.GetRequiredService<IFerretEngine>();

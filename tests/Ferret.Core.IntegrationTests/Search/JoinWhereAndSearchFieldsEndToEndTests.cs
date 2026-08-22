@@ -170,8 +170,7 @@ public class JoinWhereAndSearchFieldsEndToEndTests : IAsyncLifetime
         sc.AddLogging();
         sc.AddFerret(opts => opts
             .ScanAssembly(typeof(SjProduct).Assembly)
-            .UseTrigramSearch()
-            .UseDapperHydration());
+            .UseTrigramSearch());
         return sc.BuildServiceProvider().GetRequiredService<IFerretEngine>();
     }
 }

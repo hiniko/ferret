@@ -8,5 +8,3 @@ Ferret.Hydration.Dapper.DapperSession.Dialect.get -> Ferret.Abstractions.Sql.ISq
 Ferret.Hydration.Dapper.DapperSession.DisposeAsync() -> System.Threading.Tasks.ValueTask
 Ferret.Hydration.Dapper.DapperSession.Hydrator.get -> Ferret.Abstractions.Hydration.IEntityHydrator!
 Ferret.Hydration.Dapper.DapperSession.OpenConnectionAsync(System.Threading.CancellationToken ct) -> System.Threading.Tasks.Task<System.Data.Common.DbConnection!>!
-Ferret.Hydration.Dapper.DependencyInjection.DapperHydrationExtensions
-static Ferret.Hydration.Dapper.DependencyInjection.DapperHydrationExtensions.UseDapperHydration(this Ferret.Core.Configuration.FerretOptions! options) -> Ferret.Core.Configuration.FerretOptions!

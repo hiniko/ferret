@@ -8,7 +8,6 @@ using Ferret.Core.DependencyInjection;
 using Ferret.Core.Engine;
 using Ferret.Core.Sql;
 using Ferret.Hydration.Dapper;
-using Ferret.Hydration.Dapper.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 
@@ -54,8 +53,7 @@ public class SearchJoinDepthBenchmark
         sc.AddLogging();
         sc.AddFerret(opts => opts
             .ScanAssembly(typeof(HopGraph).Assembly)
-            .UseTrigramSearch()
-            .UseDapperHydration());
+            .UseTrigramSearch());
         _engine = sc.BuildServiceProvider().GetRequiredService<IFerretEngine>();
 
         if (CacheState == CacheStateKind.Warm)

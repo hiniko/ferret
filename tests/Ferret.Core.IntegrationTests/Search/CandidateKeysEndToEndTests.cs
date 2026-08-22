@@ -93,8 +93,7 @@ public class CandidateKeysEndToEndTests
         sc.AddLogging();
         sc.AddFerret(opts => opts
             .ScanAssembly(typeof(Widget).Assembly)
-            .UseTrigramSearch()
-            .UseDapperHydration());
+            .UseTrigramSearch());
         var sp = sc.BuildServiceProvider();
         var dialect = sp.GetRequiredService<ISqlDialect>();
         var session = new DapperSession(

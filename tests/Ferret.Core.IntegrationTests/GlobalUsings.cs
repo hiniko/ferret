@@ -12,4 +12,3 @@ global using Ferret.Core.DependencyInjection;
 global using Ferret.Core.Engine;
 global using Ferret.Core.Engine.Cursor;
 global using Ferret.Core.Sql;
-global using Ferret.Hydration.Dapper.DependencyInjection;

@@ -39,8 +39,7 @@ public class VectorReindexTests
         sc.AddLogging();
         sc.AddFerret(o => o
             .ScanAssembly(typeof(RVDoc).Assembly)
-            .UseVectorSearch(v => v.UseEmbeddingProvider(_ => provider))
-            .UseDapperHydration());
+            .UseVectorSearch(v => v.UseEmbeddingProvider(_ => provider)));
         await using var sp = sc.BuildServiceProvider();
 
         var engine = sp.GetRequiredService<IFerretEngine>();

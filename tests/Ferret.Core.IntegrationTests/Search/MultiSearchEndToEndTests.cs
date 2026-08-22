@@ -199,8 +199,7 @@ public class MultiSearchEndToEndTests
         sc.AddLogging();
         sc.AddFerret(opts => opts
             .ScanAssembly(typeof(Author).Assembly)
-            .UseTrigramSearch()
-            .UseDapperHydration());
+            .UseTrigramSearch());
         var sp = sc.BuildServiceProvider();
         var dialect = sp.GetRequiredService<ISqlDialect>();
         var session = new DapperSession(
