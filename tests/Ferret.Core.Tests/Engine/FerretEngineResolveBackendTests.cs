@@ -39,7 +39,7 @@ public sealed class FerretEngineResolveBackendTests
     }
 
     private static FerretEngine Engine(EntityRegistry registry, params ISearchBackend[] backends) =>
-        new(registry, backends, NullLogger<FerretEngine>.Instance, new FerretRuntimeOptions());
+        new(registry, backends, new FerretRuntimeOptions());
 
     private static ISearchBackend Trigram() =>
         new TrigramSearchBackend(new PostgresDialect(), new TrigramOptions());

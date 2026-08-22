@@ -8,6 +8,7 @@ using Ferret.Core.Backends.Hybrid;
 using Ferret.Core.Backends.Vector;
 using Ferret.Core.Engine.Reindex;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Npgsql;
 using Ferret.Core.Diagnostics;
 using Tags = Ferret.Core.Diagnostics.FerretDiagnostics.Tags;
@@ -23,16 +24,18 @@ internal sealed partial class FerretEngine : IFerretEngine
     private readonly HybridOptions? _hybridOptions;
     private readonly System.Collections.Concurrent.ConcurrentDictionary<(string Entity, string Group), string> _activeVectorColumns = new();
 
+    // logger is optional: Ferret must work in a container that never called AddLogging().
+    // Supply one to get slow-query warnings, statement logging and query-failure detail.
     public FerretEngine(
         EntityRegistry registry,
         IEnumerable<ISearchBackend> backends,
-        ILogger<FerretEngine> logger,
         FerretRuntimeOptions options,
+        ILogger<FerretEngine>? logger = null,
         HybridOptions? hybridOptions = null)
     {
         _registry = registry;
         _backends = backends.ToList();
-        _logger = logger;
+        _logger = logger ?? NullLogger<FerretEngine>.Instance;
         _options = options;
         _hybridOptions = hybridOptions;
     }
