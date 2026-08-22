@@ -37,7 +37,6 @@ public sealed class ReindexVectorDispatchTests
         return new FerretEngine(
             reg,
             new ISearchBackend[] { fullText, vector },
-            NullLogger<FerretEngine>.Instance,
             new FerretRuntimeOptions());
     }
 

@@ -104,6 +104,8 @@ public static class FerretServiceCollectionExtensions
         // per call, so only an adapter that knows where connections come from can supply
         // one — e.g. AddFerretEntityFrameworkCore<TContext>(). Consumers driving
         // IFerretEngine directly with their own session need no query service at all.
+        // FerretEngine's logger parameter is optional, so this resolves even in a container
+        // that never called AddLogging().
         services.AddSingleton<IFerretEngine, FerretEngine>();
 
         services.Configure<PaginationOptions>(o =>

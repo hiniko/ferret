@@ -26,7 +26,6 @@ public sealed class ResolveBackendVectorTests
         var engine = new FerretEngine(
             reg,
             new ISearchBackend[] { trigram, vector },
-            NullLogger<FerretEngine>.Instance,
             new FerretRuntimeOptions());
 
         engine.ResolveBackend(reg.Get<VectorOnly>()).Name.Should().Be("vector");
