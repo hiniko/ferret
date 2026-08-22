@@ -52,41 +52,47 @@ sugar over them.
 
 ## Dapper and raw Npgsql
 
-There is no DI adapter for Dapper, by design — `DapperSession` wraps a connection factory
-and is constructed per call. Registration is just `AddFerret`:
+Dapper users get the same injected `IFerretQueryService` as EF users — register it with
+`AddFerretDapper`:
 
 ```csharp
+services.AddNpgsqlDataSource(connectionString);
+
 services.AddFerret(o => o
     .ScanAssembly(typeof(User).Assembly)
     .UseTrigramSearch());
+
+services.AddFerretDapper();          // opens connections from the registered NpgsqlDataSource
 ```
 
-Then build a session where you need one:
+Then inject `IFerretQueryService` exactly as the EF samples do — application code does not
+know or care which adapter is underneath.
+
+For a custom connection source — your own pooling, per-tenant routing, an ambient
+transaction — supply the factory instead:
 
 ```csharp
-public sealed class UserSearch(IFerretEngine engine, ISqlDialect dialect, NpgsqlDataSource source)
-{
-    public async Task<OffsetResult<User>> Search(string term, CancellationToken ct)
-    {
-        await using var session = new DapperSession(
-            async token => await source.OpenConnectionAsync(token),
-            dialect);
+services.AddFerretDapper((sp, ct) =>
+    sp.GetRequiredService<IMyConnectionSource>().OpenAsync(ct));
+```
 
-        return await engine.SearchOffsetAsync<User, Guid>(session, new PagedQuery<User, Guid>
-        {
-            Search = term,
-            Limit = 25,
-        }, ct);
-    }
-}
+The factory runs per query, and the connection is disposed with the session.
+
+### Driving the engine directly
+
+`DapperSession` remains public if you want to skip the query service and hold the session
+yourself:
+
+```csharp
+await using var session = new DapperSession(
+    async token => await source.OpenConnectionAsync(token),
+    dialect);
+
+return await engine.SearchOffsetAsync<User, Guid>(session, query, ct);
 ```
 
 `DapperSession` supplies its own `DapperHydrator`, opens the connection lazily on first
 use, and disposes it with the session.
-
-To register this behind `IFerretQueryService` so callers do not see the difference,
-implement the interface yourself and register it — a small class that holds the connection
-factory and forwards to the engine.
 
 ## Bring your own session
 

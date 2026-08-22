@@ -31,7 +31,7 @@ to Typesense / Meilisearch / Elastic for projects that already run PostgreSQL.
 | `Ferret.Core` | Engine, SQL builder, attribute discovery, Postgres dialect, search backends. |
 | `Ferret.Migrations` | EF Core migrations bridge — generates trigram/full-text/vector schema from annotations. |
 | `Ferret.EntityFrameworkCore` | EF Core session + hydrator + DI registration. |
-| `Ferret.Hydration.Dapper` | Dapper-based session + hydrator for EF-free use. |
+| `Ferret.Hydration.Dapper` | Dapper query service, session + hydrator for EF-free use. |
 | `Ferret.AspNetCore` | `OffsetApiQuery` / `CursorApiQuery` + binders + `MapFerret`. |
 | `Ferret.Hosting` | Reindex `BackgroundService` (drains `ferret_reindex_jobs`). |
 | `Ferret.Tools.Cli` | `dotnet ferret reindex` CLI tool. |
@@ -97,20 +97,30 @@ Cursor mode is available via `search.SearchCursorAsync<...>` returning `CursorRe
 ## Quickstart — Dapper
 
 ```csharp
+services.AddNpgsqlDataSource(connectionString);
+
 services.AddFerret(opts => opts
     .ScanAssembly(typeof(Product).Assembly)
     .UseTrigramSearch());
 
-await using var session = new DapperSession(
-    ct => Task.FromResult<DbConnection>(new NpgsqlConnection(connectionString)),
-    sp.GetRequiredService<ISqlDialect>());
-
-var page = await sp.GetRequiredService<IFerretEngine>()
-    .SearchOffsetAsync<Product, Guid>(session,
-        new PagedQuery<Product, Guid> { Mode = PaginationMode.Offset, Search = "widge", Limit = 25 });
+services.AddFerretDapper();
 ```
 
-See [docs/advanced.md](docs/advanced.md) for the lower-level `IFerretEngine` / session APIs.
+Then inject the same `IFerretQueryService` the EF quickstart uses — application code is
+identical either way:
+
+```csharp
+public sealed class ProductsController(IFerretQueryService search) : ControllerBase
+{
+    [HttpGet]
+    public Task<OffsetResult<Product>> Get(CancellationToken ct) =>
+        search.SearchOffsetAsync<Product, Guid>(
+            new PagedQuery<Product, Guid> { Search = "widge", Limit = 25 }, ct);
+}
+```
+
+See [docs/advanced.md](docs/advanced.md) for custom connection factories and the lower-level
+`IFerretEngine` / session APIs.
 
 ## Documentation
 

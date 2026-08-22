@@ -1,9 +1,9 @@
 # Setup
 
 The default path is EF Core: Ferret manages hydration, schema, and reindexing, and your
-application code talks to one interface, `IFerretQueryService`. Dapper and bring-your-own-session
-are lower-level options for when you are not on EF Core for queries — see
-[docs/advanced.md](advanced.md).
+application code talks to one interface, `IFerretQueryService`. Dapper gets the same interface
+via `AddFerretDapper()`; bring-your-own-session is the lower-level option for stacks Ferret has
+no adapter for — both in [docs/advanced.md](advanced.md).
 
 > Adding Ferret to an app you already have, rather than starting fresh? See
 > [docs/integration.md](integration.md).
@@ -57,8 +57,9 @@ services.AddFerret(opts => opts
 
 ## Dapper and bring-your-own-session
 
-Not using EF Core for queries, or integrating with a data stack Ferret has no adapter for?
-See [docs/advanced.md](advanced.md) — it covers driving `IFerretEngine` directly with a
-`DapperSession`, and implementing `IFerretSession` yourself. Schema generation
+Not using EF Core for queries? `AddFerretDapper()` registers the same `IFerretQueryService`
+your controllers already inject, so nothing above the data layer changes. For a stack Ferret
+has no adapter for, implement `IFerretSession` yourself. Both are covered in
+[docs/advanced.md](advanced.md). Schema generation
 (`Ferret.Migrations`, [migrations.md](migrations.md)) works the same way regardless of which
 session you query with.

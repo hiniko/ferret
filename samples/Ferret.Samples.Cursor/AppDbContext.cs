@@ -24,6 +24,6 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.Property(p => p.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("now()");
         });
 
-        modelBuilder.UseFerretSearchableAnnotations(typeof(Product).Assembly);
+        modelBuilder.UseFerretSearchableAnnotations(this, typeof(Product).Assembly);
     }
 }

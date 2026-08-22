@@ -29,26 +29,47 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
 }
 ```
 
-This form uses **default** `TrigramOptions`/`FullTextOptions`/`VectorOptions`, which is
-correct as long as your app also uses defaults. It is the right choice for most apps, and
-the one the samples use.
+Passing `this` lets Ferret read the naming strategy, backends and options that
+`AddFerret(...)` configured, so generated DDL always matches what queries expect.
 
-> **Non-default options need the DI-aware overload.** If you configure options — say
-> `UseFullTextSearch(ft => ft.DefaultConfig = "spanish")` or a custom `SidecarSuffix` — the
-> call above still generates DDL for the **defaults**: an index built for `english` while
-> queries ask for `spanish`. Wrong index, empty results, no error. Pass the service provider
-> that `AddFerret(...)` populated so Ferret reads the real configuration:
->
-> ```csharp
-> // `services` is the IServiceProvider your app built.
-> modelBuilder.UseFerretSearchableAnnotations(services, typeof(Article).Assembly);
-> ```
->
-> There is also a `(DbContext, Assembly)` overload that pulls the provider off the context.
-> Be aware it makes `dotnet ef` resolve the application service provider, which boots your
-> `Program.cs` — if that starts hosted services or a web server, migration commands can hang.
-> Prefer the explicit `(IServiceProvider, Assembly)` form, or a design-time factory that
-> supplies a provider without booting the app.
+Without it — the `(assembly)` overload — Ferret falls back to **default**
+`TrigramOptions`/`FullTextOptions`/`VectorOptions`. That is fine if your app also uses
+defaults, but if you set, say, `UseFullTextSearch(ft => ft.DefaultConfig = "spanish")`,
+you get an index built for `english` while queries ask for `spanish`: wrong index, empty
+results, no error.
+
+There is also an `(IServiceProvider, Assembly)` overload for cases where you have the
+provider directly rather than a context.
+
+### Design-time factory
+
+`dotnet ef` needs to construct your context. By default it boots `Program.cs` to find the
+application service provider — which starts your web host and any hosted services, and can
+hang migration commands. Give it an `IDesignTimeDbContextFactory<T>` instead and it calls
+that directly:
+
+```csharp
+public sealed class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
+{
+    public AppDbContext CreateDbContext(string[] args)
+    {
+        var services = new ServiceCollection();
+        services.AddFerret(o => o
+            .ScanAssembly(typeof(Product).Assembly)
+            .UseTrigramSearch());
+
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseNpgsql("Host=localhost;Database=yourdb;Username=postgres;Password=…")
+            .UseApplicationServiceProvider(services.BuildServiceProvider())
+            .Options;
+
+        return new AppDbContext(options);
+    }
+}
+```
+
+Mirror your app's `AddFerret(...)` call here so design-time and runtime agree. All three
+samples ship one — see `samples/Ferret.Samples.Basic/DesignTimeDbContextFactory.cs`.
 
 Wire the design-time services — create `<YourProjectRoot>/MigrationsDesignTimeServices.cs`:
 

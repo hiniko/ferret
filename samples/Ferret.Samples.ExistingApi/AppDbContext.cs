@@ -44,6 +44,6 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         });
 
         // ---- the one line added for Ferret ----
-        modelBuilder.UseFerretSearchableAnnotations(typeof(Ticket).Assembly);
+        modelBuilder.UseFerretSearchableAnnotations(this, typeof(Ticket).Assembly);
     }
 }
