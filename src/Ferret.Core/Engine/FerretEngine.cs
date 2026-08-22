@@ -893,9 +893,24 @@ internal sealed partial class FerretEngine : IFerretEngine
             }
         }
 
-        var (rankedIds, totalCount) = await ExecuteIdsAndCountNamedAsync<TKey>(
-            connection, "ferret.db.query.search", fragment.Sql, executionParams, meta.Key.Count, ct,
-            efSearch: vectorBackend?.Options.EfSearch);
+        // Selectivity-based routing (docs/vector-filtering.md): HNSW is approximate and
+        // cannot see a WHERE clause, so a selective filter combined with the index silently
+        // returns a short page. When a filter is present, decide whether to run the ranking
+        // query as an exact scan (index disabled) or through the index with iterative_scan.
+        List<TKey> rankedIds;
+        int totalCount;
+        if (vectorBackend is not null && candidatePredicate is { } predicateForRouting)
+        {
+            (rankedIds, totalCount) = await ExecuteVectorFilteredRankingAsync<TKey>(
+                connection, vectorBackend, model, session.Dialect, predicateForRouting,
+                fragment.Sql, executionParams, meta, limit, ct);
+        }
+        else
+        {
+            (rankedIds, totalCount) = await ExecuteIdsAndCountNamedAsync<TKey>(
+                connection, "ferret.db.query.search", fragment.Sql, executionParams, meta.Key.Count, ct,
+                efSearch: vectorBackend?.Options.EfSearch);
+        }
         backendActivity?.SetTag(Tags.RowCount, rankedIds.Count);
 
         if (rankedIds.Count == 0)
@@ -923,6 +938,95 @@ internal sealed partial class FerretEngine : IFerretEngine
             HasPrev = page > 0,
             MatchInfo = null,
         };
+    }
+
+    /// <summary>
+    /// Routes a filtered vector ranking query to either the exact-scan path (HNSW index
+    /// disabled, correct by construction) or the HNSW index path (with iterative_scan, when
+    /// configured) per <see cref="VectorFilterStrategy"/>. See docs/vector-filtering.md.
+    /// </summary>
+    private async Task<(List<TKey> Ids, int TotalCount)> ExecuteVectorFilteredRankingAsync<TKey>(
+        DbConnection connection, VectorSearchBackend vectorBackend, EntityModel model, ISqlDialect dialect,
+        SqlFragment candidatePredicate, string sql, List<KeyValuePair<string, object?>> executionParams,
+        EntityMetadata meta, int limit, CancellationToken ct)
+        where TKey : notnull
+    {
+        var opts = vectorBackend.Options;
+        var useExactScan = opts.FilterStrategy switch
+        {
+            VectorFilterStrategy.AlwaysExact => true,
+            VectorFilterStrategy.AlwaysIndex => false,
+            // Auto: estimate the filtered cardinality via the planner (never a real count —
+            // see docs/vector-filtering.md) and route on ExactScanThreshold.
+            _ => await EstimateFilterRowsAsync(connection, model, dialect, candidatePredicate, ct)
+                 <= opts.ExactScanThreshold,
+        };
+
+        if (useExactScan)
+        {
+            // ponytail: a fixed generous budget, not a public knob — MaxExactScanRows is a
+            // safety valve for pathological mis-routes, not a latency SLO. Measured exact scans
+            // stay in the tens of milliseconds even at hundreds of thousands of rows (see
+            // spec), so this only ever fires when the real filtered set is wildly larger than
+            // MaxExactScanRows expects. Pre-counting or probing was rejected: measured slower
+            // than just running the scan (see spec).
+            const int exactScanStatementTimeoutMs = 5_000;
+
+            var (ids, total, timedOut) = await ExecuteExactScanAsync<TKey>(
+                connection, "ferret.db.query.search", sql, executionParams, meta.Key.Count, ct,
+                exactScanStatementTimeoutMs);
+            if (!timedOut)
+                return (ids, total);
+
+            // MaxExactScanRows safety valve fired: the estimate said "small enough" but the
+            // real filtered set is pathologically large (measured up to 144x under-estimate
+            // with stale statistics). Fall back to the index path.
+            _logger.LogWarning(
+                "Ferret vector exact scan for '{Table}' exceeded its time budget (MaxExactScanRows={MaxExactScanRows}); " +
+                "falling back to the HNSW index path.", model.TableName, opts.MaxExactScanRows);
+        }
+
+        var (rankedIds, totalCount) = await ExecuteIdsAndCountNamedAsync<TKey>(
+            connection, "ferret.db.query.search", sql, executionParams, meta.Key.Count, ct,
+            efSearch: opts.EfSearch,
+            vectorSettings: new VectorSessionSettings(DisableIndexScan: false, opts.IterativeScan, opts.MaxScanTuples));
+
+        // Never truncate silently: the index cannot see the filter, so a selective filter can
+        // return fewer rows than requested even with iterative_scan. The estimate that routed
+        // here can also simply be wrong. Either way, the caller gets no signal unless we log.
+        if (rankedIds.Count < limit && rankedIds.Count < totalCount)
+        {
+            _logger.LogWarning(
+                "Ferret vector search on '{Table}' returned {ActualCount} rows, short of the requested {Limit}, " +
+                "with a filter applied on the HNSW index path. HNSW is approximate and cannot see the WHERE " +
+                "clause; see docs/vector-filtering.md.", model.TableName, rankedIds.Count, limit);
+        }
+
+        return (rankedIds, totalCount);
+    }
+
+    /// <summary>
+    /// Estimates how many base-table rows survive <paramref name="candidatePredicate"/> using
+    /// the planner's row estimate (<c>EXPLAIN (FORMAT JSON)</c>, reading <c>Plan Rows</c>) —
+    /// never a real <c>count(*)</c>, which is exact but degrades with table size on an
+    /// unindexed filter (measured ~18ms vs ~0.5ms; see docs/vector-filtering.md). This is a
+    /// routing hint only: never reported to the caller or used to size a buffer.
+    /// </summary>
+    private static async Task<long> EstimateFilterRowsAsync(
+        DbConnection connection, EntityModel model, ISqlDialect dialect,
+        SqlFragment candidatePredicate, CancellationToken ct)
+    {
+        var explainSql =
+            $"EXPLAIN (FORMAT JSON) SELECT 1 FROM {model.QuotedTable(dialect)} e WHERE {candidatePredicate.Sql}";
+
+        await using var command = connection.CreateCommand();
+        command.CommandText = explainSql;
+        for (var i = 0; i < candidatePredicate.Parameters.Count; i++)
+            command.AddParameter($"f{i}", candidatePredicate.Parameters[i]);
+
+        var json = (string)(await command.ExecuteScalarAsync(ct))!;
+        using var doc = System.Text.Json.JsonDocument.Parse(json);
+        return doc.RootElement[0].GetProperty("Plan").GetProperty("Plan Rows").GetInt64();
     }
 
     private async Task<OffsetResult<T>> ExecuteOffsetHybridCoreAsync<T, TKey>(
@@ -1084,7 +1188,43 @@ internal sealed partial class FerretEngine : IFerretEngine
     private async Task<(List<TKey> Ids, int TotalCount)> ExecuteIdsAndCountNamedAsync<TKey>(
         DbConnection connection, string activityName, string sql,
         IReadOnlyList<KeyValuePair<string, object?>> parameters, int keyCount, CancellationToken ct,
-        int? efSearch = null)
+        int? efSearch = null, VectorSessionSettings? vectorSettings = null)
+        where TKey : notnull
+        => await ExecuteIdsAndCountNamedCoreAsync<TKey>(
+            connection, activityName, sql, parameters, keyCount, ct, efSearch, vectorSettings, statementTimeoutMs: null);
+
+    /// <summary>
+    /// Runs the ranking query with the HNSW index disabled for this transaction (exact-scan
+    /// filter path), bounded by <paramref name="statementTimeoutMs"/> as a safety valve for a
+    /// badly wrong cardinality estimate. On a statement-timeout cancellation the transaction is
+    /// rolled back and <c>TimedOut</c> is <c>true</c> so the caller can fall back to the index
+    /// path, rather than pre-counting or probing the filtered set on every query (measured
+    /// slower than just running the scan; see docs/vector-filtering.md).
+    /// </summary>
+    private async Task<(List<TKey> Ids, int TotalCount, bool TimedOut)> ExecuteExactScanAsync<TKey>(
+        DbConnection connection, string activityName, string sql,
+        IReadOnlyList<KeyValuePair<string, object?>> parameters, int keyCount, CancellationToken ct,
+        int statementTimeoutMs)
+        where TKey : notnull
+    {
+        try
+        {
+            var (ids, total) = await ExecuteIdsAndCountNamedCoreAsync<TKey>(
+                connection, activityName, sql, parameters, keyCount, ct,
+                efSearch: null, vectorSettings: new VectorSessionSettings(DisableIndexScan: true, HnswIterativeScan.Off, 0),
+                statementTimeoutMs);
+            return (ids, total, TimedOut: false);
+        }
+        catch (PostgresException pgEx) when (pgEx.SqlState == PostgresErrorCodes.QueryCanceled)
+        {
+            return ([], 0, TimedOut: true);
+        }
+    }
+
+    private async Task<(List<TKey> Ids, int TotalCount)> ExecuteIdsAndCountNamedCoreAsync<TKey>(
+        DbConnection connection, string activityName, string sql,
+        IReadOnlyList<KeyValuePair<string, object?>> parameters, int keyCount, CancellationToken ct,
+        int? efSearch, VectorSessionSettings? vectorSettings, int? statementTimeoutMs)
         where TKey : notnull
     {
         using var activity = FerretDiagnostics.ActivitySource.StartActivity(activityName, ActivityKind.Client);
@@ -1092,17 +1232,40 @@ internal sealed partial class FerretEngine : IFerretEngine
         if (_options.LogStatements) activity?.SetTag(Tags.DbStatement, sql);
         LogStatementDebug(sql);
 
-        // Vector queries must run inside an explicit transaction so that the
-        // SET LOCAL hnsw.ef_search applies to the ranking SELECT on the same
-        // connection/transaction (otherwise Npgsql may split the batch and the
+        // Vector queries must run inside an explicit transaction so that the SET LOCAL
+        // settings (hnsw.ef_search, iterative_scan, disabling index scans for the exact-scan
+        // filter path, or a statement timeout guarding it) apply to the ranking SELECT on the
+        // same connection/transaction (otherwise Npgsql may split the batch and the
         // session-local setting is lost).
         DbTransaction? tx = null;
-        if (efSearch is { } ef)
+        if (efSearch is not null || vectorSettings is not null)
         {
             tx = await connection.BeginTransactionAsync(ct);
             await using var setCmd = connection.CreateCommand();
             setCmd.Transaction = tx;
-            setCmd.CommandText = $"SET LOCAL hnsw.ef_search = {ef};";
+            var setSql = new StringBuilder();
+            if (statementTimeoutMs is { } timeout)
+                setSql.Append($"SET LOCAL statement_timeout = {timeout}; ");
+            if (efSearch is { } ef)
+                setSql.Append($"SET LOCAL hnsw.ef_search = {ef};");
+            if (vectorSettings is { } vs)
+            {
+                if (vs.DisableIndexScan)
+                {
+                    // Forces the exact-scan path: with index scans off, Postgres has no
+                    // way to use the HNSW index and falls back to a sequential scan over
+                    // the (already filtered, small) candidate set, ordered exactly.
+                    setSql.Append(" SET LOCAL enable_indexscan = off;");
+                    setSql.Append(" SET LOCAL enable_indexonlyscan = off;");
+                }
+                else if (vs.IterativeScan != HnswIterativeScan.Off)
+                {
+                    var mode = vs.IterativeScan == HnswIterativeScan.StrictOrder ? "strict_order" : "relaxed_order";
+                    setSql.Append($" SET LOCAL hnsw.iterative_scan = {mode};");
+                    setSql.Append($" SET LOCAL hnsw.max_scan_tuples = {vs.MaxScanTuples};");
+                }
+            }
+            setCmd.CommandText = setSql.ToString();
             await setCmd.ExecuteNonQueryAsync(ct);
         }
 
@@ -1133,6 +1296,11 @@ internal sealed partial class FerretEngine : IFerretEngine
 
             if (tx is not null) await tx.CommitAsync(ct);
             return (ids, total);
+        }
+        catch
+        {
+            if (tx is not null) await tx.RollbackAsync(ct);
+            throw;
         }
         finally
         {
@@ -1256,3 +1424,15 @@ internal sealed partial class FerretEngine : IFerretEngine
         _logger.LogError(ex, "Ferret query failed: table={Table} mode={Mode}", table, mode);
     }
 }
+
+/// <summary>
+/// Session-local pgvector knobs applied alongside <c>SET LOCAL hnsw.ef_search</c> in
+/// <see cref="FerretEngine.ExecuteIdsAndCountNamedAsync{TKey}"/>. <see cref="DisableIndexScan"/>
+/// forces the exact-scan filter path; otherwise <see cref="IterativeScan"/> and
+/// <see cref="MaxScanTuples"/> apply pgvector's iterative-scan knobs to the (still
+/// index-backed) ranking query.
+/// </summary>
+internal readonly record struct VectorSessionSettings(
+    bool DisableIndexScan,
+    HnswIterativeScan IterativeScan,
+    int MaxScanTuples);

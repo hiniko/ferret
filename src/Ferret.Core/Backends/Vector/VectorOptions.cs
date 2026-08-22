@@ -84,4 +84,79 @@ public sealed class VectorOptions
     public int EfSearch { get; set; } = 40;
     public int ConcurrentBatchSize { get; set; } = 1000;
     public TimeSpan ConcurrentBatchDelay { get; set; } = TimeSpan.Zero;
+
+    // ---- filtered search ----
+    // HNSW is approximate and cannot see a WHERE clause: Postgres applies the filter to whatever
+    // the index already chose, so a selective filter silently returns a short page. See
+    // docs/vector-filtering.md. These settings control how Ferret avoids that.
+
+    /// <summary>
+    /// How a vector search combined with a filter is executed. Default <see cref="VectorFilterStrategy.Auto"/>.
+    /// </summary>
+    public VectorFilterStrategy FilterStrategy { get; set; } = VectorFilterStrategy.Auto;
+
+    /// <summary>
+    /// Under <see cref="VectorFilterStrategy.Auto"/>, a filter estimated to match at most this many
+    /// rows is executed as an exact scan instead of through the HNSW index — exact results, and
+    /// typically faster than the index once the candidate set is this small. Raise it if your
+    /// vectors are small or your latency budget is generous; lower it if exact scans are too slow.
+    /// </summary>
+    public int ExactScanThreshold { get; set; } = 10_000;
+
+    /// <summary>
+    /// Hard ceiling on the exact-scan path. The estimate comes from Postgres statistics and can be
+    /// badly wrong when they are stale (measured 144x low right after a bulk insert), so a query
+    /// routed to an exact scan is capped here: exceed it and Ferret falls back to the index path
+    /// and warns, rather than quietly scanning far more than intended.
+    /// </summary>
+    public int MaxExactScanRows { get; set; } = 250_000;
+
+    /// <summary>
+    /// pgvector 0.8 iterative scan mode, applied via SET LOCAL when a filtered search takes the
+    /// index path. Lets the index keep pulling candidates when the filter discards them, at the
+    /// cost of latency. Requires pgvector 0.8+; <see cref="HnswIterativeScan.Off"/> to disable.
+    /// </summary>
+    public HnswIterativeScan IterativeScan { get; set; } = HnswIterativeScan.RelaxedOrder;
+
+    /// <summary>
+    /// Caps how many tuples an iterative scan will pull before giving up. pgvector's own default
+    /// is 20,000. Only applies when <see cref="IterativeScan"/> is enabled.
+    /// </summary>
+    public int MaxScanTuples { get; set; } = 20_000;
+}
+
+/// <summary>How Ferret executes a vector search that also carries a filter.</summary>
+public enum VectorFilterStrategy
+{
+    /// <summary>
+    /// Estimate the filter's selectivity and choose: exact scan when it is selective, the HNSW
+    /// index when it is not. Costs one planner round trip per filtered query.
+    /// </summary>
+    Auto,
+
+    /// <summary>
+    /// Always exact-scan the filtered set, never using the index. Correct by construction and
+    /// independent of statistics freshness — the right choice when vector searches are always
+    /// tenant-scoped or otherwise selective. Still bounded by <see cref="VectorOptions.MaxExactScanRows"/>.
+    /// </summary>
+    AlwaysExact,
+
+    /// <summary>
+    /// Always use the HNSW index. The behaviour before routing existed: fastest, but a selective
+    /// filter can return fewer rows than requested.
+    /// </summary>
+    AlwaysIndex,
+}
+
+/// <summary>pgvector <c>hnsw.iterative_scan</c> modes.</summary>
+public enum HnswIterativeScan
+{
+    /// <summary>No iterative scanning (pgvector default).</summary>
+    Off,
+
+    /// <summary>Keep exact distance ordering while scanning further.</summary>
+    StrictOrder,
+
+    /// <summary>Allow approximate ordering for better recall. pgvector's recommended default.</summary>
+    RelaxedOrder,
 }
