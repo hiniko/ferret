@@ -158,6 +158,17 @@ Known gap: **filter + hybrid search** throws `NotSupportedException` (a v1 limit
 this work), so the routing does not apply there. Use a per-query `Backend` override to search a
 single backend with filters.
 
+### Offset paging computes a true total
+
+Offset-paged vector search (`TotalCount`/`HasMore`) always evaluates the full (post-filter)
+candidate set, the same as trigram and full-text search — not just the current page. This is
+necessary for `TotalCount` to be correct rather than capped at the page size, but it means an
+offset-paged vector query cannot rely on the HNSW index's early-exit: Postgres must rank (and,
+under `Auto`/`AlwaysExact` routing, exact-scan) every filter-matching row to produce the count, so
+the cost is the same order as an exact scan regardless of `FilterStrategy`. **Cursor paging avoids
+this cost** — it never computes a total and keeps the HNSW index scan eligible — and is the
+recommended pagination mode for vector search.
+
 ## Tuning
 
 **If your vector searches are always tenant-scoped or otherwise selective**, set
@@ -170,7 +181,11 @@ dimensionality, row width and your latency budget. For reference, on 384-dimensi
 exact scan over 40,000 rows measured ~30 ms, and over 200,000 rows ~38 ms; it scales far better
 than linearly, because the work is a bounded top-k heap over a sequential scan.
 
-**If you have already tuned around the old behaviour**, `AlwaysIndex` preserves it exactly.
+**If you have already tuned around the old behaviour**, `AlwaysIndex` keeps the HNSW index
+eligible for cursor-paged filtered search. On offset-paged filtered search it no longer reproduces
+the pre-routing short-page behaviour: computing a true `TotalCount` (above) forces the full
+candidate set to be evaluated regardless of `FilterStrategy`, so `AlwaysIndex` and `AlwaysExact`
+converge on offset paging. Use cursor paging to keep `AlwaysIndex` on its HNSW-only path.
 
 **Keep statistics fresh.** Under `Auto`, routing uses the planner's estimate, and a bulk insert
 without an `ANALYZE` can leave it wildly wrong — measured 144× low. The result stays correct

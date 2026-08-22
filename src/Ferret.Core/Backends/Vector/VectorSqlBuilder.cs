@@ -83,12 +83,16 @@ internal sealed class VectorSqlBuilder
         var innerKeyList = string.Join(", ", keyColumns.Select(k => $"s.{_dialect.QuoteIdentifier(k)}"));
         var outerKeyList = string.Join(", ", keyColumns.Select(k => $"knn.{_dialect.QuoteIdentifier(k)}"));
 
-        // The ORDER BY ... <=> ... LIMIT must run in an inner subquery so Postgres uses the
-        // HNSW index scan. Wrapping the COUNT(*) OVER() window directly around the distance
-        // ORDER BY forces a WindowAgg over a full Seq Scan + Sort, bypassing the index entirely
-        // (and rendering hnsw.ef_search a no-op). Count over the already-bounded KNN result.
+        // The ORDER BY ... <=> ... LIMIT must stay in its own inner subquery so Postgres uses
+        // the HNSW index scan (and so hnsw.ef_search keeps bounding the candidate list) —
+        // wrapping COUNT(*) OVER() directly around the distance ORDER BY forces a WindowAgg
+        // over a full Seq Scan + Sort, bypassing the index entirely. COUNT(*) OVER() on the
+        // already-LIMIT-bounded KNN result can never exceed the page size though, so total_count
+        // is a separate scalar subquery counting the full (unbounded, post-filter) candidate
+        // set — one query, same WHERE clause, no LIMIT — matching the true totals the sibling
+        // builders (TrigramSqlBuilder, FullTextSqlBuilder, HybridSqlBuilder) produce.
         var sql = $"""
-            {preSql}SELECT {outerKeyList}, COUNT(*) OVER() AS total_count
+            {preSql}SELECT {outerKeyList}, (SELECT COUNT(*) FROM {sidecar} s WHERE {where}) AS total_count
             FROM (
                 SELECT {innerKeyList}
                 FROM {sidecar} s
