@@ -127,37 +127,55 @@ would be far too slow. Once a filter has cut the table down, the premise no long
 
 ## Where Ferret stands today
 
-Ferret always ranks through the HNSW index, so **a selective filter combined with vector search
-can return a short page**. Ferret does not currently detect or report this.
+Ferret routes filtered vector searches on estimated selectivity: a selective filter is executed
+as an **exact scan** over the filtered set — correct by construction, no truncation — and a mild
+one still uses the HNSW index, with pgvector's iterative scan enabled to recover recall.
 
-Two things are already correct and worth stating clearly:
+Configure it on `VectorOptions`:
 
-- Filters are **pushed into the database**. Ferret compiles `Filter` into the search query
-  rather than materialising matching keys in the application. There is no round trip.
+```csharp
+services.AddFerret(o => o.UseVectorSearch(v =>
+{
+    v.FilterStrategy     = VectorFilterStrategy.Auto;  // Auto | AlwaysExact | AlwaysIndex
+    v.ExactScanThreshold = 10_000;   // route to exact scan at or below this estimate
+    v.MaxExactScanRows   = 250_000;  // safety valve if the estimate was badly wrong
+    v.IterativeScan      = HnswIterativeScan.RelaxedOrder;
+    v.MaxScanTuples      = 20_000;
+}));
+```
+
+`AlwaysExact` is worth considering if your vector searches are always tenant-scoped: it skips
+estimation entirely, so results never depend on how fresh your table statistics are.
+
+Two things were already correct and are worth stating:
+
+- Filters are **pushed into the database**. Ferret compiles `Filter` into the search query rather
+  than materialising matching keys in the application.
 - Trigram and full-text search are **unaffected**. GiST and GIN are exact indexes: filtering
-  changes which rows match, never how many the index can find. This page is only about the
-  vector backend.
+  changes which rows match, never how many the index can find.
 
-Routing between exact scan and index — the fix the ecosystem has converged on — is specified in
-`docs/superpowers/specs/2026-08-22-filtered-vector-search.md` and not yet implemented.
+Known gap: **filter + hybrid search** throws `NotSupportedException` (a v1 limitation predating
+this work), so the routing does not apply there. Use a per-query `Backend` override to search a
+single backend with filters.
 
-## What to do today
+## Tuning
 
-**If your vector searches are always tenant-scoped or otherwise selective**, and you need exact
-results, avoid relying on the vector backend for the filtered query until routing lands. Options
-in order of preference:
+**If your vector searches are always tenant-scoped or otherwise selective**, set
+`FilterStrategy = AlwaysExact`. You skip the per-query estimate, results are exact, and nothing
+depends on statistics freshness.
 
-1. Use full-text or trigram for the filtered query if lexical matching is acceptable — neither
-   has this problem.
-2. Raise `EfSearch` on `VectorOptions`. It costs latency and only widens the net; it does not
-   guarantee a full page.
-3. Reduce the selectivity of what you push into the vector query, and filter the remainder in
-   your application after ranking — accepting that you are paginating over an approximate set.
+**If selectivity varies**, leave `Auto` and tune `ExactScanThreshold` against your own data. The
+default of 10,000 is a starting point, not a universal answer — the right value depends on vector
+dimensionality, row width and your latency budget. For reference, on 384-dimension vectors an
+exact scan over 40,000 rows measured ~30 ms, and over 200,000 rows ~38 ms; it scales far better
+than linearly, because the work is a bounded top-k heap over a sequential scan.
 
-**If your filters are mild** (they keep most of the table), the current behaviour is fine. The
-index sees enough surviving candidates and recall stays high.
+**If you have already tuned around the old behaviour**, `AlwaysIndex` preserves it exactly.
 
-**Either way, do not treat a short vector page as "no more results"** while this is outstanding.
+**Keep statistics fresh.** Under `Auto`, routing uses the planner's estimate, and a bulk insert
+without an `ANALYZE` can leave it wildly wrong — measured 144× low. The result stays correct
+either way (an exact scan cannot truncate, and the `MaxExactScanRows` valve bounds a runaway
+scan), but a badly stale estimate can route to a slower path than necessary.
 
 ## See also
 
