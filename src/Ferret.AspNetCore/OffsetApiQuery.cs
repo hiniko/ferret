@@ -32,7 +32,6 @@ public sealed record OffsetApiQuery : PaginationParameters
             Limit = limit,
             Search = Q,
             SearchFields = Fields,
-            IncludeMatchInfo = MatchInfo,
             Sort = Sort,
             Filter = Filter,
             AuthoritativeFilter = authoritativeFilters,

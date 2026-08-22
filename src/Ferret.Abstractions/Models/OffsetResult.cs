@@ -8,5 +8,4 @@ public sealed record OffsetResult<T>
     public int TotalCount { get; init; }
     public bool HasMore { get; init; }
     public bool HasPrev { get; init; }
-    public SearchMatchInfo? MatchInfo { get; init; }
 }

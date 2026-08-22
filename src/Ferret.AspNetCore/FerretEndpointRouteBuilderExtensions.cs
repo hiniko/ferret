@@ -79,7 +79,6 @@ public static class FerretEndpointRouteBuilderExtensions
 
         AddQueryParameter(operation, "q", "Full-text search term.");
         AddQueryParameter(operation, "fields", "Comma-separated list of fields to search.");
-        AddQueryParameter(operation, "match_info", "Set to true to include search match metadata.");
         AddQueryParameter(operation, "filter", "Filter clause in field:operator:value form. Repeatable.");
         AddQueryParameter(operation, "sort", "Sort clause in field:direction form. Repeatable.");
         AddQueryParameter(operation, "limit", "Maximum number of items to return.");
