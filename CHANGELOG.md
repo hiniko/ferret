@@ -21,7 +21,7 @@ Ferret is pre-1.0 — see `VERSIONING.md` for what that means for breaking chang
 
 - Dependency updates: `Microsoft.Extensions.AI.Abstractions` minimum raised 9.7 → 10.11
   (consumers must be on 10.11 or later); EF Core / Npgsql to 10.0.13 / 10.0.3 and
-  `Microsoft.Extensions.*` to 10.0.3.
+  `Microsoft.Extensions.*` to 10.0.13.
 - Releases are now published via NuGet trusted publishing, with GitHub build provenance
   attestations; the attested `.nupkg` files are attached to each GitHub release. See
   `SECURITY.md`.
