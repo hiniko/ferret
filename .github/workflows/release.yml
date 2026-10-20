@@ -62,7 +62,7 @@ jobs:
         with:
           global-json-file: global.json
 
-      - run: dotnet restore Ferret.slnx --locked-mode
+      - run: dotnet restore Ferret.slnx
       - run: dotnet build Ferret.slnx -c Release --no-restore
       - run: dotnet test Ferret.slnx -c Release --no-build
       - run: dotnet pack Ferret.slnx -c Release --no-build -o ./artifacts
