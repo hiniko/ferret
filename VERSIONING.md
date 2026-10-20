@@ -39,7 +39,8 @@ prefix; tags are plain SemVer like `0.1.0`).
 - A commit **at** a tag builds as that exact version (`0.1.0`).
 - Commits **after** a tag build as the next patch pre-release with height, e.g.
   `0.1.1-alpha.0.5` (5 commits past `0.1.0`). These are NuGet pre-release versions.
-- To cut a release, tag the chosen commit and build:
+- Releases are cut by the release workflow, which tags `main` HEAD itself (see below). To
+  pack a version locally, tag and build:
   ```bash
   git tag 0.1.1
   dotnet pack -c Release
@@ -57,18 +58,18 @@ Each packable project tracks its surface in two files:
 - `PublicAPI.Unshipped.txt` — additions since that release. New public symbols must be
   added here or the build fails with `RS0016`.
 
-**Before tagging a release**, promote the accumulated additions:
+**Before releasing**, promote the accumulated additions:
 
 ```bash
 python3 scripts/ship-public-api.py     # Unshipped -> Shipped
 dotnet build Ferret.slnx -c Release    # confirm the surface still matches
 git add src/*/PublicAPI.*.txt && git commit -m "chore: ship public API for <version>"
-git tag <version>
 ```
 
-Then run the release workflow against that tag. The promotion cannot be a workflow step:
-the workflow checks out an existing tag, so anything it changed would land after the tag
-it describes.
+Merge that to `main`, then release: Actions -> release -> Run workflow (on `main`) -> enter the
+version -> approve the `release` environment deployment. The workflow tags the `main` HEAD it
+built; do not push the tag yourself. The promotion cannot be a workflow step: the workflow
+tags the commit it finds, so anything it changed would land after the tag it describes.
 
 `scripts/ship-public-api.py --check` reports pending entries and exits non-zero — useful
 as a pre-tag guard. `scripts/regen-public-api.py` is the different tool: it rebuilds
