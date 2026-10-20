@@ -12,8 +12,8 @@
     <PackageReference Include="Testcontainers.Ollama" />
     <PackageReference Include="Npgsql" />
     <PackageReference Include="Dapper" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" VersionOverride="10.0.7" />
-    <PackageReference Include="Microsoft.Extensions.Logging" VersionOverride="10.0.7" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="../Ferret.Core.IntegrationTests/GlobalUsings.cs" Link="GlobalUsings.cs" />

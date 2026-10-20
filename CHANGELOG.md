@@ -19,6 +19,13 @@ Ferret is pre-1.0 — see `VERSIONING.md` for what that means for breaking chang
   is now `internal` (breaking, pre-1.0). These types had no downstream consumers and were
   shipped public by accident.
 
+- Dependency updates: `Microsoft.Extensions.AI.Abstractions` minimum raised 9.7 → 10.11
+  (consumers must be on 10.11 or later); EF Core / Npgsql to 10.0.13 / 10.0.3 and
+  `Microsoft.Extensions.*` to 10.0.13.
+- Releases are now published via NuGet trusted publishing, with GitHub build provenance
+  attestations; the attested `.nupkg` files are attached to each GitHub release. See
+  `SECURITY.md`.
+
 ### Fixed
 
 - Vector offset-paging now returns a true `TotalCount`/`HasMore` instead of undercounting
@@ -44,5 +51,6 @@ Ferret is pre-1.0 — see `VERSIONING.md` for what that means for breaking chang
 
 ### Documentation
 
+- Added `SECURITY.md` (vulnerability reporting and release verification).
 - Operator table, backend-choice guidance, `IFerretQueryService` xml-docs, and round-trip
   claim scoping.
