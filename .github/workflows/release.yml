@@ -20,9 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      checks: read          # read ci-ok check-run on the tag commit
-      id-token: write       # build provenance attestation
-      attestations: write
+      checks: read          # read ci-ok check-run on the tag commit / PR head
+      pull-requests: read   # find the merged PR for the tag commit
     env:
       TAG: ${{ inputs.tag }}
     steps:
@@ -45,16 +44,23 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           sha=$(git rev-parse HEAD)
-          ok=$(gh api "repos/${REPO}/commits/${sha}/check-runs?check_name=ci-ok&per_page=100" \
-            --jq '[.check_runs[] | select(.conclusion == "success")] | length')
-          if [ "$ok" -lt 1 ]; then
-            echo "::error::No successful 'ci-ok' check run on ${sha} (tag ${TAG}). Merge via PR / wait for CI first."
-            exit 1
-          fi
+          # Only count check runs created by GitHub Actions, so a fork PR cannot spoof `ci-ok`.
+          ci_ok() {
+            gh api "repos/${REPO}/commits/$1/check-runs?check_name=ci-ok&per_page=100" \
+              --jq '[.check_runs[] | select(.conclusion == "success" and .app.slug == "github-actions")] | length'
+          }
+          if [ "$(ci_ok "$sha")" -ge 1 ]; then exit 0; fi
+          # Bot-merged (GITHUB_TOKEN) squash commits get no push CI: accept ci-ok on the merged PR's head instead.
+          for head in $(gh api "repos/${REPO}/commits/${sha}/pulls" \
+            --jq '.[] | select(.merged_at != null and .base.ref == "main") | .head.sha'); do
+            if [ "$(ci_ok "$head")" -ge 1 ]; then exit 0; fi
+          done
+          echo "::error::No successful 'ci-ok' on ${sha} or its merged PR head (tag ${TAG}). Merge via PR / wait for CI first."
+          exit 1
 
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.0.x'
+          global-json-file: global.json
 
       - run: dotnet restore Ferret.slnx --locked-mode
       - run: dotnet build Ferret.slnx -c Release --no-restore
@@ -69,10 +75,6 @@ jobs:
             ls -1 ./artifacts
             exit 1
           fi
-
-      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
-        with:
-          subject-path: artifacts/*.nupkg
 
       # The GitHub release doubles as the changelog. --generate-notes only lists merged
       # PRs, and this repo commits straight to main — so build the notes from the commit
@@ -129,8 +131,25 @@ jobs:
             notes.md
           if-no-files-found: error
 
-  publish:
+  # No checkout, no project code: only this job holds id-token/attestations.
+  attest:
     needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-files
+
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: artifacts/*.nupkg
+
+  publish:
+    needs: [build, attest]
     runs-on: ubuntu-latest
     environment: release
     permissions:
@@ -161,4 +180,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
-        run: gh release create "$TAG" --repo "$REPO" --verify-tag --notes-file notes.md --title "$TAG"
+        # Attach the exact attested bytes (nuget.org repo-signs its copies, so they differ).
+        run: gh release create "$TAG" artifacts/*.nupkg artifacts/*.snupkg --repo "$REPO" --verify-tag --notes-file notes.md --title "$TAG"

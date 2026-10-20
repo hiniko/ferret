@@ -13,8 +13,13 @@ Do not open a public issue for a suspected vulnerability.
 
 ## Verifying releases
 
-Published `.nupkg` files carry build provenance attestations. Verify a downloaded package with:
+Release packages carry build provenance attestations. The attested files are attached to each
+GitHub release; verify them with:
 
 ```sh
+gh release download <tag> --repo hiniko/ferret -p '*.nupkg'
 gh attestation verify <package>.nupkg --repo hiniko/ferret
 ```
+
+Copies on nuget.org are repository-signed by nuget.org, so they will not match the attested
+files byte-for-byte; verify the GitHub release assets instead.
