@@ -31,7 +31,7 @@
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.13" />
     <!-- Direct pin: used directly in FerretEndpointRouteBuilderExtensions. Must stay 2.x
          (Microsoft.AspNetCore.OpenApi 10.0.x requires [2.12.2, 3.0.0)); 2.0.0 has GHSA-v5pm-xwqc-g5wc. -->
-    <PackageVersion Include="Microsoft.OpenApi" Version="2.13.0" />
+    <PackageVersion Include="Microsoft.OpenApi" Version="3.10.2" />
     <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="10.0.13" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.13" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
