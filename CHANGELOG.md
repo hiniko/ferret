@@ -25,6 +25,8 @@ Ferret is pre-1.0 — see `VERSIONING.md` for what that means for breaking chang
 - Releases are now published via NuGet trusted publishing, with GitHub build provenance
   attestations; the attested `.nupkg` files are attached to each GitHub release. See
   `SECURITY.md`.
+- The release workflow now mints the tag itself: run it on `main` with a `version` input; no
+  pre-pushed tag is needed.
 
 ### Fixed
 

@@ -1,16 +1,17 @@
 name: release
-run-name: release ${{ inputs.tag }}
+run-name: release ${{ inputs.version }}
 
-# Manual publish to NuGet. Tag the commit first (e.g. `git tag 0.1.1 && git push origin 0.1.1`),
-# then run this workflow from the Actions tab and enter that tag. The package version is derived
-# from the tag by MinVer (unprefixed, e.g. tag `0.1.1` -> version 0.1.1), so the tag is the source
-# of truth. Publishing is never automatic. Auth to nuget.org is OIDC trusted publishing
-# (no long-lived API key); packages carry build provenance attestations.
+# Manual publish to NuGet, run from `main` only: Actions -> release -> Run workflow (on main),
+# enter the version (e.g. `0.1.1`), then approve the `release` environment deployment. The
+# workflow mints the tag itself: `build` tags HEAD of main locally so MinVer derives the
+# version (unprefixed, e.g. `0.1.1`); `publish` creates that tag on GitHub, pointing at the
+# built SHA, only after approval. Publishing is never automatic. Auth to nuget.org is OIDC
+# trusted publishing (no long-lived API key); packages carry build provenance attestations.
 on:
   workflow_dispatch:
     inputs:
-      tag:
-        description: 'Existing git tag to publish (e.g. 0.1.1)'
+      version:
+        description: 'Version to release; the tag is created from main HEAD (e.g. 0.1.1)'
         required: true
 
 permissions: {}
@@ -22,28 +23,50 @@ jobs:
       contents: read
       checks: read          # read ci-ok check-run on the tag commit / PR head
       pull-requests: read   # find the merged PR for the tag commit
+    outputs:
+      sha: ${{ steps.sha.outputs.sha }}
     env:
-      TAG: ${{ inputs.tag }}
+      VERSION: ${{ inputs.version }}
+      REF: ${{ github.ref }}
     steps:
-      - name: Validate tag
+      - name: Validate version and ref
         run: |
-          if ! [[ "$TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
-            echo "::error::Tag '$TAG' is not a valid version tag (expected e.g. 0.1.1 or 0.1.1-rc.1)."
+          if [ "$REF" != "refs/heads/main" ]; then
+            echo "::error::Release must run from main (got '$REF')."
+            exit 1
+          fi
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Version '$VERSION' is invalid (expected e.g. 0.1.1 or 0.1.1-rc.1)."
             exit 1
           fi
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: refs/tags/${{ inputs.tag }}
+          ref: ${{ github.sha }}
           fetch-depth: 0          # MinVer needs full history + tags to derive the version
           persist-credentials: false
 
-      - name: Require green CI on the tag commit
+      - name: Record SHA and check tag is free
+        id: sha
+        run: |
+          sha=$(git rev-parse HEAD)
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          # Annotated tags list twice: the tag object and the peeled commit (^{}). Prefer the peeled line.
+          remote=$(git ls-remote --tags origin "refs/tags/$VERSION" "refs/tags/$VERSION^{}")
+          target=$(printf '%s\n' "$remote" | awk '/\^\{\}$/ {print $1; exit} END {}')
+          [ -n "$target" ] || target=$(printf '%s\n' "$remote" | awk 'NR==1 {print $1}')
+          if [ -n "$target" ] && [ "$target" != "$sha" ]; then
+            echo "::error::Tag $VERSION already exists on origin at $target, not main HEAD $sha."
+            exit 1
+          fi
+
+      - name: Require green CI on the release commit
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
+          SHA: ${{ steps.sha.outputs.sha }}
         run: |
-          sha=$(git rev-parse HEAD)
+          sha=$SHA
           # Only count check runs created by GitHub Actions, so a fork PR cannot spoof `ci-ok`.
           ci_ok() {
             gh api "repos/${REPO}/commits/$1/check-runs?check_name=ci-ok&per_page=100" \
@@ -55,8 +78,16 @@ jobs:
             --jq '.[] | select(.merged_at != null and .base.ref == "main") | .head.sha'); do
             if [ "$(ci_ok "$head")" -ge 1 ]; then exit 0; fi
           done
-          echo "::error::No successful 'ci-ok' on ${sha} or its merged PR head (tag ${TAG}). Merge via PR / wait for CI first."
+          echo "::error::No successful 'ci-ok' on ${sha} or its merged PR head (version ${VERSION}). Merge via PR / wait for CI first."
           exit 1
+
+      # Local tag only (never pushed from here) so MinVer computes the version. `publish` creates it on GitHub.
+      - name: Tag locally for MinVer
+        env:
+          SHA: ${{ steps.sha.outputs.sha }}
+        run: |
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            tag -a "$VERSION" -m "Ferret $VERSION" "$SHA"
 
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
@@ -68,10 +99,10 @@ jobs:
       - run: dotnet pack Ferret.slnx -c Release --no-build -o ./artifacts
 
       # Fail loudly if the tag did not produce the expected version (MinVer fell back to a height-based pre-release).
-      - name: Verify packed version matches the tag
+      - name: Verify packed version matches the version
         run: |
-          if ! ls "./artifacts/Ferret.Core.${TAG}.nupkg" >/dev/null 2>&1; then
-            echo "::error::No Ferret.Core.${TAG}.nupkg - packed version does not match tag '${TAG}'. Is the tag on this commit?"
+          if ! ls "./artifacts/Ferret.Core.${VERSION}.nupkg" >/dev/null 2>&1; then
+            echo "::error::No Ferret.Core.${VERSION}.nupkg - packed version does not match '${VERSION}'."
             ls -1 ./artifacts
             exit 1
           fi
@@ -81,12 +112,12 @@ jobs:
       # log between the previous tag and this one, grouped by conventional-commit type.
       - name: Build release notes
         env:
-          TAG: ${{ inputs.tag }}
+          SHA: ${{ steps.sha.outputs.sha }}
           SERVER_URL: ${{ github.server_url }}
           REPO: ${{ github.repository }}
         run: |
-          prev=$(git describe --tags --abbrev=0 "${TAG}^" 2>/dev/null || true)
-          range=${prev:+$prev..}${TAG}
+          prev=$(git describe --tags --abbrev=0 "${SHA}^" 2>/dev/null || true)
+          range=${prev:+$prev..}${SHA}
           repo_url="${SERVER_URL}/${REPO}"
 
           # Types that are pure repo plumbing (ci, chore, build, test, style) are collected
@@ -117,7 +148,7 @@ jobs:
           [ -n "$other" ] && printf '### Other\n\n%s\n\n' "$other" >> notes.md || true
 
           [ -s notes.md ] || echo "_No user-facing changes._" >> notes.md
-          [ -n "$prev" ] && printf '**Full Changelog**: %s/compare/%s...%s\n' "$repo_url" "$prev" "$TAG" >> notes.md || true
+          [ -n "$prev" ] && printf '**Full Changelog**: %s/compare/%s...%s\n' "$repo_url" "$prev" "$VERSION" >> notes.md || true
 
           echo "--- release notes ---"
           cat notes.md
@@ -153,14 +184,32 @@ jobs:
     runs-on: ubuntu-latest
     environment: release
     permissions:
-      contents: write       # gh release create
+      contents: write       # create tag ref + gh release create
       id-token: write       # NuGet trusted publishing (OIDC)
     env:
-      TAG: ${{ inputs.tag }}
+      VERSION: ${{ inputs.version }}
+      SHA: ${{ needs.build.outputs.sha }}
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
     steps:
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: release-files
+
+      # Tag the exact built commit on GitHub before anything is published; idempotent for re-runs.
+      - name: Create tag on GitHub
+        run: |
+          if existing=$(gh api "repos/${REPO}/git/ref/tags/${VERSION}" 2>/dev/null); then
+            type=$(jq -r .object.type <<<"$existing")
+            obj=$(jq -r .object.sha <<<"$existing")
+            if [ "$type" = tag ]; then obj=$(gh api "repos/${REPO}/git/tags/${obj}" --jq .object.sha); fi
+            if [ "$obj" = "$SHA" ]; then echo "Tag $VERSION already at $SHA."; exit 0; fi
+            echo "::error::Tag $VERSION exists at $obj, not build SHA $SHA."
+            exit 1
+          fi
+          tag_sha=$(gh api "repos/${REPO}/git/tags" -f tag="$VERSION" -f message="Ferret $VERSION" \
+            -f object="$SHA" -f type=commit --jq .sha)
+          gh api "repos/${REPO}/git/refs" -f ref="refs/tags/$VERSION" -f sha="$tag_sha" >/dev/null
 
       # Short-lived key (1h): request it right before pushing.
       - name: NuGet login (OIDC)
@@ -177,8 +226,10 @@ jobs:
           dotnet nuget push "artifacts/*.snupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Create GitHub release
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
         # Attach the exact attested bytes (nuget.org repo-signs its copies, so they differ).
-        run: gh release create "$TAG" artifacts/*.nupkg artifacts/*.snupkg --repo "$REPO" --verify-tag --notes-file notes.md --title "$TAG"
+        run: |
+          if gh release view "$VERSION" --repo "$REPO" >/dev/null 2>&1; then
+            echo "Release $VERSION already exists."
+            exit 0
+          fi
+          gh release create "$VERSION" artifacts/*.nupkg artifacts/*.snupkg --repo "$REPO" --verify-tag --notes-file notes.md --title "$VERSION"
