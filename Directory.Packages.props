@@ -24,7 +24,8 @@
     <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.1" />
     <PackageVersion Include="Xunit.SkippableFact" Version="1.5.85" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
-    <PackageVersion Include="FluentAssertions" Version="7.2.2" />
+    <!-- Capped below 8: v8+ moved to a commercial licence. -->
+    <PackageVersion Include="FluentAssertions" Version="[7.2.2,8.0.0)" />
     <PackageVersion Include="Testcontainers.PostgreSql" Version="4.16.0" />
     <PackageVersion Include="Testcontainers.Ollama" Version="4.16.0" />
     <PackageVersion Include="Verify.Xunit" Version="31.12.5" />

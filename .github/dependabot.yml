@@ -14,6 +14,13 @@ updates:
     groups:
       nuget-minor-patch:
         update-types: [minor, patch]
+    ignore:
+      # v8+ moved to a commercial licence.
+      - dependency-name: FluentAssertions
+        versions: [">= 8.0.0"]
+      # Microsoft.AspNetCore.OpenApi 10.x requires Microsoft.OpenApi < 3.0.0; lift when it allows 3.x.
+      - dependency-name: Microsoft.OpenApi
+        versions: [">= 3.0.0"]
 
   - package-ecosystem: github-actions
     directory: "/"
